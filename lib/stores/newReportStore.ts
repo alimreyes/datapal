@@ -31,7 +31,8 @@ interface NewReportState {
   isStep4Valid: () => boolean;
 }
 
-const initialFileState = {
+// Function to create a fresh file state (prevents reference sharing)
+const getInitialFileState = () => ({
   reach: null,
   impressions: null,
   interactions: null,
@@ -39,13 +40,13 @@ const initialFileState = {
   content: null,
   linkClicks: null,
   visits: null,
-};
+});
 
 export const useNewReportStore = create<NewReportState>((set, get) => ({
   objective: null,
   platforms: [],
-  instagramFiles: { ...initialFileState },
-  facebookFiles: { ...initialFileState },
+  instagramFiles: getInitialFileState(),
+  facebookFiles: getInitialFileState(),
 
   setObjective: (objective) => set({ objective }),
   
@@ -71,8 +72,8 @@ export const useNewReportStore = create<NewReportState>((set, get) => ({
     set({
       objective: null,
       platforms: [],
-      instagramFiles: { ...initialFileState },
-      facebookFiles: { ...initialFileState },
+      instagramFiles: getInitialFileState(),
+      facebookFiles: getInitialFileState(),
     }),
   
   // Validations
