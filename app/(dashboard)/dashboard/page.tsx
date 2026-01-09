@@ -23,19 +23,21 @@ export default function DashboardPage() {
 
       {/* Quick Actions */}
       <div className="grid gap-4 md:grid-cols-3">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <PlusCircle className="h-6 w-6 text-blue-600" />
+        <Link href="/new-report/step-1">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <div className="bg-blue-100 p-3 rounded-lg">
+                  <PlusCircle className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Nuevo Reporte</CardTitle>
+                  <CardDescription>Crea un reporte desde cero</CardDescription>
+                </div>
               </div>
-              <div>
-                <CardTitle className="text-lg">Nuevo Reporte</CardTitle>
-                <CardDescription>Crea un reporte desde cero</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+            </CardHeader>
+          </Card>
+        </Link>
 
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
@@ -76,13 +78,15 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mb-6 text-center max-w-md">
             Comienza creando tu primer reporte de Instagram o Facebook. Solo necesitas subir tus archivos CSV y nosotros hacemos el resto.
           </p>
-          <Button 
-            size="lg" 
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-          >
-            <PlusCircle className="mr-2 h-5 w-5" />
-            Crear mi primer reporte
-          </Button>
+          <Link href="/new-report/step-1">
+            <Button 
+              size="lg" 
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            >
+              <PlusCircle className="mr-2 h-5 w-5" />
+              Crear mi primer reporte
+            </Button>
+          </Link>
         </CardContent>
       </Card>
 
