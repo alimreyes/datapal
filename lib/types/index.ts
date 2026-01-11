@@ -34,19 +34,25 @@ export interface Report {
   updatedAt: Timestamp;
   customization: ReportCustomization;
   data: ReportData;
-  aiInsights: AIInsights | null;
+  aiInsights?: string | null;
 }
 
 // ==================== DATA TYPES ====================
 
 export interface PlatformData {
-  reach: DataPoint[];
-  impressions: DataPoint[];
-  interactions: DataPoint[];
-  followers: DataPoint[];
-  content: ContentData[];
-  linkClicks: DataPoint[];
-  visits: DataPoint[];
+  reach?: DataPoint[];
+  reachStats?: DataStats;
+  impressions?: DataPoint[];
+  impressionsStats?: DataStats;
+  interactions?: DataPoint[];
+  interactionsStats?: DataStats;
+  followers?: DataPoint[];
+  followersStats?: DataStats;
+  content?: ContentData[];
+  linkClicks?: DataPoint[];
+  linkClicksStats?: DataStats;
+  visits?: DataPoint[];
+  visitsStats?: DataStats;
 }
 
 export interface ReportData {
@@ -59,17 +65,28 @@ export interface DataPoint {
   value: number;
 }
 
+export interface DataStats {
+  total: number;
+  average: number;
+  max: number;
+  min: number;
+  trend: number;
+}
+
 export interface ContentData {
   id: string;
-  type: 'post' | 'story' | 'reel' | 'video';
-  caption?: string;
+  postType: string;
+  description?: string;
+  publishedAt: string;
+  permalink: string;
   date: string;
-  reach: number;
   impressions: number;
+  reach: number;
   likes: number;
   comments: number;
   shares: number;
-  saves: number;
+  saves?: number;
+  videoViews?: number;
 }
 
 // ==================== AI INSIGHTS TYPES ====================
