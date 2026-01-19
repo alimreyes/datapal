@@ -30,7 +30,6 @@ const categoryLabels = {
   interactions: 'Interacciones',
   followers: 'Seguidores',
   content: 'Contenido',
-  linkClicks: 'Clics en el enlace',
   visits: 'Visitas',
 };
 
@@ -147,13 +146,7 @@ export default function Step5Page() {
           processedData.instagram.followers = followers.data;
           processedData.instagram.followersStats = followers.stats;
         }
-        
-        const linkClicks = await processTemporalFile(instagramFiles.linkClicks);
-        if (linkClicks) {
-          processedData.instagram.linkClicks = linkClicks.data;
-          processedData.instagram.linkClicksStats = linkClicks.stats;
-        }
-        
+
         const visits = await processTemporalFile(instagramFiles.visits);
         if (visits) {
           processedData.instagram.visits = visits.data;
@@ -195,13 +188,7 @@ export default function Step5Page() {
           processedData.facebook.followers = followers.data;
           processedData.facebook.followersStats = followers.stats;
         }
-        
-        const linkClicks = await processTemporalFile(facebookFiles.linkClicks);
-        if (linkClicks) {
-          processedData.facebook.linkClicks = linkClicks.data;
-          processedData.facebook.linkClicksStats = linkClicks.stats;
-        }
-        
+
         const visits = await processTemporalFile(facebookFiles.visits);
         if (visits) {
           processedData.facebook.visits = visits.data;
@@ -215,12 +202,21 @@ export default function Step5Page() {
         }
       }
 
+      // Generar título automático basado en fecha
+      const now = new Date();
+      const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                          'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+      const title = `Reporte ${monthNames[now.getMonth()]} ${now.getFullYear()}`;
+
       // Crear documento del reporte en Firestore con data ya procesada
       const reportData = {
         userId: user.uid,
+        title: title,
         objective: objective,
         platforms: platforms,
         status: 'ready' as const,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
         customization: {
           creative: 3,
           analytical: 3,

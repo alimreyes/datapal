@@ -8,11 +8,32 @@ export interface User {
   displayName: string;
   createdAt: Timestamp;
   subscription: 'free' | 'pro';
+  tokens?: number; // Tokens para regenerar insights
+}
+
+// ==================== NOTE TYPES ====================
+
+export interface ReportNote {
+  id: string;
+  userId: string;
+  reportId: string;
+  content: string;
+  createdAt: Timestamp | Date;
+  updatedAt: Timestamp | Date;
 }
 
 // ==================== REPORT TYPES ====================
 
-export type ReportObjective = 'analysis' | 'improvements' | 'monthly_report';
+export type ReportObjective = 
+  | 'analysis' 
+  | 'improvements' 
+  | 'monthly_report'
+  | 'brand-awareness'
+  | 'engagement'
+  | 'traffic'
+  | 'conversions'
+  | 'sales';
+  
 export type Platform = 'instagram' | 'facebook';
 export type ReportStatus = 'uploading' | 'processing' | 'ready' | 'error';
 
@@ -27,12 +48,13 @@ export interface ReportCustomization {
 export interface Report {
   id: string;
   userId: string;
+  title: string;
   objective: ReportObjective;
   platforms: Platform[];
   status: ReportStatus;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
-  customization: ReportCustomization;
+  createdAt: Timestamp | Date | string;
+  updatedAt: Timestamp | Date | string;
+  customization?: ReportCustomization;
   data: ReportData;
   aiInsights?: string | null;
 }
@@ -49,8 +71,6 @@ export interface PlatformData {
   followers?: DataPoint[];
   followersStats?: DataStats;
   content?: ContentData[];
-  linkClicks?: DataPoint[];
-  linkClicksStats?: DataStats;
   visits?: DataPoint[];
   visitsStats?: DataStats;
 }
@@ -101,13 +121,12 @@ export interface AIInsights {
 
 // ==================== UPLOAD TYPES ====================
 
-export type CSVCategory = 
+export type CSVCategory =
   | 'reach'
   | 'impressions'
   | 'interactions'
   | 'followers'
   | 'content'
-  | 'linkClicks'
   | 'visits';
 
 export interface UploadedFile {

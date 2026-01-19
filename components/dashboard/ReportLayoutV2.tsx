@@ -1,0 +1,189 @@
+'use client';
+
+import { useState } from 'react';
+import { ChevronLeft, ChevronRight, Instagram, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import Link from 'next/link';
+
+interface ReportLayoutV2Props {
+  reportTitle: string;
+  dateRange: string;
+  platforms: string[]; // ['instagram', 'facebook']
+  clientLogo?: string;
+  onTitleChange?: (title: string) => void;
+  onSave?: () => void;
+  onExportPDF?: () => void;
+  isSaving?: boolean;
+  children: React.ReactNode;
+}
+
+export default function ReportLayoutV2({
+  reportTitle,
+  dateRange,
+  platforms,
+  clientLogo,
+  onTitleChange,
+  onSave,
+  onExportPDF,
+  isSaving = false,
+  children,
+}: ReportLayoutV2Props) {
+  const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState(reportTitle);
+
+  const handleTitleSave = () => {
+    if (onTitleChange && editedTitle.trim()) {
+      onTitleChange(editedTitle);
+    }
+    setIsEditingTitle(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* NUEVO HEADER HORIZONTAL */}
+      <div className="bg-white border-b-2 border-gray-200 px-6 py-4">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          {/* Logo DataPal - Clickeable */}
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-lg font-bold text-gray-900">DataPal</span>
+          </Link>
+
+          {/* Logo Usuario/Cliente */}
+          <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300">
+            {clientLogo ? (
+              <Image src={clientLogo} alt="Logo" width={32} height={32} className="rounded" />
+            ) : (
+              <div className="w-8 h-8 bg-gray-300 rounded flex items-center justify-center">
+                <span className="text-xs text-gray-600">Logo</span>
+              </div>
+            )}
+            <span className="text-sm text-gray-700">Usuario</span>
+          </div>
+
+          {/* Título Editable */}
+          <div className="flex-1 min-w-[200px] max-w-[400px]">
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={editedTitle}
+                onChange={(e) => setEditedTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleTitleSave();
+                  if (e.key === 'Escape') {
+                    setEditedTitle(reportTitle);
+                    setIsEditingTitle(false);
+                  }
+                }}
+                onBlur={handleTitleSave}
+                className="w-full px-3 py-2 border-2 border-purple-500 rounded-lg text-sm font-medium focus:outline-none"
+                autoFocus
+              />
+            ) : (
+              <button
+                onClick={() => setIsEditingTitle(true)}
+                className="text-sm font-medium text-gray-900 hover:text-purple-600 transition-colors"
+              >
+                {reportTitle}
+              </button>
+            )}
+          </div>
+
+          {/* Grid 2x2 (Visual) */}
+          <div className="grid grid-cols-2 gap-1 w-10 h-10">
+            <div className="bg-purple-200 rounded-sm"></div>
+            <div className="bg-pink-200 rounded-sm"></div>
+            <div className="bg-blue-200 rounded-sm"></div>
+            <div className="bg-green-200 rounded-sm"></div>
+          </div>
+
+          {/* Botones de Acción */}
+          <div className="flex gap-2">
+            {onSave && (
+              <Button
+                onClick={onSave}
+                disabled={isSaving}
+                size="sm"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                {isSaving ? 'Guardando...' : 'Guardar Reporte'}
+              </Button>
+            )}
+            {onExportPDF && (
+              <Button
+                onClick={onExportPDF}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                Exportar PDF
+              </Button>
+            )}
+          </div>
+
+          {/* Logos RRSS Analizadas - SIEMPRE VISIBLES */}
+          <div className="flex items-center gap-2">
+            {platforms.includes('instagram') && (
+              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg border border-purple-300">
+                <Instagram className="w-5 h-5 text-purple-600" />
+              </div>
+            )}
+            {platforms.includes('facebook') && (
+              <div className="p-2 bg-blue-100 rounded-lg border border-blue-300">
+                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* CONTENIDO CON NAVEGACIÓN */}
+      <div className="relative">
+        {/* Contenido de la página actual */}
+        <div className="max-w-[1600px] mx-auto p-6">
+          {children}
+        </div>
+
+        {/* Botones de Navegación - Flechas */}
+        <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-4">
+          <button
+            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+            disabled={currentPage === 0}
+            className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
+              currentPage === 0
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-white hover:bg-gray-100 hover:shadow-xl'
+            }`}
+            title="Página anterior"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-700" />
+          </button>
+          <button
+            onClick={() => setCurrentPage(Math.min(1, currentPage + 1))}
+            disabled={currentPage === 1}
+            className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
+              currentPage === 1
+                ? 'bg-gray-300 cursor-not-allowed'
+                : 'bg-white hover:bg-gray-100 hover:shadow-xl'
+            }`}
+            title="Página siguiente"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-700" />
+          </button>
+        </div>
+
+        {/* Indicador de Página */}
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white px-4 py-2 rounded-full shadow-lg border border-gray-200">
+          <span className="text-sm font-medium text-gray-700">
+            Hoja {currentPage + 1} de 2
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}

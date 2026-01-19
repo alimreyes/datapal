@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Sparkles, RefreshCw, Loader2, AlertCircle } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, CheckCircle2, Zap } from 'lucide-react';
 import { Report } from '@/lib/types';
-import { updateDocument } from '@/lib/firebase/firestore';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase/config';
 
 interface AIInsightsProps {
   report: Report;
@@ -14,40 +14,40 @@ interface AIInsightsProps {
   onInsightsGenerated?: () => void;
 }
 
-export function AIInsights({ report, reportId, onInsightsGenerated }: AIInsightsProps) {
+export default function AIInsights({ report, reportId, onInsightsGenerated }: AIInsightsProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [insights, setInsights] = useState<string | null>(report.aiInsights || null);
 
-  const generateInsights = async () => {
+  const handleGenerateInsights = async () => {
     setIsGenerating(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/generate-insights', {
+      // Step 1: Generate insights using Claude API (server-side)
+      const response = await fetch('/api/insights', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          reportData: report.data,
+          reportData: report,
         }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al generar insights');
+        throw new Error(data.error || 'Error al generar insights');
       }
 
-      const data = await response.json();
-      
-      // Save insights to Firestore
-      await updateDocument('reports', reportId, {
-        aiInsights: data.insights,
+      // Step 2: Save insights to Firestore (client-side with auth)
+      const reportRef = doc(db, 'reports', reportId);
+      await updateDoc(reportRef, {
+        aiInsights: data.insight,
+        aiInsightsGeneratedAt: new Date().toISOString(),
       });
 
-      setInsights(data.insights);
-      
+      // Step 3: Refresh report data
       if (onInsightsGenerated) {
         onInsightsGenerated();
       }
@@ -59,98 +59,107 @@ export function AIInsights({ report, reportId, onInsightsGenerated }: AIInsights
     }
   };
 
-  // Parse insights into sections
-  const parseInsights = (text: string) => {
-    const sections = text.split(/\d+\.\s+/).filter(Boolean);
-    return sections;
-  };
-
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-purple-500" />
-            Insights con IA
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Análisis automático generado por Gemini
-          </p>
-        </div>
-        <Button
-          onClick={generateInsights}
-          disabled={isGenerating}
-          variant={insights ? "outline" : "default"}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Generando...
-            </>
-          ) : insights ? (
-            <>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Regenerar
-            </>
-          ) : (
-            <>
-              <Sparkles className="mr-2 h-4 w-4" />
-              Generar Insights
-            </>
-          )}
-        </Button>
-      </div>
-
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {insights ? (
-        <Card className="bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-purple-500" />
-              Análisis IA
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <div className="whitespace-pre-wrap text-sm leading-relaxed">
-                {insights}
-              </div>
+    <Card className="border-2 border-indigo-300 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 shadow-lg">
+      <CardHeader className="border-b border-indigo-200 bg-white/50">
+        <CardTitle className="flex items-center gap-3 text-indigo-900">
+          <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg">
+            <Sparkles className="w-6 h-6 text-white" />
+          </div>
+          Insights con IA
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6 space-y-4">
+        {/* AI Insights Content */}
+        {report.aiInsights ? (
+          <div className="space-y-4">
+            <div className="p-5 bg-white rounded-xl border-2 border-indigo-200 shadow-sm">
+              <p className="text-gray-800 leading-relaxed text-base">{report.aiInsights}</p>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Sparkles className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">
-              Genera insights con IA
-            </h3>
-            <p className="text-sm text-muted-foreground mb-4 max-w-md">
-              Obtén un análisis profesional de tus datos con recomendaciones 
-              personalizadas generadas por inteligencia artificial
-            </p>
-            <Button onClick={generateInsights} disabled={isGenerating}>
+
+            {/* Success indicator */}
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-green-600" />
+              <span className="text-sm text-gray-700 font-medium">
+                Análisis generado con éxito
+              </span>
+            </div>
+
+            {/* Powered by section - Professional branding */}
+            <div className="pt-3 border-t border-indigo-200">
+              <div className="flex items-center justify-center gap-2 text-sm">
+                <Zap className="w-4 h-4 text-indigo-600" />
+                <span className="text-gray-600">Powered by</span>
+                <span className="font-semibold text-indigo-700">Claude Sonnet 4.5</span>
+                <span className="text-gray-600">by Anthropic</span>
+              </div>
+              <p className="text-xs text-center text-gray-500 mt-1">
+                Ranked #1 AI for professional analysis by Forbes & The Economist
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <div className="text-center space-y-2">
+              <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+                <Sparkles className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Análisis Profesional con IA
+              </h3>
+              <p className="text-gray-600 max-w-md mx-auto">
+                Genera insights accionables analizando tus métricas con inteligencia artificial de última generación.
+              </p>
+            </div>
+            
+            <Button
+              onClick={handleGenerateInsights}
+              disabled={isGenerating}
+              className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:via-purple-700 hover:to-pink-700 text-white font-medium py-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            >
               {isGenerating ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generando...
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Generando insights...
                 </>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-4 w-4" />
-                  Generar Insights
+                  <Sparkles className="mr-2 h-5 w-5" />
+                  Generar Insights con IA
                 </>
               )}
             </Button>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+
+            {/* Powered by section - Pre-generation */}
+            <div className="pt-2">
+              <div className="flex items-center justify-center gap-2 text-sm">
+                <Zap className="w-4 h-4 text-indigo-600" />
+                <span className="text-gray-600">Powered by</span>
+                <span className="font-semibold text-indigo-700">Claude Sonnet 4.5</span>
+                <span className="text-gray-600">by Anthropic</span>
+              </div>
+              <p className="text-xs text-center text-gray-500 mt-1">
+                Ranked #1 AI for professional analysis by Forbes & The Economist
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Error message */}
+        {error && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 border-2 border-red-200 rounded-xl">
+            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-900">{error}</p>
+              {error.includes('API key') && (
+                <p className="text-xs text-red-700 mt-2">
+                  Verifica que ANTHROPIC_API_KEY esté configurada en .env.local
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

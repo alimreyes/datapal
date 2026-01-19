@@ -38,7 +38,6 @@ const getInitialFileState = () => ({
   interactions: null,
   followers: null,
   content: null,
-  linkClicks: null,
   visits: null,
 });
 

@@ -36,11 +36,6 @@ const csvCategories: { id: CSVCategory; label: string; description: string }[] =
     description: 'Rendimiento individual de cada publicación',
   },
   {
-    id: 'linkClicks',
-    label: 'Clics en el enlace',
-    description: 'Clicks en enlaces de tus publicaciones',
-  },
-  {
     id: 'visits',
     label: 'Visitas',
     description: 'Visitas a tu página y engagement',

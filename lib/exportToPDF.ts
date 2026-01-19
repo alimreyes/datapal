@@ -1,183 +1,232 @@
-import jsPDF from 'jspdf';
+// lib/utils/exportPDF.ts
 import html2canvas from 'html2canvas';
-import { Report } from '@/lib/types';
-import { formatNumber, formatDate } from './parsers/metaParser';
+import jsPDF from 'jspdf';
+import type { Report } from './types';
 
-export const exportToPDF = async (report: Report, reportId: string) => {
+/**
+ * Exporta un reporte a PDF desde la página principal
+ * Abre el reporte en una nueva ventana y genera el PDF
+ * @param report - El reporte a exportar
+ * @param reportId - ID del reporte
+ */
+export async function exportToPDF(report: Report, reportId: string) {
   try {
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 15;
-    let yPosition = margin;
+    // Abrir el reporte en una nueva ventana
+    const reportWindow = window.open(`/report/${reportId}`, '_blank');
 
-    // Helper to add new page if needed
-    const checkPageBreak = (requiredSpace: number) => {
-      if (yPosition + requiredSpace > pageHeight - margin) {
-        pdf.addPage();
-        yPosition = margin;
-        return true;
-      }
-      return false;
-    };
-
-    // Helper to add text with wrapping
-    const addText = (text: string, fontSize: number = 10, isBold: boolean = false) => {
-      pdf.setFontSize(fontSize);
-      pdf.setFont('helvetica', isBold ? 'bold' : 'normal');
-      
-      const lines = pdf.splitTextToSize(text, pageWidth - 2 * margin);
-      const lineHeight = fontSize * 0.4;
-      
-      lines.forEach((line: string) => {
-        checkPageBreak(lineHeight);
-        pdf.text(line, margin, yPosition);
-        yPosition += lineHeight;
-      });
-      
-      yPosition += 3; // Extra spacing after text block
-    };
-
-    // Cover Page
-    pdf.setFillColor(59, 130, 246); // Blue
-    pdf.rect(0, 0, pageWidth, 80, 'F');
-    
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFontSize(32);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Reporte DataPal', pageWidth / 2, 40, { align: 'center' });
-    
-    pdf.setFontSize(14);
-    pdf.setFont('helvetica', 'normal');
-    const objectiveLabels: any = {
-      analysis: 'Análisis de Resultados',
-      improvements: 'Evidenciar Mejoras Realizadas',
-      monthly_report: 'Crear Reporte del Mes',
-    };
-    pdf.text(objectiveLabels[report.objective] || report.objective, pageWidth / 2, 55, { align: 'center' });
-    
-    pdf.setFontSize(12);
-    const date = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-    pdf.text(date, pageWidth / 2, 65, { align: 'center' });
-    
-    yPosition = 100;
-    pdf.setTextColor(0, 0, 0);
-
-    // Executive Summary
-    pdf.setFontSize(20);
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Resumen Ejecutivo', margin, yPosition);
-    yPosition += 10;
-    pdf.setDrawColor(59, 130, 246);
-    pdf.setLineWidth(0.5);
-    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-    yPosition += 8;
-
-    // Calculate totals
-    const igTotalReach = report.data?.instagram?.reachStats?.total || 0;
-    const fbTotalReach = report.data?.facebook?.reachStats?.total || 0;
-    const totalReach = igTotalReach + fbTotalReach;
-    
-    const igTotalImpressions = report.data?.instagram?.impressionsStats?.total || 0;
-    const fbTotalImpressions = report.data?.facebook?.impressionsStats?.total || 0;
-    const totalImpressions = igTotalImpressions + fbTotalImpressions;
-    
-    const igTotalInteractions = report.data?.instagram?.interactionsStats?.total || 0;
-    const fbTotalInteractions = report.data?.facebook?.interactionsStats?.total || 0;
-    const totalInteractions = igTotalInteractions + fbTotalInteractions;
-    
-    const engagementRate = totalReach > 0 
-      ? ((totalInteractions / totalReach) * 100).toFixed(2)
-      : '0.00';
-
-    addText(`Alcance Total: ${formatNumber(totalReach)} personas`, 12, true);
-    addText(`Visualizaciones: ${formatNumber(totalImpressions)}`, 12, true);
-    addText(`Interacciones: ${formatNumber(totalInteractions)}`, 12, true);
-    addText(`Engagement Rate: ${engagementRate}%`, 12, true);
-    
-    yPosition += 5;
-
-    // Platform Breakdown
-    if (report.data?.instagram) {
-      checkPageBreak(30);
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('📸 Instagram', margin, yPosition);
-      yPosition += 8;
-      
-      addText(`Alcance: ${formatNumber(igTotalReach)}`);
-      addText(`Visualizaciones: ${formatNumber(igTotalImpressions)}`);
-      addText(`Interacciones: ${formatNumber(igTotalInteractions)}`);
-      
-      if (report.data.instagram.content) {
-        addText(`Publicaciones: ${report.data.instagram.content.length}`);
-      }
-      
-      yPosition += 5;
+    if (!reportWindow) {
+      throw new Error('No se pudo abrir la ventana del reporte. Por favor, permite las ventanas emergentes.');
     }
 
-    if (report.data?.facebook) {
-      checkPageBreak(30);
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('👍 Facebook', margin, yPosition);
-      yPosition += 8;
-      
-      addText(`Espectadores: ${formatNumber(fbTotalReach)}`);
-      addText(`Visualizaciones: ${formatNumber(fbTotalImpressions)}`);
-      addText(`Interacciones: ${formatNumber(fbTotalInteractions)}`);
-      
-      if (report.data.facebook.content) {
-        addText(`Publicaciones: ${report.data.facebook.content.length}`);
-      }
-      
-      yPosition += 5;
-    }
-
-    // AI Insights
-    if (report.aiInsights) {
-      checkPageBreak(40);
-      pdf.setFontSize(20);
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('✨ Insights con IA', margin, yPosition);
-      yPosition += 10;
-      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 8;
-      
-      // Add AI insights with proper formatting
-      const insightsLines: string[] = report.aiInsights.split('\n').filter((line: string) => line.trim());
-      insightsLines.forEach((line: string) => {
-        if (line.match(/^\d+\./)) {
-          // Section header
-          checkPageBreak(15);
-          yPosition += 3;
-          addText(line, 12, true);
-        } else if (line.startsWith('-')) {
-          // Bullet point
-          addText(line, 10, false);
-        } else if (line.trim()) {
-          // Regular text
-          addText(line, 10, false);
+    // Esperar a que la ventana cargue y luego exportar
+    reportWindow.addEventListener('load', () => {
+      setTimeout(() => {
+        // Llamar a la función de exportación en la ventana del reporte
+        if (reportWindow.document.getElementById('export-pdf-button')) {
+          reportWindow.document.getElementById('export-pdf-button')?.click();
         }
-      });
+      }, 2000);
+    });
+
+    return true;
+  } catch (error) {
+    console.error('Error al exportar PDF:', error);
+    throw error;
+  }
+}
+
+/**
+ * Exporta el contenido del dashboard a PDF
+ * @param reportTitle - Título del reporte para el nombre del archivo
+ */
+export async function exportDashboardToPDF(reportTitle: string = 'Reporte DataPal') {
+  try {
+    // Obtener el elemento del dashboard
+    const dashboardElement = document.getElementById('dashboard-content');
+    
+    if (!dashboardElement) {
+      throw new Error('No se encontró el elemento del dashboard');
     }
 
-    // Footer on last page
-    pdf.setFontSize(8);
-    pdf.setTextColor(128, 128, 128);
-    pdf.text(
-      `Generado por DataPal - ${date}`,
-      pageWidth / 2,
-      pageHeight - 10,
-      { align: 'center' }
-    );
+    // Mostrar mensaje de loading
+    const loadingToast = document.createElement('div');
+    loadingToast.className = 'fixed top-4 right-4 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
+    loadingToast.innerHTML = `
+      <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+      <span>Generando PDF...</span>
+    `;
+    document.body.appendChild(loadingToast);
 
-    // Save PDF
-    pdf.save(`DataPal_Reporte_${reportId}.pdf`);
+    // Capturar el contenido como imagen con alta calidad
+    const canvas = await html2canvas(dashboardElement, {
+      scale: 2, // Mayor calidad
+      useCORS: true,
+      logging: true, // Activar logging para debug
+      backgroundColor: '#f9fafb',
+      windowWidth: dashboardElement.scrollWidth,
+      windowHeight: dashboardElement.scrollHeight,
+      onclone: (clonedDoc) => {
+        // Forzar conversión de TODOS los estilos a inline para evitar problemas con colores modernos
+        const clonedElement = clonedDoc.getElementById('dashboard-content');
+        if (clonedElement) {
+          // Remover todas las hojas de estilo que puedan tener colores problemáticos
+          const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
+          stylesheets.forEach(sheet => {
+            const parent = sheet.parentNode;
+            if (parent) {
+              parent.removeChild(sheet);
+            }
+          });
+
+          // Aplicar estilos inline seguros para evitar problemas de color parsing
+          const allElements = clonedElement.getElementsByTagName('*');
+          for (let i = 0; i < allElements.length; i++) {
+            const el = allElements[i] as HTMLElement;
+
+            try {
+              const computedStyle = window.getComputedStyle(el);
+
+              // Lista de propiedades de estilo a copiar
+              const styleProps = [
+                'backgroundColor',
+                'color',
+                'borderColor',
+                'borderTopColor',
+                'borderRightColor',
+                'borderBottomColor',
+                'borderLeftColor',
+                'outlineColor',
+                'fontSize',
+                'fontWeight',
+                'padding',
+                'margin',
+                'width',
+                'height',
+                'display',
+                'flexDirection',
+                'alignItems',
+                'justifyContent',
+              ];
+
+              // Aplicar cada propiedad como inline style
+              styleProps.forEach(prop => {
+                const value = computedStyle.getPropertyValue(prop);
+                if (value) {
+                  // Convertir colores oklch/lab a rgb si es necesario
+                  if (prop.includes('Color') || prop.includes('color')) {
+                    if (value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
+                      el.style.setProperty(prop, value);
+                    }
+                  } else {
+                    el.style.setProperty(prop, value);
+                  }
+                }
+              });
+
+              // Forzar colores RGB para gradientes problemáticos
+              const backgroundImage = computedStyle.backgroundImage;
+              if (backgroundImage && backgroundImage !== 'none') {
+                el.style.backgroundImage = backgroundImage;
+              }
+            } catch (err) {
+              console.warn('Error applying styles to element:', el, err);
+            }
+          }
+        }
+      },
+    });
+
+    // Crear PDF
+    const imgData = canvas.toDataURL('image/png');
     
-    return { success: true };
-  } catch (error: any) {
-    console.error('Error generating PDF:', error);
-    return { success: false, error: error.message };
+    // Dimensiones A4 en mm
+    const pdfWidth = 210;
+    const pdfHeight = 297;
+    
+    // Calcular dimensiones de la imagen para ajustar al PDF
+    const imgWidth = pdfWidth - 20; // Márgenes de 10mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    
+    // Crear PDF en orientación que mejor se ajuste
+    const orientation = imgHeight > pdfHeight ? 'portrait' : 'portrait';
+    const pdf = new jsPDF(orientation, 'mm', 'a4');
+    
+    // Si la imagen es más alta que una página, dividir en múltiples páginas
+    let heightLeft = imgHeight;
+    let position = 10; // Margen superior
+    
+    // Agregar primera página
+    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+    heightLeft -= (pdfHeight - 20);
+    
+    // Agregar páginas adicionales si es necesario
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + 10;
+      pdf.addPage();
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pdfHeight - 20);
+    }
+
+    // Agregar metadatos al PDF
+    pdf.setProperties({
+      title: reportTitle,
+      subject: 'Reporte de Analytics - Instagram y Facebook',
+      author: 'DataPal',
+      keywords: 'analytics, instagram, facebook, redes sociales',
+      creator: 'DataPal - Plataforma de Analytics con IA',
+    });
+
+    // Generar nombre de archivo seguro
+    const safeFileName = reportTitle
+      .replace(/[^a-z0-9]/gi, '_')
+      .toLowerCase()
+      .substring(0, 50);
+    
+    const fileName = `${safeFileName}_${new Date().toISOString().split('T')[0]}.pdf`;
+    
+    // Descargar el PDF
+    pdf.save(fileName);
+
+    // Remover loading toast
+    document.body.removeChild(loadingToast);
+
+    // Mostrar mensaje de éxito
+    const successToast = document.createElement('div');
+    successToast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
+    successToast.innerHTML = `
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+      </svg>
+      <span>PDF descargado exitosamente</span>
+    `;
+    document.body.appendChild(successToast);
+    
+    // Remover mensaje de éxito después de 3 segundos
+    setTimeout(() => {
+      document.body.removeChild(successToast);
+    }, 3000);
+
+    return true;
+  } catch (error) {
+    console.error('Error al exportar PDF:', error);
+    
+    // Mostrar mensaje de error
+    const errorToast = document.createElement('div');
+    errorToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
+    errorToast.innerHTML = `
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+      <span>Error al generar PDF</span>
+    `;
+    document.body.appendChild(errorToast);
+    
+    setTimeout(() => {
+      if (document.body.contains(errorToast)) {
+        document.body.removeChild(errorToast);
+      }
+    }, 3000);
+
+    return false;
   }
-};
+}

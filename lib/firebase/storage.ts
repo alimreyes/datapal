@@ -1,149 +1,134 @@
-import {
-  ref,
-  uploadBytes,
-  uploadBytesResumable,
-  getDownloadURL,
-  deleteObject,
-  listAll,
-  UploadTaskSnapshot,
-} from 'firebase/storage';
+// lib/firebase/storage.ts
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from './config';
 
 /**
- * Upload a file to Firebase Storage
+ * Sube un logo de cliente a Firebase Storage
+ * @param file - Archivo de imagen a subir
+ * @param reportId - ID del reporte para asociar el logo
+ * @returns URL pública del logo subido
  */
-export const uploadFile = async (
+export async function uploadClientLogo(
   file: File,
-  path: string,
-  onProgress?: (progress: number) => void
-): Promise<{ url: string | null; error: string | null }> => {
+  reportId: string
+): Promise<{ url: string; error: null } | { url: null; error: string }> {
   try {
-    const storageRef = ref(storage, path);
-    
-    if (onProgress) {
-      // Upload with progress tracking
-      const uploadTask = uploadBytesResumable(storageRef, file);
-      
-      return new Promise((resolve, reject) => {
-        uploadTask.on(
-          'state_changed',
-          (snapshot: UploadTaskSnapshot) => {
-            const progress =
-              (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            onProgress(progress);
-          },
-          (error) => {
-            reject({ url: null, error: error.message });
-          },
-          async () => {
-            const url = await getDownloadURL(uploadTask.snapshot.ref);
-            resolve({ url, error: null });
-          }
-        );
-      });
-    } else {
-      // Simple upload without progress
-      await uploadBytes(storageRef, file);
-      const url = await getDownloadURL(storageRef);
-      return { url, error: null };
+    // Validar que sea imagen
+    if (!file.type.startsWith('image/')) {
+      return { url: null, error: 'El archivo debe ser una imagen' };
     }
-  } catch (error: any) {
-    return { url: null, error: error.message };
+
+    // Validar tamaño (máximo 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      return { url: null, error: 'La imagen debe ser menor a 2MB' };
+    }
+
+    // Generar nombre único para el archivo
+    const timestamp = Date.now();
+    const extension = file.name.split('.').pop();
+    const fileName = `client-logos/${reportId}/${timestamp}.${extension}`;
+
+    // Crear referencia en Storage
+    const storageRef = ref(storage, fileName);
+
+    // Configurar metadata
+    const metadata = {
+      contentType: file.type,
+      customMetadata: {
+        reportId,
+        uploadedAt: new Date().toISOString(),
+      },
+    };
+
+    // Subir archivo
+    await uploadBytes(storageRef, file, metadata);
+
+    // Obtener URL pública
+    const downloadURL = await getDownloadURL(storageRef);
+
+    return { url: downloadURL, error: null };
+  } catch (error) {
+    console.error('Error uploading logo:', error);
+    return {
+      url: null,
+      error: error instanceof Error ? error.message : 'Error desconocido al subir logo',
+    };
   }
-};
+}
 
 /**
- * Upload multiple CSV files for a report
+ * Redimensiona una imagen antes de subirla (opcional para optimizar)
+ * @param file - Archivo de imagen
+ * @param maxWidth - Ancho máximo
+ * @param maxHeight - Alto máximo
+ * @returns Promise con el archivo redimensionado
  */
-export const uploadReportCSVs = async (
-  reportId: string,
-  platform: 'instagram' | 'facebook',
-  category: string,
+export async function resizeImage(
   file: File,
-  onProgress?: (progress: number) => void
-) => {
-  const path = `reports/${reportId}/${platform}/${category}.csv`;
-  return uploadFile(file, path, onProgress);
-};
-
-/**
- * Upload color palette image
- */
-export const uploadPaletteImage = async (
-  reportId: string,
-  file: File,
-  onProgress?: (progress: number) => void
-) => {
-  const path = `reports/${reportId}/palette/image.${file.name.split('.').pop()}`;
-  return uploadFile(file, path, onProgress);
-};
-
-/**
- * Delete a file from Storage
- */
-export const deleteFile = async (path: string) => {
-  try {
-    const fileRef = ref(storage, path);
-    await deleteObject(fileRef);
-    return { success: true, error: null };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-};
-
-/**
- * Get download URL for a file
- */
-export const getFileURL = async (path: string) => {
-  try {
-    const fileRef = ref(storage, path);
-    const url = await getDownloadURL(fileRef);
-    return { url, error: null };
-  } catch (error: any) {
-    return { url: null, error: error.message };
-  }
-};
-
-/**
- * List all files in a directory
- */
-export const listFiles = async (path: string) => {
-  try {
-    const listRef = ref(storage, path);
-    const result = await listAll(listRef);
+  maxWidth: number = 128,
+  maxHeight: number = 128
+): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
     
-    const files = await Promise.all(
-      result.items.map(async (item) => {
-        const url = await getDownloadURL(item);
-        return {
-          name: item.name,
-          fullPath: item.fullPath,
-          url,
-        };
-      })
-    );
+    reader.onload = (e) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
 
-    return { files, error: null };
-  } catch (error: any) {
-    return { files: [], error: error.message };
-  }
-};
+        // Calcular nuevas dimensiones manteniendo aspect ratio
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
 
-/**
- * Delete all files in a report folder
- */
-export const deleteReportFiles = async (reportId: string) => {
-  try {
-    const folderRef = ref(storage, `reports/${reportId}`);
-    const result = await listAll(folderRef);
-    
-    // Delete all files
-    await Promise.all(
-      result.items.map((item) => deleteObject(item))
-    );
+        canvas.width = width;
+        canvas.height = height;
 
-    return { success: true, error: null };
-  } catch (error: any) {
-    return { success: false, error: error.message };
-  }
-};
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('No se pudo obtener contexto del canvas'));
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convertir canvas a blob
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Error al crear blob'));
+              return;
+            }
+
+            // Crear nuevo archivo con el blob redimensionado
+            const resizedFile = new File([blob], file.name, {
+              type: file.type,
+              lastModified: Date.now(),
+            });
+
+            resolve(resizedFile);
+          },
+          file.type,
+          0.9 // Calidad
+        );
+      };
+
+      img.onerror = () => reject(new Error('Error al cargar imagen'));
+      img.src = e.target?.result as string;
+    };
+
+    reader.onerror = () => reject(new Error('Error al leer archivo'));
+    reader.readAsDataURL(file);
+  });
+}
