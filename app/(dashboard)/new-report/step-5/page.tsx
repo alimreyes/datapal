@@ -82,27 +82,42 @@ export default function Step5Page() {
 
       // Helper function to process temporal metrics
       const processTemporalFile = async (file: File | null) => {
-        if (!file) return null;
-        
+        if (!file) {
+          console.log('[DEBUG] No file provided');
+          return null;
+        }
+
         try {
+          console.log(`[DEBUG] Processing file: ${file.name}, size: ${file.size} bytes`);
           const text = await file.text();
-          
+          console.log(`[DEBUG] File content length: ${text.length} characters`);
+          console.log(`[DEBUG] First 200 chars:`, text.substring(0, 200));
+
           // Check if file has data
-          if (!hasValidData(text)) {
+          const isValid = hasValidData(text);
+          console.log(`[DEBUG] hasValidData returned: ${isValid}`);
+
+          if (!isValid) {
+            console.warn(`[DEBUG] File ${file.name} rejected by hasValidData`);
             return null;
           }
-          
+
           // Parse temporal metrics
           const parsedData = parseMetaCSV(text);
+          console.log(`[DEBUG] Parsed ${parsedData.length} data points from ${file.name}`);
+
           if (parsedData.length > 0) {
+            const stats = calculateStats(parsedData);
+            console.log(`[DEBUG] Stats for ${file.name}:`, stats);
             return {
               data: parsedData,
-              stats: calculateStats(parsedData)
+              stats: stats
             };
           }
+          console.warn(`[DEBUG] No data parsed from ${file.name}`);
           return null;
         } catch (err) {
-          console.error('Error processing temporal file:', file.name, err);
+          console.error('[DEBUG] Error processing temporal file:', file.name, err);
           return null;
         }
       };
