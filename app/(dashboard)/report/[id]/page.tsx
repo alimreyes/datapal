@@ -65,6 +65,29 @@ export default function ReportPage() {
 
         const report = firestoreReport as Report;
 
+        // DEBUG: Log report data structure
+        console.log('===== REPORT LOADED FROM FIRESTORE =====');
+        console.log('Report ID:', reportId);
+        console.log('Report platforms:', report.platforms);
+        console.log('Report data exists?:', !!report.data);
+        console.log('Report data keys:', report.data ? Object.keys(report.data) : 'NO DATA');
+
+        if (report.data?.instagram) {
+          console.log('Instagram data keys:', Object.keys(report.data.instagram));
+          console.log('Instagram reach length:', report.data.instagram.reach?.length || 0);
+          console.log('Instagram impressions length:', report.data.instagram.impressions?.length || 0);
+          console.log('Instagram reach stats:', report.data.instagram.reachStats);
+          console.log('Instagram impressions stats:', report.data.instagram.impressionsStats);
+        }
+
+        if (report.data?.facebook) {
+          console.log('Facebook data keys:', Object.keys(report.data.facebook));
+          console.log('Facebook reach length:', report.data.facebook.reach?.length || 0);
+          console.log('Facebook impressions length:', report.data.facebook.impressions?.length || 0);
+        }
+
+        console.log('========================================');
+
         // Establecer plataformas desde el reporte
         setSelectedPlatforms(report.platforms || []);
 
@@ -78,6 +101,12 @@ export default function ReportPage() {
 
         // Filtrar según plataformas seleccionadas
         const filteredData = filterDataByPlatforms(report, report.platforms || []);
+
+        console.log('===== FILTERED DATA =====');
+        console.log('Filtered metrics:', filteredData.metrics);
+        console.log('Filtered chartData length:', filteredData.chartData?.length || 0);
+        console.log('========================');
+
         setReportData(filteredData);
 
         // Auto-seleccionar métrica más relevante
