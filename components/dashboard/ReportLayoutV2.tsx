@@ -133,20 +133,47 @@ export default function ReportLayoutV2({
             )}
           </div>
 
-          {/* Logos RRSS Analizadas - SIEMPRE VISIBLES */}
+          {/* Logos RRSS - Filtros Clickeables */}
           <div className="flex items-center gap-2">
-            {platforms.includes('instagram') && (
-              <div className="p-2 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg border border-purple-300">
-                <Instagram className="w-5 h-5 text-purple-600" />
-              </div>
-            )}
-            {platforms.includes('facebook') && (
-              <div className="p-2 bg-blue-100 rounded-lg border border-blue-300">
-                <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-              </div>
-            )}
+            <button
+              onClick={() => {
+                if (onPlatformChange) {
+                  const newPlatforms = platforms.includes('instagram')
+                    ? platforms.filter(p => p !== 'instagram')
+                    : [...platforms, 'instagram'];
+                  onPlatformChange(newPlatforms);
+                }
+              }}
+              className={`p-2 rounded-lg border transition-all hover:shadow-md ${
+                platforms.includes('instagram')
+                  ? 'bg-gradient-to-br from-purple-100 to-pink-100 border-purple-300 shadow-sm'
+                  : 'bg-gray-100 border-gray-300 opacity-50'
+              }`}
+              title={platforms.includes('instagram') ? 'Click para ocultar Instagram' : 'Click para mostrar Instagram'}
+            >
+              <Instagram className={`w-5 h-5 ${platforms.includes('instagram') ? 'text-purple-600' : 'text-gray-400'}`} />
+            </button>
+
+            <button
+              onClick={() => {
+                if (onPlatformChange) {
+                  const newPlatforms = platforms.includes('facebook')
+                    ? platforms.filter(p => p !== 'facebook')
+                    : [...platforms, 'facebook'];
+                  onPlatformChange(newPlatforms);
+                }
+              }}
+              className={`p-2 rounded-lg border transition-all hover:shadow-md ${
+                platforms.includes('facebook')
+                  ? 'bg-blue-100 border-blue-300 shadow-sm'
+                  : 'bg-gray-100 border-gray-300 opacity-50'
+              }`}
+              title={platforms.includes('facebook') ? 'Click para ocultar Facebook' : 'Click para mostrar Facebook'}
+            >
+              <svg className={`w-5 h-5 ${platforms.includes('facebook') ? 'text-blue-600' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 24 24">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </button>
           </div>
         </div>
       </div>

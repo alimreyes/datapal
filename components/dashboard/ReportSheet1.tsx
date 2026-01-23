@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Eye, Users, Heart, UserPlus, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -57,6 +58,21 @@ export default function ReportSheet1({
   tokensRemaining = 0,
   onPurchaseTokens,
 }: ReportSheet1Props) {
+  // Estado para controlar qué líneas del gráfico están visibles
+  const [visibleMetrics, setVisibleMetrics] = useState({
+    visualizations: true,
+    reach: true,
+    interactions: true,
+    followers: false, // Oculta por defecto para simplificar
+  });
+
+  const toggleMetric = (metric: keyof typeof visibleMetrics) => {
+    setVisibleMetrics(prev => ({
+      ...prev,
+      [metric]: !prev[metric],
+    }));
+  };
+
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('es-CL').format(num);
   };
@@ -160,21 +176,22 @@ export default function ReportSheet1({
                 </div>
               </div>
 
-              <h3 className="text-lg font-bold text-gray-900 mb-2">
-                Métrica grande, más relevante de todas
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+                Tu métrica más relevante
               </h3>
 
               <div className={`text-5xl font-bold text-${selectedMetric.color}-600 mb-2`}>
                 {formatNumber(selectedMetric.value)}
               </div>
 
-              <p className="text-sm text-gray-600 mb-4">{selectedMetric.label}</p>
+              <p className="text-lg font-medium text-gray-700 mb-6">{selectedMetric.label}</p>
 
-              <div className="bg-white rounded-lg p-3 border border-purple-200">
-                <p className="text-xs text-gray-700">
-                  <strong>Con IA:</strong> Decimos porque es la data más relevante.
-                </p>
-              </div>
+              <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Analizar con IA
+              </button>
             </div>
           </div>
         </div>
@@ -182,9 +199,60 @@ export default function ReportSheet1({
         {/* Gráfico de Línea Temporal */}
         <div className="lg:col-span-2">
           <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 h-full">
-            <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">
-              Gráfico de Línea Temporal
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">
+                Gráfico de Línea Temporal
+              </h3>
+
+              {/* Botones de toggle para métricas */}
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => toggleMetric('visualizations')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    visibleMetrics.visualizations
+                      ? 'bg-purple-600 text-white shadow-md'
+                      : 'bg-white text-purple-600 border border-purple-300'
+                  }`}
+                >
+                  <Eye className="w-3 h-3 inline mr-1" />
+                  Viz
+                </button>
+                <button
+                  onClick={() => toggleMetric('reach')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    visibleMetrics.reach
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white text-blue-600 border border-blue-300'
+                  }`}
+                >
+                  <Users className="w-3 h-3 inline mr-1" />
+                  Alcance
+                </button>
+                <button
+                  onClick={() => toggleMetric('interactions')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    visibleMetrics.interactions
+                      ? 'bg-pink-600 text-white shadow-md'
+                      : 'bg-white text-pink-600 border border-pink-300'
+                  }`}
+                >
+                  <Heart className="w-3 h-3 inline mr-1" />
+                  Int
+                </button>
+                <button
+                  onClick={() => toggleMetric('followers')}
+                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                    visibleMetrics.followers
+                      ? 'bg-green-600 text-white shadow-md'
+                      : 'bg-white text-green-600 border border-green-300'
+                  }`}
+                >
+                  <UserPlus className="w-3 h-3 inline mr-1" />
+                  Seg
+                </button>
+              </div>
+            </div>
+
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />
@@ -192,27 +260,42 @@ export default function ReportSheet1({
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="visualizations"
-                  stroke="#9333ea"
-                  strokeWidth={2}
-                  name="Visualizaciones"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="reach"
-                  stroke="#3b82f6"
-                  strokeWidth={2}
-                  name="Alcance"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="interactions"
-                  stroke="#ec4899"
-                  strokeWidth={2}
-                  name="Interacciones"
-                />
+                {visibleMetrics.visualizations && (
+                  <Line
+                    type="monotone"
+                    dataKey="visualizations"
+                    stroke="#9333ea"
+                    strokeWidth={2}
+                    name="Visualizaciones"
+                  />
+                )}
+                {visibleMetrics.reach && (
+                  <Line
+                    type="monotone"
+                    dataKey="reach"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    name="Alcance"
+                  />
+                )}
+                {visibleMetrics.interactions && (
+                  <Line
+                    type="monotone"
+                    dataKey="interactions"
+                    stroke="#ec4899"
+                    strokeWidth={2}
+                    name="Interacciones"
+                  />
+                )}
+                {visibleMetrics.followers && (
+                  <Line
+                    type="monotone"
+                    dataKey="followers"
+                    stroke="#22c55e"
+                    strokeWidth={2}
+                    name="Seguidores"
+                  />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>

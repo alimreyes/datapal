@@ -85,23 +85,36 @@ export default function ReportSheet2({
       {/* Gráfico Combinado: Líneas + Barras */}
       <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
         <h3 className="text-lg font-bold text-gray-900 mb-4 text-center">
-          Gráfico que combina Líneas con Barras para mostrar cuándo se hizo una
-          publicación y cuándo se obtuvieron las interacciones.
+          Publicaciones vs Interacciones en el Tiempo
         </h3>
         <ResponsiveContainer width="100%" height={350}>
           <ComposedChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-            <YAxis yAxisId="left" tick={{ fontSize: 12 }} />
-            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Legend />
+            <XAxis dataKey="date" tick={{ fontSize: 11 }} angle={-45} textAnchor="end" height={80} />
+            <YAxis
+              yAxisId="left"
+              tick={{ fontSize: 12 }}
+              label={{ value: 'Publicaciones', angle: -90, position: 'insideLeft', style: { fontSize: 12 } }}
+              domain={[0, 'auto']}
+            />
+            <YAxis
+              yAxisId="right"
+              orientation="right"
+              tick={{ fontSize: 12 }}
+              label={{ value: 'Interacciones', angle: 90, position: 'insideRight', style: { fontSize: 12 } }}
+            />
+            <Tooltip
+              contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
+              labelStyle={{ fontWeight: 'bold' }}
+            />
+            <Legend wrapperStyle={{ paddingTop: '20px' }} />
             <Bar
               yAxisId="left"
               dataKey="posts"
               fill="#9333ea"
               name="Publicaciones"
               radius={[8, 8, 0, 0]}
+              barSize={30}
             />
             <Line
               yAxisId="right"
@@ -110,6 +123,8 @@ export default function ReportSheet2({
               stroke="#ec4899"
               strokeWidth={3}
               name="Interacciones"
+              dot={{ r: 4 }}
+              activeDot={{ r: 6 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
