@@ -65,16 +65,6 @@ export default function AIInsightsPanel({
     return configs[type as keyof typeof configs] || configs.info;
   };
 
-  const handleSaveComment = () => {
-    setSavedComment(userComment);
-  };
-
-  const handleGenerateInsights = async () => {
-    if (onGenerateInsights) {
-      await onGenerateInsights();
-    }
-  };
-
   return (
     <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
       {/* Header */}
@@ -114,7 +104,7 @@ export default function AIInsightsPanel({
           </div>
 
           <Button
-            onClick={handleGenerateInsights}
+            onClick={onGenerateInsights}
             disabled={isGenerating}
             className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all"
           >

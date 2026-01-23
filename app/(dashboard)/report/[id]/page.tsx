@@ -36,11 +36,16 @@ export default function ReportPage() {
   const [dateEnd, setDateEnd] = useState<Date>(new Date());
 
   // Estado para métrica seleccionada (auto-detectar la más relevante)
-  const [selectedMetric, setSelectedMetric] = useState({
+  const [selectedMetric, setSelectedMetric] = useState<{
+    label: string;
+    value: number;
+    icon: any;
+    color: 'blue' | 'purple' | 'pink' | 'green';
+  }>({
     label: 'Alcance',
     value: 0,
     icon: Users,
-    color: 'blue' as const,
+    color: 'blue',
   });
 
   // PASO 1: CARGAR DATOS DESDE FIRESTORE

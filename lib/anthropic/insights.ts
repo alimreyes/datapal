@@ -58,8 +58,8 @@ export async function generateInsights(report: Report): Promise<InsightGeneratio
     const usage = {
       inputTokens: message.usage.input_tokens,
       outputTokens: message.usage.output_tokens,
-      cacheCreationTokens: message.usage.cache_creation_input_tokens,
-      cacheReadTokens: message.usage.cache_read_input_tokens,
+      cacheCreationTokens: message.usage.cache_creation_input_tokens ?? undefined,
+      cacheReadTokens: message.usage.cache_read_input_tokens ?? undefined,
     };
 
     console.log('Claude API Usage:', usage);

@@ -13,10 +13,15 @@ import { motion } from 'framer-motion';
 import { createDocument } from '@/lib/firebase/firestore';
 import { parseMetaCSV, calculateStats, parseMetaContent, hasValidData } from '@/lib/parsers/metaParser';
 
-const objectiveLabels = {
-  analysis: 'Análisis de Resultados',
-  improvements: 'Evidenciar Mejoras Realizadas',
-  monthly_report: 'Crear Reporte del Mes',
+const objectiveLabels: Record<string, string> = {
+  analysis: 'Análisis',
+  improvements: 'Mejoras',
+  monthly_report: 'Reporte Mensual',
+  'brand-awareness': 'Conocimiento de Marca',
+  engagement: 'Engagement',
+  conversions: 'Conversiones',
+  reach: 'Alcance',
+  'content-performance': 'Rendimiento de Contenido',
 };
 
 const platformLabels = {
@@ -291,7 +296,7 @@ export default function Step5Page() {
             <div>
               <p className="text-sm font-medium text-gray-600 mb-2">Objetivo:</p>
               <Badge variant="secondary" className="text-sm">
-                {objective && objectiveLabels[objective]}
+                {objective && (objectiveLabels[objective] || objective)}
               </Badge>
             </div>
 

@@ -3,9 +3,6 @@ const nextConfig = {
   // Enable React strict mode for better error detection
   reactStrictMode: true,
 
-  // Use SWC minifier for faster builds
-  swcMinify: true,
-
   // Optimize images
   images: {
     formats: ['image/avif', 'image/webp'],

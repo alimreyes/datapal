@@ -12,9 +12,14 @@ interface ReportLayoutV2Props {
   platforms: string[]; // ['instagram', 'facebook']
   clientLogo?: string;
   onTitleChange?: (title: string) => void;
+  onPlatformChange?: (platforms: string[]) => void;
+  onDateRangeClick?: () => void;
+  onLogoUpload?: (file: File) => void;
   onSave?: () => void;
   onExportPDF?: () => void;
   isSaving?: boolean;
+  currentPage: number;
+  onPageChange: (page: number) => void;
   children: React.ReactNode;
 }
 
@@ -24,12 +29,16 @@ export default function ReportLayoutV2({
   platforms,
   clientLogo,
   onTitleChange,
+  onPlatformChange,
+  onDateRangeClick,
+  onLogoUpload,
   onSave,
   onExportPDF,
   isSaving = false,
+  currentPage,
+  onPageChange,
   children,
 }: ReportLayoutV2Props) {
-  const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [editedTitle, setEditedTitle] = useState(reportTitle);
 
@@ -152,7 +161,7 @@ export default function ReportLayoutV2({
         {/* Botones de Navegación - Flechas */}
         <div className="fixed right-8 top-1/2 transform -translate-y-1/2 flex flex-col gap-4">
           <button
-            onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+            onClick={() => onPageChange(Math.max(0, currentPage - 1))}
             disabled={currentPage === 0}
             className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
               currentPage === 0
@@ -164,7 +173,7 @@ export default function ReportLayoutV2({
             <ChevronLeft className="w-6 h-6 text-gray-700" />
           </button>
           <button
-            onClick={() => setCurrentPage(Math.min(1, currentPage + 1))}
+            onClick={() => onPageChange(Math.min(1, currentPage + 1))}
             disabled={currentPage === 1}
             className={`w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all ${
               currentPage === 1

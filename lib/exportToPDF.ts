@@ -58,14 +58,14 @@ export async function exportDashboardToPDF(reportTitle: string = 'Reporte DataPa
     document.body.appendChild(loadingToast);
 
     // Capturar el contenido como imagen con alta calidad
-    const canvas = await html2canvas(dashboardElement, {
+    const html2canvasOptions: any = {
       scale: 2, // Mayor calidad
       useCORS: true,
       logging: true, // Activar logging para debug
       backgroundColor: '#f9fafb',
       windowWidth: dashboardElement.scrollWidth,
       windowHeight: dashboardElement.scrollHeight,
-      onclone: (clonedDoc) => {
+      onclone: (clonedDoc: Document) => {
         // Forzar conversión de TODOS los estilos a inline para evitar problemas con colores modernos
         const clonedElement = clonedDoc.getElementById('dashboard-content');
         if (clonedElement) {
@@ -134,7 +134,9 @@ export async function exportDashboardToPDF(reportTitle: string = 'Reporte DataPa
           }
         }
       },
-    });
+    };
+
+    const canvas = await html2canvas(dashboardElement, html2canvasOptions);
 
     // Crear PDF
     const imgData = canvas.toDataURL('image/png');

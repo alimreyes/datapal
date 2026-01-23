@@ -4,7 +4,10 @@
       "Bash(Get-Process)",
       "Bash(Where-Object {$_ProcessName -like \"*node*\"})",
       "Bash(Select-Object Id, ProcessName, StartTime)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(test:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -57,6 +57,7 @@ export interface Report {
   customization?: ReportCustomization;
   data: ReportData;
   aiInsights?: string | null;
+  clientLogo?: string; // URL del logo del cliente en Firebase Storage
 }
 
 // ==================== DATA TYPES ====================

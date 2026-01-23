@@ -88,18 +88,11 @@ export default function TokenCheckout() {
         throw new Error(data.error || 'Error al crear sesión de pago');
       }
 
-      // Redirigir a Stripe Checkout
-      const stripe = await stripePromise;
-      if (!stripe) {
-        throw new Error('Error al cargar Stripe');
-      }
-
-      const { error: stripeError } = await stripe.redirectToCheckout({
-        sessionId: data.sessionId,
-      });
-
-      if (stripeError) {
-        throw new Error(stripeError.message);
+      // Redirigir a Stripe Checkout usando la URL de la sesión
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No se recibió URL de checkout');
       }
     } catch (err: any) {
       console.error('Error en checkout:', err);
