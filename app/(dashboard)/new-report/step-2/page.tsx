@@ -5,24 +5,31 @@ import { useNewReportStore } from '@/lib/stores/newReportStore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, ArrowLeft, CheckCircle2, Instagram } from 'lucide-react';
 import { Platform } from '@/lib/types';
 import { motion } from 'framer-motion';
+
+// Logo de Facebook SVG
+const FacebookLogo = () => (
+  <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
 
 const platforms = [
   {
     id: 'instagram' as Platform,
     name: 'Instagram',
     description: 'Alcance, interacciones, seguidores y más',
-    icon: '📸',
+    icon: <Instagram className="w-16 h-16 text-purple-600" />,
     color: 'from-pink-500 to-purple-500',
     bgColor: 'bg-gradient-to-br from-pink-50 to-purple-50',
   },
   {
     id: 'facebook' as Platform,
     name: 'Facebook',
-    description: 'Engagement, alcance y análisis de página',
-    icon: '👍',
+    description: 'Engagement, espectadores y análisis de página',
+    icon: <div className="text-blue-600"><FacebookLogo /></div>,
     color: 'from-blue-500 to-blue-600',
     bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
   },
@@ -110,7 +117,7 @@ export default function Step2Page() {
                   <CardContent className="p-6">
                     <div className={`${platform.bgColor} rounded-2xl p-8 mb-4`}>
                       <div className="text-center">
-                        <div className="text-6xl mb-4">{platform.icon}</div>
+                        <div className="flex justify-center mb-4">{platform.icon}</div>
                         <h3 className="text-2xl font-bold mb-2">{platform.name}</h3>
                         <p className="text-sm text-gray-600">{platform.description}</p>
                       </div>

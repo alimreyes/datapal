@@ -176,22 +176,15 @@ export default function ReportSheet1({
                 </div>
               </div>
 
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
                 Tu métrica más relevante
               </h3>
 
-              <div className={`text-5xl font-bold text-${selectedMetric.color}-600 mb-2`}>
+              <div className={`text-5xl font-bold text-${selectedMetric.color}-600 mb-3`}>
                 {formatNumber(selectedMetric.value)}
               </div>
 
-              <p className="text-lg font-medium text-gray-700 mb-6">{selectedMetric.label}</p>
-
-              <button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Analizar con IA
-              </button>
+              <p className="text-lg font-medium text-gray-700">{selectedMetric.label}</p>
             </div>
           </div>
         </div>
@@ -205,50 +198,51 @@ export default function ReportSheet1({
               </h3>
 
               {/* Botones de toggle para métricas */}
-              <div className="flex gap-2 flex-wrap">
+              <div className="flex gap-2 flex-wrap items-center">
+                <span className="text-xs text-gray-500 font-medium mr-1">Mostrar:</span>
                 <button
                   onClick={() => toggleMetric('visualizations')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
                     visibleMetrics.visualizations
                       ? 'bg-purple-600 text-white shadow-md'
-                      : 'bg-white text-purple-600 border border-purple-300'
+                      : 'bg-purple-50 text-purple-700 border-2 border-purple-200 hover:border-purple-300'
                   }`}
                 >
-                  <Eye className="w-3 h-3 inline mr-1" />
-                  Viz
+                  <Eye className="w-3.5 h-3.5 inline mr-1" />
+                  Visualizaciones
                 </button>
                 <button
                   onClick={() => toggleMetric('reach')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
                     visibleMetrics.reach
                       ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-white text-blue-600 border border-blue-300'
+                      : 'bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300'
                   }`}
                 >
-                  <Users className="w-3 h-3 inline mr-1" />
+                  <Users className="w-3.5 h-3.5 inline mr-1" />
                   Alcance
                 </button>
                 <button
                   onClick={() => toggleMetric('interactions')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
                     visibleMetrics.interactions
                       ? 'bg-pink-600 text-white shadow-md'
-                      : 'bg-white text-pink-600 border border-pink-300'
+                      : 'bg-pink-50 text-pink-700 border-2 border-pink-200 hover:border-pink-300'
                   }`}
                 >
-                  <Heart className="w-3 h-3 inline mr-1" />
-                  Int
+                  <Heart className="w-3.5 h-3.5 inline mr-1" />
+                  Interacciones
                 </button>
                 <button
                   onClick={() => toggleMetric('followers')}
-                  className={`px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
                     visibleMetrics.followers
                       ? 'bg-green-600 text-white shadow-md'
-                      : 'bg-white text-green-600 border border-green-300'
+                      : 'bg-green-50 text-green-700 border-2 border-green-200 hover:border-green-300'
                   }`}
                 >
-                  <UserPlus className="w-3 h-3 inline mr-1" />
-                  Seg
+                  <UserPlus className="w-3.5 h-3.5 inline mr-1" />
+                  Seguidores
                 </button>
               </div>
             </div>
