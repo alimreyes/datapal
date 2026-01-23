@@ -61,75 +61,43 @@ export async function exportDashboardToPDF(reportTitle: string = 'Reporte DataPa
     const html2canvasOptions: any = {
       scale: 2, // Mayor calidad
       useCORS: true,
-      logging: true, // Activar logging para debug
+      logging: false, // Desactivar logging para evitar spam
       backgroundColor: '#f9fafb',
       windowWidth: dashboardElement.scrollWidth,
       windowHeight: dashboardElement.scrollHeight,
+      ignoreElements: (element: HTMLElement) => {
+        // Ignorar elementos que puedan causar problemas
+        return element.tagName === 'IFRAME' || element.tagName === 'SCRIPT';
+      },
       onclone: (clonedDoc: Document) => {
-        // Forzar conversión de TODOS los estilos a inline para evitar problemas con colores modernos
         const clonedElement = clonedDoc.getElementById('dashboard-content');
         if (clonedElement) {
-          // Remover todas las hojas de estilo que puedan tener colores problemáticos
-          const stylesheets = clonedDoc.querySelectorAll('link[rel="stylesheet"], style');
-          stylesheets.forEach(sheet => {
-            const parent = sheet.parentNode;
-            if (parent) {
-              parent.removeChild(sheet);
-            }
-          });
-
-          // Aplicar estilos inline seguros para evitar problemas de color parsing
+          // Aplicar estilos computados de forma segura
           const allElements = clonedElement.getElementsByTagName('*');
           for (let i = 0; i < allElements.length; i++) {
             const el = allElements[i] as HTMLElement;
+            const original = document.getElementById(el.id) ||
+                           document.querySelector(`[data-id="${el.getAttribute('data-id')}"]`);
 
-            try {
-              const computedStyle = window.getComputedStyle(el);
+            if (original) {
+              try {
+                const computedStyle = window.getComputedStyle(original as HTMLElement);
 
-              // Lista de propiedades de estilo a copiar
-              const styleProps = [
-                'backgroundColor',
-                'color',
-                'borderColor',
-                'borderTopColor',
-                'borderRightColor',
-                'borderBottomColor',
-                'borderLeftColor',
-                'outlineColor',
-                'fontSize',
-                'fontWeight',
-                'padding',
-                'margin',
-                'width',
-                'height',
-                'display',
-                'flexDirection',
-                'alignItems',
-                'justifyContent',
-              ];
-
-              // Aplicar cada propiedad como inline style
-              styleProps.forEach(prop => {
-                const value = computedStyle.getPropertyValue(prop);
-                if (value) {
-                  // Convertir colores oklch/lab a rgb si es necesario
-                  if (prop.includes('Color') || prop.includes('color')) {
-                    if (value !== 'rgba(0, 0, 0, 0)' && value !== 'transparent') {
-                      el.style.setProperty(prop, value);
+                // Copiar solo propiedades esenciales de forma segura
+                const safeProps = ['backgroundColor', 'color', 'fontSize', 'fontWeight'];
+                safeProps.forEach(prop => {
+                  try {
+                    const value = computedStyle.getPropertyValue(prop);
+                    if (value && !value.includes('lab(') && !value.includes('oklch(')) {
+                      el.style.setProperty(prop, value, 'important');
                     }
-                  } else {
-                    el.style.setProperty(prop, value);
+                  } catch (e) {
+                    // Ignorar errores de propiedades individuales
                   }
-                }
-              });
-
-              // Forzar colores RGB para gradientes problemáticos
-              const backgroundImage = computedStyle.backgroundImage;
-              if (backgroundImage && backgroundImage !== 'none') {
-                el.style.backgroundImage = backgroundImage;
+                });
+              } catch (err) {
+                // Ignorar elementos problemáticos
               }
-            } catch (err) {
-              console.warn('Error applying styles to element:', el, err);
             }
           }
         }

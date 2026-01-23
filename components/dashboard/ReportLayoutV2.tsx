@@ -56,7 +56,7 @@ export default function ReportLayoutV2({
         <div className="flex items-center justify-between flex-wrap gap-4">
           {/* Logo DataPal - Clickeable - SIEMPRE va al inicio */}
           <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <Image
+            <img
               src="/Logo_DataPal.png"
               alt="DataPal"
               width={48}
