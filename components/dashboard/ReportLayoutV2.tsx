@@ -54,24 +54,58 @@ export default function ReportLayoutV2({
       {/* NUEVO HEADER HORIZONTAL */}
       <div className="bg-white border-b-2 border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between flex-wrap gap-4">
-          {/* Logo DataPal - Clickeable */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center shadow-md">
-              <FileText className="w-6 h-6 text-white" />
-            </div>
+          {/* Logo DataPal - Clickeable - SIEMPRE va al inicio */}
+          <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Image
+              src="/Logo_DataPal.png"
+              alt="DataPal"
+              width={48}
+              height={48}
+              className="object-contain"
+            />
             <span className="text-lg font-bold text-gray-900">DataPal</span>
           </Link>
 
-          {/* Logo Usuario/Cliente */}
-          <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300">
+          {/* Logo Usuario/Cliente - CON opción de subir logo */}
+          <div className="relative">
             {clientLogo ? (
-              <Image src={clientLogo} alt="Logo" width={32} height={32} className="rounded" />
-            ) : (
-              <div className="w-8 h-8 bg-gray-300 rounded flex items-center justify-center">
-                <span className="text-xs text-gray-600">Logo</span>
+              <div className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 cursor-pointer hover:bg-gray-200 transition-colors" onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e: any) => {
+                  const file = e.target?.files?.[0];
+                  if (file && onLogoUpload) {
+                    onLogoUpload(file);
+                  }
+                };
+                input.click();
+              }}>
+                <Image src={clientLogo} alt="Logo" width={32} height={32} className="rounded" />
+                <span className="text-sm text-gray-700">Usuario</span>
               </div>
+            ) : (
+              <button
+                onClick={() => {
+                  const input = document.createElement('input');
+                  input.type = 'file';
+                  input.accept = 'image/*';
+                  input.onchange = (e: any) => {
+                    const file = e.target?.files?.[0];
+                    if (file && onLogoUpload) {
+                      onLogoUpload(file);
+                    }
+                  };
+                  input.click();
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gray-100 rounded-lg border border-gray-300 hover:bg-gray-200 transition-colors cursor-pointer"
+              >
+                <div className="w-8 h-8 bg-gray-300 rounded flex items-center justify-center">
+                  <span className="text-xs text-gray-600">Logo</span>
+                </div>
+                <span className="text-sm text-gray-700">Subir Logo</span>
+              </button>
             )}
-            <span className="text-sm text-gray-700">Usuario</span>
           </div>
 
           {/* Título Editable */}
