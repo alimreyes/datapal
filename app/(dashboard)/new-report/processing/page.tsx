@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -19,7 +19,7 @@ const processingSteps = [
   { id: 4, label: 'Generando visualizaciones...', icon: Sparkles },
 ];
 
-export default function ProcessingPage() {
+function ProcessingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reportId = searchParams.get('reportId');
@@ -46,7 +46,7 @@ export default function ProcessingPage() {
 
       // 1. Obtener el documento del reporte
       const { data: reportData, error: fetchError } = await getDocument('reports', reportId);
-      
+
       if (fetchError || !reportData) {
         throw new Error('No se pudo obtener el reporte');
       }
@@ -63,17 +63,17 @@ export default function ProcessingPage() {
       // Procesar Instagram
       if (report.platforms?.includes('instagram')) {
         processedData.instagram = {};
-        
+
         // Solo procesar "reach" por ahora (puedes extender a otras categorías)
         try {
           const reachPath = `reports/${reportId}/instagram/reach.csv`;
           const fileRef = ref(storage, reachPath);
-          
+
           // Descargar como blob usando Firebase SDK (evita CORS)
           const blob = await getBlob(fileRef);
           const csvText = await blob.text();
           const parsedReach = parseMetaCSV(csvText);
-          
+
           processedData.instagram.reach = parsedReach;
           processedData.instagram.reachStats = calculateStats(parsedReach);
         } catch (err) {
@@ -87,16 +87,16 @@ export default function ProcessingPage() {
       // Procesar Facebook (similar)
       if (report.platforms?.includes('facebook')) {
         processedData.facebook = {};
-        
+
         try {
           const reachPath = `reports/${reportId}/facebook/reach.csv`;
           const fileRef = ref(storage, reachPath);
-          
+
           // Descargar como blob usando Firebase SDK (evita CORS)
           const blob = await getBlob(fileRef);
           const csvText = await blob.text();
           const parsedReach = parseMetaCSV(csvText);
-          
+
           processedData.facebook.reach = parsedReach;
           processedData.facebook.reachStats = calculateStats(parsedReach);
         } catch (err) {
@@ -123,7 +123,7 @@ export default function ProcessingPage() {
     } catch (err: any) {
       console.error('Error processing report:', err);
       setError(err.message || 'Error al procesar el reporte');
-      
+
       // Actualizar status a error
       if (reportId) {
         await updateDocument('reports', reportId, { status: 'error' });
@@ -241,7 +241,7 @@ export default function ProcessingPage() {
               {/* Footer Message */}
               <div className="mt-8 text-center">
                 <p className="text-sm text-gray-500">
-                  Por favor no cierres esta ventana. Serás redirigido automáticamente cuando esté listo.
+                  Por favor no cierres esta ventana. Seras redirigido automaticamente cuando este listo.
                 </p>
               </div>
             </>
@@ -249,5 +249,28 @@ export default function ProcessingPage() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl border-0 shadow-xl">
+        <CardContent className="p-8">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Cargando...</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+export default function ProcessingPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ProcessingContent />
+    </Suspense>
   );
 }
