@@ -14,27 +14,24 @@ const objectives = [
     title: 'Análisis de Resultados',
     description: 'Analiza el rendimiento de tus campañas y contenido',
     icon: BarChart3,
-    color: 'from-blue-500 to-blue-600',
-    bgColor: 'bg-blue-50',
-    iconColor: 'text-blue-600',
+    bgColor: 'bg-[#019B77]/20',
+    iconColor: 'text-[#019B77]',
   },
   {
     id: 'improvements' as ReportObjective,
     title: 'Evidenciar Mejoras Realizadas',
     description: 'Muestra el impacto de las optimizaciones implementadas',
     icon: TrendingUp,
-    color: 'from-green-500 to-green-600',
-    bgColor: 'bg-green-50',
-    iconColor: 'text-green-600',
+    bgColor: 'bg-[#02c494]/20',
+    iconColor: 'text-[#02c494]',
   },
   {
     id: 'monthly_report' as ReportObjective,
     title: 'Crear Reporte del Mes',
     description: 'Genera un reporte completo del período',
     icon: FileText,
-    color: 'from-purple-500 to-purple-600',
-    bgColor: 'bg-purple-50',
-    iconColor: 'text-purple-600',
+    bgColor: 'bg-[#017a5e]/20',
+    iconColor: 'text-[#019B77]',
   },
 ];
 
@@ -53,30 +50,30 @@ export default function Step1Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-[#11120D] py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Paso 1 de 5</span>
-            <span className="text-sm text-gray-500">Objetivo del reporte</span>
+            <span className="text-sm font-medium text-[#B6B6B6]">Paso 1 de 5</span>
+            <span className="text-sm text-[#B6B6B6]">Objetivo del reporte</span>
           </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[#2a2b25] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: '20%' }}
               transition={{ duration: 0.5 }}
-              className="h-full bg-gradient-to-r from-blue-600 to-purple-600"
+              className="h-full bg-[#019B77]"
             />
           </div>
         </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-3xl font-bold mb-2 text-[#FBFEF2]">
             ¿Qué quieres lograr con DataPal?
           </h1>
-          <p className="text-gray-600">
+          <p className="text-[#B6B6B6]">
             Selecciona el objetivo principal de tu reporte
           </p>
         </div>
@@ -95,26 +92,26 @@ export default function Step1Page() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                  className={`cursor-pointer transition-all duration-200 bg-[#1a1b16] border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50 ${
                     isSelected
-                      ? 'ring-2 ring-offset-2 ring-blue-600 shadow-lg'
-                      : 'hover:shadow-md'
+                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77] border-[#019B77]'
+                      : ''
                   }`}
                   onClick={() => handleSelect(obj.id)}
                 >
                   <CardHeader>
                     <div className="flex items-center gap-4">
-                      <div className={`${obj.bgColor} p-3 rounded-xl`}>
+                      <div className={`${obj.bgColor} p-3 rounded-xl border border-[#019B77]/30`}>
                         <Icon className={`h-6 w-6 ${obj.iconColor}`} />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-xl flex items-center gap-2">
+                        <CardTitle className="text-xl flex items-center gap-2 text-[#FBFEF2]">
                           {obj.title}
                           {isSelected && (
-                            <CheckCircle2 className="h-5 w-5 text-blue-600" />
+                            <CheckCircle2 className="h-5 w-5 text-[#019B77]" />
                           )}
                         </CardTitle>
-                        <CardDescription className="mt-1">
+                        <CardDescription className="mt-1 text-[#B6B6B6]">
                           {obj.description}
                         </CardDescription>
                       </div>
@@ -131,6 +128,7 @@ export default function Step1Page() {
           <Button
             variant="ghost"
             onClick={() => router.push('/dashboard')}
+            className="text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#2a2b25]"
           >
             Cancelar
           </Button>
@@ -139,7 +137,7 @@ export default function Step1Page() {
             size="lg"
             onClick={handleNext}
             disabled={!objective}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
           >
             Siguiente
             <ArrowRight className="ml-2 h-5 w-5" />

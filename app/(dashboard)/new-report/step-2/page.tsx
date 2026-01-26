@@ -21,17 +21,15 @@ const platforms = [
     id: 'instagram' as Platform,
     name: 'Instagram',
     description: 'Alcance, interacciones, seguidores y más',
-    icon: <Instagram className="w-16 h-16 text-purple-600" />,
-    color: 'from-pink-500 to-purple-500',
-    bgColor: 'bg-gradient-to-br from-pink-50 to-purple-50',
+    icon: <Instagram className="w-16 h-16 text-purple-400" />,
+    bgColor: 'bg-purple-500/10 border border-purple-500/30',
   },
   {
     id: 'facebook' as Platform,
     name: 'Facebook',
     description: 'Engagement, espectadores y análisis de página',
-    icon: <div className="text-blue-600"><FacebookLogo /></div>,
-    color: 'from-blue-500 to-blue-600',
-    bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
+    icon: <div className="text-blue-400"><FacebookLogo /></div>,
+    bgColor: 'bg-blue-500/10 border border-blue-500/30',
   },
 ];
 
@@ -63,34 +61,34 @@ export default function Step2Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-[#11120D] py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Paso 2 de 5</span>
-            <span className="text-sm text-gray-500">Selección de plataformas</span>
+            <span className="text-sm font-medium text-[#B6B6B6]">Paso 2 de 5</span>
+            <span className="text-sm text-[#B6B6B6]">Selección de plataformas</span>
           </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[#2a2b25] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: '20%' }}
               animate={{ width: '40%' }}
               transition={{ duration: 0.5 }}
-              className="h-full bg-gradient-to-r from-blue-600 to-purple-600"
+              className="h-full bg-[#019B77]"
             />
           </div>
         </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-3xl font-bold mb-2 text-[#FBFEF2]">
             ¿Cuáles plataformas usas?
           </h1>
-          <p className="text-gray-600">
+          <p className="text-[#B6B6B6]">
             Selecciona las redes sociales que quieres analizar
           </p>
-          <p className="text-sm text-gray-500 mt-2">
-            📌 Puedes seleccionar múltiples plataformas
+          <p className="text-sm text-[#B6B6B6] mt-2">
+            Puedes seleccionar múltiples plataformas
           </p>
         </div>
 
@@ -107,10 +105,10 @@ export default function Step2Page() {
                 transition={{ delay: index * 0.1 }}
               >
                 <Card
-                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+                  className={`cursor-pointer transition-all duration-200 bg-[#1a1b16] border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50 ${
                     isSelected
-                      ? 'ring-2 ring-offset-2 ring-blue-600 shadow-lg'
-                      : 'hover:shadow-md'
+                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77] border-[#019B77]'
+                      : ''
                   }`}
                   onClick={() => handleToggle(platform.id)}
                 >
@@ -118,8 +116,8 @@ export default function Step2Page() {
                     <div className={`${platform.bgColor} rounded-2xl p-8 mb-4`}>
                       <div className="text-center">
                         <div className="flex justify-center mb-4">{platform.icon}</div>
-                        <h3 className="text-2xl font-bold mb-2">{platform.name}</h3>
-                        <p className="text-sm text-gray-600">{platform.description}</p>
+                        <h3 className="text-2xl font-bold mb-2 text-[#FBFEF2]">{platform.name}</h3>
+                        <p className="text-sm text-[#B6B6B6]">{platform.description}</p>
                       </div>
                     </div>
 
@@ -127,12 +125,13 @@ export default function Step2Page() {
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => handleToggle(platform.id)}
+                        className="border-[#B6B6B6] data-[state=checked]:bg-[#019B77] data-[state=checked]:border-[#019B77]"
                       />
-                      <span className="text-sm font-medium">
+                      <span className="text-sm font-medium text-[#FBFEF2]">
                         {isSelected ? 'Seleccionado' : 'Seleccionar'}
                       </span>
                       {isSelected && (
-                        <CheckCircle2 className="h-4 w-4 text-blue-600" />
+                        <CheckCircle2 className="h-4 w-4 text-[#019B77]" />
                       )}
                     </div>
                   </CardContent>
@@ -143,9 +142,9 @@ export default function Step2Page() {
         </div>
 
         {/* Coming Soon Notice */}
-        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-8">
-          <p className="text-sm text-gray-600 text-center">
-            🚀 <strong>Próximamente:</strong> Google Analytics, TikTok, LinkedIn, Google Ads y más
+        <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-4 mb-8">
+          <p className="text-sm text-[#B6B6B6] text-center">
+            <strong className="text-[#019B77]">Próximamente:</strong> Google Analytics, TikTok, LinkedIn, Google Ads y más
           </p>
         </div>
 
@@ -155,6 +154,7 @@ export default function Step2Page() {
             variant="outline"
             onClick={handleBack}
             size="lg"
+            className="border-[rgba(251,254,242,0.1)] text-[#FBFEF2] hover:bg-[#2a2b25] hover:text-[#FBFEF2]"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             Atrás
@@ -164,7 +164,7 @@ export default function Step2Page() {
             size="lg"
             onClick={handleNext}
             disabled={selectedPlatforms.length === 0}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
           >
             Siguiente
             <ArrowRight className="ml-2 h-5 w-5" />

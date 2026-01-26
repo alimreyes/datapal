@@ -89,23 +89,23 @@ export default function PersonalNotes({ reportId, userId }: PersonalNotesProps) 
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
+      <div className="bg-[#1a1b16] rounded-2xl border border-[rgba(251,254,242,0.1)] p-6">
         <div className="flex items-center gap-3 mb-4">
-          <MessageSquare className="w-6 h-6 text-gray-400" />
-          <h3 className="text-xl font-bold text-gray-900">Notas Personales</h3>
+          <MessageSquare className="w-6 h-6 text-[#B6B6B6]" />
+          <h3 className="text-xl font-bold text-[#FBFEF2]">Notas Personales</h3>
         </div>
-        <p className="text-sm text-gray-500">Cargando nota...</p>
+        <p className="text-sm text-[#B6B6B6]">Cargando nota...</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl border-2 border-gray-200 p-6 shadow-sm">
+    <div className="bg-[#1a1b16] rounded-2xl border border-[rgba(251,254,242,0.1)] p-6">
       <div className="flex items-center gap-3 mb-4">
-        <MessageSquare className="w-6 h-6 text-purple-600" />
+        <MessageSquare className="w-6 h-6 text-[#019B77]" />
         <div>
-          <h3 className="text-xl font-bold text-gray-900">Notas Personales</h3>
-          <p className="text-xs text-gray-500">
+          <h3 className="text-xl font-bold text-[#FBFEF2]">Notas Personales</h3>
+          <p className="text-xs text-[#B6B6B6]">
             Solo tú puedes ver estas notas (asociadas a tu cuenta)
           </p>
         </div>
@@ -115,17 +115,17 @@ export default function PersonalNotes({ reportId, userId }: PersonalNotesProps) 
         value={noteContent}
         onChange={(e) => setNoteContent(e.target.value)}
         placeholder="Agrega tus propias observaciones o preguntas para después..."
-        className="w-full h-32 px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none text-sm"
+        className="w-full h-32 px-4 py-3 bg-[#2a2b25] border border-[rgba(251,254,242,0.1)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#019B77] focus:border-transparent resize-none text-sm text-[#FBFEF2] placeholder-[#B6B6B6]"
       />
 
       <Button
         onClick={handleSaveNote}
         disabled={isSaving || !noteContent.trim()}
-        className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-lg font-medium hover:shadow-lg transition-all flex items-center gap-2"
+        className="mt-4 bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] px-6 py-2 rounded-lg font-medium transition-all flex items-center gap-2 border-0"
       >
         {isSaving ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#FBFEF2]" />
             Guardando...
           </>
         ) : (
@@ -137,7 +137,7 @@ export default function PersonalNotes({ reportId, userId }: PersonalNotesProps) 
       </Button>
 
       {existingNoteId && (
-        <p className="text-xs text-green-600 mt-2">
+        <p className="text-xs text-[#019B77] mt-2">
           ✓ Nota guardada en tu cuenta
         </p>
       )}

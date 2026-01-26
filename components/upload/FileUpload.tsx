@@ -92,9 +92,9 @@ export function FileUpload({
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium">{label}</label>
+      <label className="text-sm font-medium text-[#FBFEF2]">{label}</label>
       {description && (
-        <p className="text-xs text-muted-foreground">{description}</p>
+        <p className="text-xs text-[#B6B6B6]">{description}</p>
       )}
 
       {!file ? (
@@ -102,9 +102,9 @@ export function FileUpload({
           className={cn(
             'border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer',
             isDragging
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-gray-300 hover:border-gray-400 bg-white',
-            error && 'border-red-500 bg-red-50'
+              ? 'border-[#019B77] bg-[#019B77]/10'
+              : 'border-[rgba(251,254,242,0.2)] hover:border-[#019B77]/50 bg-[#2a2b25]',
+            error && 'border-red-500 bg-red-500/10'
           )}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
@@ -122,28 +122,28 @@ export function FileUpload({
           <div className="flex flex-col items-center justify-center text-center">
             <Upload className={cn(
               'h-8 w-8 mb-2',
-              isDragging ? 'text-blue-500' : 'text-gray-400'
+              isDragging ? 'text-[#019B77]' : 'text-[#B6B6B6]'
             )} />
-            <p className="text-sm font-medium mb-1">
+            <p className="text-sm font-medium mb-1 text-[#FBFEF2]">
               {isDragging ? 'Suelta el archivo aquí' : 'Arrastra tu archivo CSV aquí'}
             </p>
-            <p className="text-xs text-muted-foreground mb-2">
+            <p className="text-xs text-[#B6B6B6] mb-2">
               o haz click para seleccionar
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[#B6B6B6]">
               Máximo {maxSize}MB
             </p>
           </div>
         </div>
       ) : (
-        <div className="border-2 border-green-500 bg-green-50 rounded-lg p-4">
+        <div className="border border-[#019B77] bg-[#019B77]/10 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-              <FileText className="h-5 w-5 text-gray-600 flex-shrink-0" />
+              <CheckCircle2 className="h-5 w-5 text-[#019B77] flex-shrink-0" />
+              <FileText className="h-5 w-5 text-[#B6B6B6] flex-shrink-0" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{file.name}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm font-medium truncate text-[#FBFEF2]">{file.name}</p>
+                <p className="text-xs text-[#B6B6B6]">
                   {formatFileSize(file.size)}
                 </p>
               </div>
@@ -152,7 +152,7 @@ export function FileUpload({
               variant="ghost"
               size="sm"
               onClick={handleRemove}
-              className="flex-shrink-0"
+              className="flex-shrink-0 text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#2a2b25]"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -161,7 +161,7 @@ export function FileUpload({
       )}
 
       {error && (
-        <p className="text-xs text-red-600">{error}</p>
+        <p className="text-xs text-red-400">{error}</p>
       )}
     </div>
   );

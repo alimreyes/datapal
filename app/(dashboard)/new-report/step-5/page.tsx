@@ -267,60 +267,60 @@ export default function Step5Page() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen bg-[#11120D] py-12 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Progress indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Paso 5 de 5</span>
-            <span className="text-sm text-gray-500">Confirmación</span>
+            <span className="text-sm font-medium text-[#B6B6B6]">Paso 5 de 5</span>
+            <span className="text-sm text-[#B6B6B6]">Confirmación</span>
           </div>
-          <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-2 bg-[#2a2b25] rounded-full overflow-hidden">
             <motion.div
               initial={{ width: '80%' }}
               animate={{ width: '100%' }}
               transition={{ duration: 0.5 }}
-              className="h-full bg-gradient-to-r from-blue-600 to-purple-600"
+              className="h-full bg-[#019B77]"
             />
           </div>
         </div>
 
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
-            <CheckCircle2 className="h-8 w-8 text-green-600" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#019B77]/20 rounded-full mb-4 border border-[#019B77]/30">
+            <CheckCircle2 className="h-8 w-8 text-[#019B77]" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">
+          <h1 className="text-3xl font-bold mb-2 text-[#FBFEF2]">
             ¡Casi listo!
           </h1>
-          <p className="text-gray-600">
+          <p className="text-[#B6B6B6]">
             Revisa tu información antes de continuar
           </p>
         </div>
 
         {/* Summary Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 bg-[#1a1b16] border-[rgba(251,254,242,0.1)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+            <CardTitle className="flex items-center gap-2 text-[#FBFEF2]">
+              <FileText className="h-5 w-5 text-[#019B77]" />
               Resumen de tu reporte
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Objective */}
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-2">Objetivo:</p>
-              <Badge variant="secondary" className="text-sm">
+              <p className="text-sm font-medium text-[#B6B6B6] mb-2">Objetivo:</p>
+              <Badge variant="secondary" className="text-sm bg-[#2a2b25] text-[#FBFEF2] border border-[rgba(251,254,242,0.1)]">
                 {objective && (objectiveLabels[objective] || objective)}
               </Badge>
             </div>
 
             {/* Platforms */}
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-2">Plataformas:</p>
+              <p className="text-sm font-medium text-[#B6B6B6] mb-2">Plataformas:</p>
               <div className="flex gap-2">
                 {platforms.map((platform) => (
-                  <Badge key={platform} variant="secondary" className="text-sm">
+                  <Badge key={platform} variant="secondary" className="text-sm bg-[#2a2b25] text-[#FBFEF2] border border-[rgba(251,254,242,0.1)]">
                     {platformLabels[platform]}
                   </Badge>
                 ))}
@@ -329,20 +329,20 @@ export default function Step5Page() {
 
             {/* Files */}
             <div>
-              <p className="text-sm font-medium text-gray-600 mb-2">Archivos cargados:</p>
+              <p className="text-sm font-medium text-[#B6B6B6] mb-2">Archivos cargados:</p>
               <div className="space-y-3">
                 {/* Instagram */}
                 {platforms.includes('instagram') && (
-                  <div className="bg-pink-50 rounded-lg p-3">
-                    <p className="text-sm font-medium mb-2">📸 Instagram ({instagramFileCount} archivos)</p>
+                  <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-2 text-purple-400">📸 Instagram ({instagramFileCount} archivos)</p>
                     <div className="space-y-1">
                       {Object.entries(instagramFiles).map(([category, file]) => {
                         if (!file) return null;
                         return (
                           <div key={category} className="flex items-center gap-2 text-xs">
-                            <CheckCircle2 className="h-3 w-3 text-green-600" />
-                            <span>{categoryLabels[category as keyof typeof categoryLabels]}</span>
-                            <span className="text-gray-500">• {file.name}</span>
+                            <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
+                            <span className="text-[#FBFEF2]">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                            <span className="text-[#B6B6B6]">• {file.name}</span>
                           </div>
                         );
                       })}
@@ -352,16 +352,16 @@ export default function Step5Page() {
 
                 {/* Facebook */}
                 {platforms.includes('facebook') && (
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <p className="text-sm font-medium mb-2">👍 Facebook ({facebookFileCount} archivos)</p>
+                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-2 text-blue-400">👍 Facebook ({facebookFileCount} archivos)</p>
                     <div className="space-y-1">
                       {Object.entries(facebookFiles).map(([category, file]) => {
                         if (!file) return null;
                         return (
                           <div key={category} className="flex items-center gap-2 text-xs">
-                            <CheckCircle2 className="h-3 w-3 text-green-600" />
-                            <span>{categoryLabels[category as keyof typeof categoryLabels]}</span>
-                            <span className="text-gray-500">• {file.name}</span>
+                            <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
+                            <span className="text-[#FBFEF2]">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                            <span className="text-[#B6B6B6]">• {file.name}</span>
                           </div>
                         );
                       })}
@@ -374,9 +374,9 @@ export default function Step5Page() {
         </Card>
 
         {/* Confirmation Alert */}
-        <Alert className="mb-6 border-blue-200 bg-blue-50">
-          <AlertCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-900 font-medium">
+        <Alert className="mb-6 border-[#019B77]/30 bg-[#019B77]/10">
+          <AlertCircle className="h-4 w-4 text-[#019B77]" />
+          <AlertDescription className="text-[#FBFEF2] font-medium">
             ¿Estás segura/o que subiste toda la información?
           </AlertDescription>
         </Alert>
@@ -395,6 +395,7 @@ export default function Step5Page() {
             onClick={handleGoBack}
             size="lg"
             disabled={isProcessing}
+            className="border-[rgba(251,254,242,0.1)] text-[#FBFEF2] hover:bg-[#2a2b25] hover:text-[#FBFEF2]"
           >
             <ArrowLeft className="mr-2 h-5 w-5" />
             No, aún me falta
@@ -404,7 +405,7 @@ export default function Step5Page() {
             size="lg"
             onClick={handleConfirm}
             disabled={isProcessing}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+            className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
           >
             {isProcessing ? (
               <>
@@ -419,7 +420,7 @@ export default function Step5Page() {
 
         {/* Info */}
         <div className="mt-6 text-center">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-[#B6B6B6]">
             Total: {totalFiles} archivo{totalFiles !== 1 ? 's' : ''} • Los archivos se procesarán de forma segura
           </p>
         </div>
