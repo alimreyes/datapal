@@ -542,10 +542,10 @@ export default function ReportPage() {
   // LOADING STATE
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#11120D] flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando reporte...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#019B77] border-t-transparent mx-auto mb-4"></div>
+          <p className="text-[#B6B6B6]">Cargando reporte...</p>
         </div>
       </div>
     );
@@ -553,9 +553,9 @@ export default function ReportPage() {
 
   if (!reportData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-[#11120D] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600">No se encontró el reporte</p>
+          <p className="text-[#B6B6B6]">No se encontró el reporte</p>
         </div>
       </div>
     );
@@ -604,8 +604,8 @@ export default function ReportPage() {
     <>
       {/* Indicador de carga para upload de logo */}
       {isUploadingLogo && (
-        <div className="fixed top-4 right-4 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3">
-          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+        <div className="fixed top-4 right-4 bg-[#019B77] text-[#FBFEF2] px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3 border border-[#019B77]/50">
+          <div className="animate-spin rounded-full h-5 w-5 border-2 border-[#FBFEF2] border-t-transparent"></div>
           <span>Subiendo logo...</span>
         </div>
       )}

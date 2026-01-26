@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Eye, Users, Heart, UserPlus, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import { Eye, Users, Heart, UserPlus, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   LineChart,
@@ -10,7 +10,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
 } from 'recharts';
 
@@ -58,12 +57,11 @@ export default function ReportSheet1({
   tokensRemaining = 0,
   onPurchaseTokens,
 }: ReportSheet1Props) {
-  // Estado para controlar qué líneas del gráfico están visibles
   const [visibleMetrics, setVisibleMetrics] = useState({
     visualizations: true,
     reach: true,
     interactions: true,
-    followers: false, // Oculta por defecto para simplificar
+    followers: false,
   });
 
   const toggleMetric = (metric: keyof typeof visibleMetrics) => {
@@ -90,44 +88,52 @@ export default function ReportSheet1({
       label: 'Visualizaciones',
       value: metrics.visualizations,
       icon: Eye,
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-700',
-      borderColor: 'border-purple-200',
+      color: '#019B77',
     },
     {
       label: 'Alcance',
       value: metrics.reach,
       icon: Users,
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-700',
-      borderColor: 'border-blue-200',
+      color: '#02c494',
     },
     {
       label: 'Interacciones',
       value: metrics.interactions,
       icon: Heart,
-      bgColor: 'bg-pink-50',
-      textColor: 'text-pink-700',
-      borderColor: 'border-pink-200',
+      color: '#017a5e',
     },
     {
       label: 'Seguidores',
       value: metrics.followers,
       icon: UserPlus,
-      bgColor: 'bg-green-50',
-      textColor: 'text-green-700',
-      borderColor: 'border-green-200',
+      color: '#B6B6B6',
     },
   ];
 
   const conversions = [vizToReach, reachToInteractions];
-
   const Icon = selectedMetric.icon;
+
+  // Custom tooltip for dark theme
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.2)] rounded-lg p-3 shadow-xl">
+          <p className="text-[#FBFEF2] text-sm font-medium mb-2">{label}</p>
+          {payload.map((entry: any, index: number) => (
+            <p key={index} className="text-sm" style={{ color: entry.color }}>
+              {entry.name}: {formatNumber(entry.value)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="space-y-6">
       {/* Funnel de Métricas - HORIZONTAL */}
-      <div className="bg-white rounded-xl border-2 border-gray-200 p-4 shadow-sm">
+      <div className="bg-[#1a1b16] rounded-xl border border-[rgba(251,254,242,0.1)] p-4">
         <div className="flex items-center justify-center flex-wrap gap-2">
           {metricsArray.map((metric, index) => {
             const MetricIcon = metric.icon;
@@ -135,16 +141,14 @@ export default function ReportSheet1({
             return (
               <div key={metric.label} className="flex items-center gap-2">
                 {/* Metric Card */}
-                <div
-                  className={`${metric.bgColor} ${metric.borderColor} border-2 rounded-lg p-3 min-w-[140px]`}
-                >
+                <div className="bg-[#2a2b25] border border-[rgba(251,254,242,0.1)] rounded-lg p-3 min-w-[140px]">
                   <div className="flex items-center gap-2 mb-1">
-                    <MetricIcon className={`w-4 h-4 ${metric.textColor}`} />
-                    <span className="text-xs font-medium text-gray-600">
+                    <MetricIcon className="w-4 h-4" style={{ color: metric.color }} />
+                    <span className="text-xs font-medium text-[#B6B6B6]">
                       {metric.label}
                     </span>
                   </div>
-                  <div className={`text-2xl font-bold ${metric.textColor}`}>
+                  <div className="text-2xl font-bold text-[#FBFEF2]">
                     {formatNumber(metric.value)}
                   </div>
                 </div>
@@ -152,8 +156,8 @@ export default function ReportSheet1({
                 {/* Conversion Arrow */}
                 {index < conversions.length && (
                   <div className="flex flex-col items-center gap-1">
-                    <ArrowRight className="w-5 h-5 text-gray-400" />
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-1 rounded-full">
+                    <ArrowRight className="w-5 h-5 text-[#B6B6B6]" />
+                    <div className="bg-[#019B77] text-[#FBFEF2] px-2 py-1 rounded-full">
                       <span className="text-xs font-bold">{conversions[index]}%</span>
                     </div>
                   </div>
@@ -168,44 +172,47 @@ export default function ReportSheet1({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Métrica Grande Lateral */}
         <div className="lg:col-span-1">
-          <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-300 rounded-xl p-6 h-full flex flex-col justify-center">
-            <div className="text-center">
+          <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6 h-full flex flex-col justify-center relative overflow-hidden">
+            {/* Glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[#019B77]/10 to-transparent" />
+
+            <div className="text-center relative">
               <div className="flex justify-center mb-4">
-                <div className="p-4 bg-white rounded-full shadow-md">
-                  <Icon className={`w-12 h-12 text-${selectedMetric.color}-600`} />
+                <div className="p-4 bg-[#019B77]/20 rounded-full border border-[#019B77]/30">
+                  <Icon className="w-12 h-12 text-[#019B77]" />
                 </div>
               </div>
 
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              <h3 className="text-xs font-semibold text-[#B6B6B6] uppercase tracking-wider mb-3">
                 Tu métrica más relevante
               </h3>
 
-              <div className={`text-5xl font-bold text-${selectedMetric.color}-600 mb-3`}>
+              <div className="text-5xl font-bold text-[#019B77] mb-3">
                 {formatNumber(selectedMetric.value)}
               </div>
 
-              <p className="text-lg font-medium text-gray-700">{selectedMetric.label}</p>
+              <p className="text-lg font-medium text-[#FBFEF2]">{selectedMetric.label}</p>
             </div>
           </div>
         </div>
 
         {/* Gráfico de Línea Temporal */}
         <div className="lg:col-span-2">
-          <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 h-full">
+          <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6 h-full">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-gray-900">
-                Gráfico de Línea Temporal
+              <h3 className="text-lg font-bold text-[#FBFEF2]">
+                Evolución Temporal
               </h3>
 
               {/* Botones de toggle para métricas */}
               <div className="flex gap-2 flex-wrap items-center">
-                <span className="text-xs text-gray-500 font-medium mr-1">Mostrar:</span>
+                <span className="text-xs text-[#B6B6B6] font-medium mr-1">Mostrar:</span>
                 <button
                   onClick={() => toggleMetric('visualizations')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.visualizations
-                      ? 'bg-purple-600 text-white shadow-md'
-                      : 'bg-purple-50 text-purple-700 border-2 border-purple-200 hover:border-purple-300'
+                      ? 'bg-[#019B77] text-[#FBFEF2]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5 inline mr-1" />
@@ -213,10 +220,10 @@ export default function ReportSheet1({
                 </button>
                 <button
                   onClick={() => toggleMetric('reach')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.reach
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-blue-50 text-blue-700 border-2 border-blue-200 hover:border-blue-300'
+                      ? 'bg-[#02c494] text-[#FBFEF2]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
                   }`}
                 >
                   <Users className="w-3.5 h-3.5 inline mr-1" />
@@ -224,10 +231,10 @@ export default function ReportSheet1({
                 </button>
                 <button
                   onClick={() => toggleMetric('interactions')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.interactions
-                      ? 'bg-pink-600 text-white shadow-md'
-                      : 'bg-pink-50 text-pink-700 border-2 border-pink-200 hover:border-pink-300'
+                      ? 'bg-[#017a5e] text-[#FBFEF2]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
                   }`}
                 >
                   <Heart className="w-3.5 h-3.5 inline mr-1" />
@@ -235,10 +242,10 @@ export default function ReportSheet1({
                 </button>
                 <button
                   onClick={() => toggleMetric('followers')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105 ${
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.followers
-                      ? 'bg-green-600 text-white shadow-md'
-                      : 'bg-green-50 text-green-700 border-2 border-green-200 hover:border-green-300'
+                      ? 'bg-[#B6B6B6] text-[#11120D]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
                   }`}
                 >
                   <UserPlus className="w-3.5 h-3.5 inline mr-1" />
@@ -249,45 +256,61 @@ export default function ReportSheet1({
 
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Legend />
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(251,254,242,0.1)" />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12, fill: '#B6B6B6' }}
+                  axisLine={{ stroke: 'rgba(251,254,242,0.1)' }}
+                  tickLine={{ stroke: 'rgba(251,254,242,0.1)' }}
+                />
+                <YAxis
+                  tick={{ fontSize: 12, fill: '#B6B6B6' }}
+                  axisLine={{ stroke: 'rgba(251,254,242,0.1)' }}
+                  tickLine={{ stroke: 'rgba(251,254,242,0.1)' }}
+                />
+                <Tooltip content={<CustomTooltip />} />
                 {visibleMetrics.visualizations && (
                   <Line
                     type="monotone"
                     dataKey="visualizations"
-                    stroke="#9333ea"
+                    stroke="#019B77"
                     strokeWidth={2}
                     name="Visualizaciones"
+                    dot={{ fill: '#019B77', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#019B77' }}
                   />
                 )}
                 {visibleMetrics.reach && (
                   <Line
                     type="monotone"
                     dataKey="reach"
-                    stroke="#3b82f6"
+                    stroke="#02c494"
                     strokeWidth={2}
                     name="Alcance"
+                    dot={{ fill: '#02c494', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#02c494' }}
                   />
                 )}
                 {visibleMetrics.interactions && (
                   <Line
                     type="monotone"
                     dataKey="interactions"
-                    stroke="#ec4899"
+                    stroke="#017a5e"
                     strokeWidth={2}
                     name="Interacciones"
+                    dot={{ fill: '#017a5e', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#017a5e' }}
                   />
                 )}
                 {visibleMetrics.followers && (
                   <Line
                     type="monotone"
                     dataKey="followers"
-                    stroke="#22c55e"
+                    stroke="#B6B6B6"
                     strokeWidth={2}
                     name="Seguidores"
+                    dot={{ fill: '#B6B6B6', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#B6B6B6' }}
                   />
                 )}
               </LineChart>
@@ -297,20 +320,19 @@ export default function ReportSheet1({
       </div>
 
       {/* Sección de IA */}
-      <div className="bg-pink-50 border-2 border-pink-300 rounded-xl p-6">
-        <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
-          SECCIÓN DE IA
+      <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6">
+        <h2 className="text-xl font-bold text-center text-[#FBFEF2] mb-4">
+          Análisis con IA
         </h2>
 
         {insights.length > 0 ? (
           <div className="space-y-4">
-            {/* Botón Regenerar Insights */}
             {onRegenerateInsights && (
               <div className="mb-4">
                 <Button
                   onClick={async () => {
                     if (tokensRemaining <= 0) {
-                      alert('No tienes tokens disponibles. Compra más tokens para regenerar insights.');
+                      alert('No tienes tokens disponibles.');
                       if (onPurchaseTokens) onPurchaseTokens();
                       return;
                     }
@@ -319,40 +341,39 @@ export default function ReportSheet1({
                     }
                   }}
                   disabled={isGenerating}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                  className="w-full bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-5 h-5" />
                   {isGenerating ? 'Generando...' : 'Regenerar Insights (1 token)'}
                 </Button>
-                <p className="text-xs text-gray-500 text-center mt-2">
+                <p className="text-xs text-[#B6B6B6] text-center mt-2">
                   Tokens restantes: {tokensRemaining}
                 </p>
               </div>
             )}
 
-            {/* Insights Generados */}
             <div className="space-y-3">
               {insights.map((insight) => (
                 <div
                   key={insight.id}
-                  className="bg-white rounded-lg p-4 border border-pink-200"
+                  className="bg-[#2a2b25] rounded-lg p-4 border border-[rgba(251,254,242,0.1)]"
                 >
-                  <h4 className="font-bold text-gray-900 mb-1">{insight.title}</h4>
-                  <p className="text-sm text-gray-700">{insight.content}</p>
+                  <h4 className="font-bold text-[#FBFEF2] mb-1">{insight.title}</h4>
+                  <p className="text-sm text-[#B6B6B6]">{insight.content}</p>
                 </div>
               ))}
             </div>
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-gray-600 mb-4">
+            <p className="text-[#B6B6B6] mb-4">
               Genera insights con IA para obtener análisis detallado de tus métricas
             </p>
             {onGenerateInsights && (
               <Button
                 onClick={onGenerateInsights}
                 disabled={isGenerating}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all flex items-center justify-center gap-2 mx-auto"
+                className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 mx-auto"
               >
                 <Sparkles className="w-5 h-5" />
                 {isGenerating ? 'Generando...' : 'Generar Insights con IA'}

@@ -2,8 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, FileText, Calendar, Clock } from 'lucide-react';
+import { PlusCircle, FileText, Calendar, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
@@ -18,7 +17,6 @@ export default function DashboardPage() {
       try {
         setLoading(true);
         const reportsRef = collection(db, 'reports');
-        // Cargar los últimos 20 reportes públicos (sin filtro de usuario)
         const q = query(
           reportsRef,
           orderBy('createdAt', 'desc'),
@@ -56,84 +54,84 @@ export default function DashboardPage() {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-4xl font-bold text-[#FBFEF2] tracking-tight">
           Bienvenido a DataPal
         </h1>
-        <p className="text-muted-foreground mt-2">
+        <p className="text-[#B6B6B6] mt-2 text-lg">
           Crea y gestiona tus reportes de marketing de Instagram y Facebook.
         </p>
       </div>
 
       {/* Quick Actions */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Link href="/new-report/step-1">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="bg-blue-100 p-3 rounded-lg">
-                  <PlusCircle className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">Nuevo Reporte</CardTitle>
-                  <CardDescription>Crea un reporte desde cero</CardDescription>
-                </div>
+          <div className="group relative bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-6 hover:border-[#019B77]/50 transition-all duration-300 cursor-pointer overflow-hidden">
+            {/* Glow effect on hover */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#019B77]/0 via-[#019B77]/5 to-[#019B77]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+            <div className="relative flex items-center gap-4">
+              <div className="bg-[#019B77]/20 p-4 rounded-lg border border-[#019B77]/30">
+                <PlusCircle className="h-6 w-6 text-[#019B77]" />
               </div>
-            </CardHeader>
-          </Card>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-[#FBFEF2]">Nuevo Reporte</h3>
+                <p className="text-[#B6B6B6] text-sm">Crea un reporte desde cero</p>
+              </div>
+              <ArrowRight className="h-5 w-5 text-[#B6B6B6] group-hover:text-[#019B77] group-hover:translate-x-1 transition-all" />
+            </div>
+          </div>
         </Link>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-          <CardHeader>
-            <div className="flex items-center gap-4">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <FileText className="h-6 w-6 text-purple-600" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Mis Reportes</CardTitle>
-                <CardDescription>
-                  {loading ? 'Cargando...' : `${reports.length} ${reports.length === 1 ? 'reporte creado' : 'reportes creados'}`}
-                </CardDescription>
-              </div>
+        <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-[#2a2b25] p-4 rounded-lg border border-[rgba(251,254,242,0.1)]">
+              <FileText className="h-6 w-6 text-[#B6B6B6]" />
             </div>
-          </CardHeader>
-        </Card>
+            <div>
+              <h3 className="text-lg font-semibold text-[#FBFEF2]">Mis Reportes</h3>
+              <p className="text-[#B6B6B6] text-sm">
+                {loading ? 'Cargando...' : `${reports.length} ${reports.length === 1 ? 'reporte creado' : 'reportes creados'}`}
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Lista de Reportes o Empty State */}
       {loading ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-            <p className="text-muted-foreground">Cargando reportes...</p>
-          </CardContent>
-        </Card>
+        <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-2 border-[#019B77] border-t-transparent mb-4"></div>
+            <p className="text-[#B6B6B6]">Cargando reportes...</p>
+          </div>
+        </div>
       ) : reports.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16">
-            <div className="bg-gray-100 p-4 rounded-full mb-4">
-              <FileText className="h-12 w-12 text-gray-400" />
+        <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg">
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="bg-[#2a2b25] p-6 rounded-full mb-6 border border-[rgba(251,254,242,0.1)]">
+              <FileText className="h-12 w-12 text-[#B6B6B6]" />
             </div>
-            <h3 className="text-xl font-semibold mb-2">No tienes reportes aún</h3>
-            <p className="text-muted-foreground mb-6 text-center max-w-md">
+            <h3 className="text-xl font-semibold text-[#FBFEF2] mb-2">No tienes reportes aún</h3>
+            <p className="text-[#B6B6B6] mb-6 text-center max-w-md">
               Comienza creando tu primer reporte de Instagram o Facebook. Solo necesitas subir tus archivos CSV y nosotros hacemos el resto.
             </p>
             <Link href="/new-report/step-1">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
               >
                 <PlusCircle className="mr-2 h-5 w-5" />
                 Crear mi primer reporte
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : (
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Mis Reportes</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-[#FBFEF2]">Mis Reportes</h2>
             <Link href="/new-report/step-1">
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
+              <Button className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Nuevo Reporte
               </Button>
@@ -143,45 +141,41 @@ export default function DashboardPage() {
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reports.map((report) => (
               <Link key={report.id} href={`/report/${report.id}`}>
-                <Card className="hover:shadow-lg transition-all cursor-pointer h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg line-clamp-1">{report.title}</CardTitle>
-                        <CardDescription className="flex items-center gap-2 mt-2">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(report.createdAt)}
-                        </CardDescription>
-                      </div>
-                      <div className={`px-2 py-1 rounded text-xs font-medium ${
-                        report.status === 'ready'
-                          ? 'bg-green-100 text-green-700'
-                          : report.status === 'processing'
-                          ? 'bg-yellow-100 text-yellow-700'
-                          : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {report.status === 'ready' ? 'Listo' :
-                         report.status === 'processing' ? 'Procesando' : 'Error'}
-                      </div>
+                <div className="group bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-5 hover:border-[#019B77]/50 transition-all duration-300 cursor-pointer h-full">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex-1">
+                      <h4 className="text-lg font-semibold text-[#FBFEF2] line-clamp-1 group-hover:text-[#019B77] transition-colors">{report.title}</h4>
+                      <p className="flex items-center gap-2 mt-2 text-sm text-[#B6B6B6]">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(report.createdAt)}
+                      </p>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      {report.platforms.map((platform) => (
-                        <div
-                          key={platform}
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            platform === 'instagram'
-                              ? 'bg-purple-100 text-purple-700'
-                              : 'bg-blue-100 text-blue-700'
-                          }`}
-                        >
-                          {platform === 'instagram' ? 'Instagram' : 'Facebook'}
-                        </div>
-                      ))}
+                    <div className={`px-2 py-1 rounded text-xs font-medium ${
+                      report.status === 'ready'
+                        ? 'bg-[#019B77]/20 text-[#019B77] border border-[#019B77]/30'
+                        : report.status === 'processing'
+                        ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                        : 'bg-red-500/20 text-red-400 border border-red-500/30'
+                    }`}>
+                      {report.status === 'ready' ? 'Listo' :
+                       report.status === 'processing' ? 'Procesando' : 'Error'}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {report.platforms.map((platform) => (
+                      <div
+                        key={platform}
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          platform === 'instagram'
+                            ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                            : 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                        }`}
+                      >
+                        {platform === 'instagram' ? 'Instagram' : 'Facebook'}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </Link>
             ))}
           </div>
@@ -189,14 +183,26 @@ export default function DashboardPage() {
       )}
 
       {/* Coming Soon */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-100">
-        <h3 className="text-lg font-semibold mb-2">🚀 Próximamente</h3>
-        <ul className="space-y-2 text-sm text-muted-foreground">
-          <li>✨ Integración directa con Meta Business Suite</li>
-          <li>📊 Comparación de múltiples periodos</li>
-          <li>🤖 Insights automáticos con IA</li>
-          <li>📱 App móvil para iOS y Android</li>
-        </ul>
+      <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-6">
+        <h3 className="text-lg font-semibold text-[#FBFEF2] mb-4">Próximamente</h3>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div className="flex items-center gap-3 text-sm text-[#B6B6B6]">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#019B77]" />
+            Integración directa con Meta Business Suite
+          </div>
+          <div className="flex items-center gap-3 text-sm text-[#B6B6B6]">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#019B77]" />
+            Comparación de múltiples periodos
+          </div>
+          <div className="flex items-center gap-3 text-sm text-[#B6B6B6]">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#019B77]" />
+            Insights automáticos con IA
+          </div>
+          <div className="flex items-center gap-3 text-sm text-[#B6B6B6]">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#019B77]" />
+            App móvil para iOS y Android
+          </div>
+        </div>
       </div>
     </div>
   );
