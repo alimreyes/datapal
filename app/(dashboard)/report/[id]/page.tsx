@@ -143,7 +143,6 @@ export default function ReportPage() {
     };
 
     let combinedDailyData: any[] = [];
-    let combinedContentData: any[] = [];
 
     // Combinar métricas según plataformas seleccionadas
     if (platforms.includes('instagram') && report.data?.instagram) {
@@ -154,11 +153,6 @@ export default function ReportPage() {
       combinedMetrics.reach += instagram.reachStats?.total || 0;
       combinedMetrics.interactions += instagram.interactionsStats?.total || 0;
       combinedMetrics.followers += instagram.followersStats?.total || 0;
-
-      // Combinar datos de contenido
-      if (instagram.content) {
-        combinedContentData = [...combinedContentData, ...instagram.content];
-      }
 
       // Combinar datos diarios de todas las métricas
       const dailyDataMap = new Map<string, any>();
@@ -207,11 +201,6 @@ export default function ReportPage() {
       combinedMetrics.reach += facebook.reachStats?.total || 0;
       combinedMetrics.interactions += facebook.interactionsStats?.total || 0;
       combinedMetrics.followers += facebook.followersStats?.total || 0;
-
-      // Combinar datos de contenido
-      if (facebook.content) {
-        combinedContentData = [...combinedContentData, ...facebook.content];
-      }
 
       // Combinar datos diarios
       const dailyDataMap = new Map<string, any>();
@@ -272,18 +261,12 @@ export default function ReportPage() {
     // Calcular rango de fechas
     const dateRange = calculateDateRange(report, combinedDailyData);
 
-    // Ordenar contenido por fecha (más reciente primero)
-    combinedContentData.sort((a, b) =>
-      new Date(b.date || b.publishedAt).getTime() - new Date(a.date || a.publishedAt).getTime()
-    );
-
     return {
       title: report.title || 'MI REPORTE',
       dateRange,
       platforms,
       metrics: combinedMetrics,
       chartData,
-      contentData: combinedContentData,
       insights: report.aiInsights || [],
     };
   }
@@ -599,17 +582,12 @@ export default function ReportPage() {
         totalInteractions: 0,
         frequency: '0 posts/día',
         chartData: [],
-        contentData: [],
       };
     }
 
+    // Contar posts totales (días con publicaciones > 0)
     const chartData = reportData.chartData || [];
-    const contentData = reportData.contentData || [];
-
-    // Contar posts totales desde contentData si está disponible, sino desde chartData
-    const totalPosts = contentData.length > 0
-      ? contentData.length
-      : chartData.filter((day: any) => day.visualizations > 0 || day.reach > 0).length;
+    const totalPosts = chartData.filter((day: any) => day.visualizations > 0 || day.reach > 0).length;
 
     // Total de interacciones
     const totalInteractions = reportData.metrics?.interactions || 0;
@@ -618,10 +596,10 @@ export default function ReportPage() {
     const daysInPeriod = chartData.length || 1;
     const frequency = `${(totalPosts / daysInPeriod).toFixed(1)} posts/día`;
 
-    // Preparar datos para el gráfico de área
+    // Preparar datos para el gráfico combinado (barras + líneas)
     const sheet2ChartData = chartData.map((day: any) => ({
       date: day.date,
-      posts: day.visualizations > 0 ? 1 : 0,
+      posts: day.visualizations > 0 ? 1 : 0, // 1 si hubo post ese día, 0 si no
       interactions: day.interactions,
     }));
 
@@ -630,7 +608,6 @@ export default function ReportPage() {
       totalInteractions,
       frequency,
       chartData: sheet2ChartData,
-      contentData,
     };
   };
 
@@ -686,7 +663,6 @@ export default function ReportPage() {
               totalInteractions={sheet2Data.totalInteractions}
               frequency={sheet2Data.frequency}
               chartData={sheet2Data.chartData}
-              contentData={sheet2Data.contentData}
               contentInsights={reportData.insights}
               onGenerateInsights={handleGenerateInsights}
               onRegenerateInsights={handleRegenerateInsights}

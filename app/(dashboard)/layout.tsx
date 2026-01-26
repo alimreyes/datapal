@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { useRouter } from 'next/navigation';
@@ -13,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User, Settings } from 'lucide-react';
+import { BarChart3, LogOut, User, Settings } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -37,13 +36,9 @@ export default function DashboardLayout({
             <div className="flex justify-between h-16">
               <div className="flex items-center">
                 <div className="flex items-center gap-2">
-                  <Image
-                    src="/Logo_DataPal.png"
-                    alt="DataPal Logo"
-                    width={36}
-                    height={36}
-                    className="object-contain"
-                  />
+                  <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-2 rounded-lg">
+                    <BarChart3 className="h-5 w-5 text-white" />
+                  </div>
                   <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                     DataPal
                   </span>

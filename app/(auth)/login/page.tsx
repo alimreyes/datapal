@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2 } from 'lucide-react';
+import { Loader2, BarChart3 } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -58,13 +57,9 @@ export default function LoginPage() {
     <Card className="border-0 shadow-xl">
       <CardHeader className="space-y-1 text-center">
         <div className="flex justify-center mb-4">
-          <Image
-            src="/Logo_DataPal.png"
-            alt="DataPal Logo"
-            width={80}
-            height={80}
-            className="object-contain"
-          />
+          <div className="bg-gradient-to-br from-blue-600 to-purple-600 p-3 rounded-xl">
+            <BarChart3 className="h-8 w-8 text-white" />
+          </div>
         </div>
         <CardTitle className="text-2xl font-bold">Bienvenido a DataPal</CardTitle>
         <CardDescription>
