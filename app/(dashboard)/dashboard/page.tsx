@@ -1,31 +1,28 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/lib/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlusCircle, FileText, Calendar, Clock } from 'lucide-react';
 import Link from 'next/link';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Report } from '@/lib/types';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadReports() {
-      if (!user) return;
-
       try {
         setLoading(true);
         const reportsRef = collection(db, 'reports');
+        // Cargar los últimos 20 reportes públicos (sin filtro de usuario)
         const q = query(
           reportsRef,
-          where('userId', '==', user.uid),
-          orderBy('createdAt', 'desc')
+          orderBy('createdAt', 'desc'),
+          limit(20)
         );
 
         const snapshot = await getDocs(q);
@@ -43,7 +40,7 @@ export default function DashboardPage() {
     }
 
     loadReports();
-  }, [user]);
+  }, []);
 
   const formatDate = (date: any) => {
     if (!date) return 'Fecha desconocida';
@@ -60,10 +57,10 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold">
-          ¡Hola, {user?.displayName?.split(' ')[0] || 'Usuario'}! 👋
+          Bienvenido a DataPal
         </h1>
         <p className="text-muted-foreground mt-2">
-          Bienvenido a tu dashboard de DataPal. Aquí podrás crear y gestionar tus reportes de marketing.
+          Crea y gestiona tus reportes de marketing de Instagram y Facebook.
         </p>
       </div>
 

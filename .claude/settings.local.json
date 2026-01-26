@@ -10,7 +10,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(dir)"
+      "Bash(dir)",
+      "mcp__da736f3f-81f7-428c-8cfb-cb69478ca037__get_deployment",
+      "mcp__da736f3f-81f7-428c-8cfb-cb69478ca037__get_deployment_build_logs"
     ]
   }
 }

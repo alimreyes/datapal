@@ -2,7 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Calendar, Instagram, Share2, Upload, Download } from 'lucide-react';
+import { Calendar, Instagram, Share2, Upload } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -15,7 +15,6 @@ interface ReportHeaderProps {
   onDateRangeClick?: () => void;
   clientLogo?: string;
   onLogoUpload?: (file: File) => void;
-  onExportPDF?: () => void;
   onSave?: () => void;
   isSaving?: boolean;
 }
@@ -29,7 +28,6 @@ export default function ReportHeader({
   onDateRangeClick,
   clientLogo,
   onLogoUpload,
-  onExportPDF,
   onSave,
   isSaving = false,
 }: ReportHeaderProps) {
@@ -113,18 +111,6 @@ export default function ReportHeader({
               )}
             </Button>
           )}
-
-          {/* Botón Exportar PDF */}
-          <Button
-            id="export-pdf-button"
-            onClick={onExportPDF}
-            className="bg-white text-purple-600 hover:bg-purple-50 font-medium flex items-center gap-2"
-            size="default"
-          >
-            <Download className="w-4 h-4" />
-            <span className="hidden sm:inline">Exportar PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </Button>
 
           {/* Botón Compartir */}
           <Button

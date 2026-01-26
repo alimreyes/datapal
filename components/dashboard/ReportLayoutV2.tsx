@@ -16,7 +16,6 @@ interface ReportLayoutV2Props {
   onDateRangeClick?: () => void;
   onLogoUpload?: (file: File) => void;
   onSave?: () => void;
-  onExportPDF?: () => void;
   isSaving?: boolean;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -33,7 +32,6 @@ export default function ReportLayoutV2({
   onDateRangeClick,
   onLogoUpload,
   onSave,
-  onExportPDF,
   isSaving = false,
   currentPage,
   onPageChange,
@@ -154,15 +152,6 @@ export default function ReportLayoutV2({
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isSaving ? 'Guardando...' : 'Guardar Reporte'}
-              </Button>
-            )}
-            {onExportPDF && (
-              <Button
-                onClick={onExportPDF}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                Exportar PDF
               </Button>
             )}
           </div>

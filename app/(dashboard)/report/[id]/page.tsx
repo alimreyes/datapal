@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
-import { useAuth } from '@/lib/hooks/useAuth';
 import ReportLayoutV2 from '@/components/dashboard/ReportLayoutV2';
 import ReportSheet1 from '@/components/dashboard/ReportSheet1';
 import ReportSheet2 from '@/components/dashboard/ReportSheet2';
@@ -11,13 +10,11 @@ import DateRangeModal from '@/components/dashboard/DateRangeModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
 import { getDocument, updateDocument } from '@/lib/firebase/firestore';
 import { uploadClientLogo, resizeImage } from '@/lib/firebase/storage';
-import { exportDashboardToPDF } from '@/lib/exportToPDF';
 import type { Report, PlatformData } from '@/lib/types';
 
 export default function ReportPage() {
   const params = useParams();
   const reportId = params?.id as string;
-  const { user } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
@@ -426,16 +423,6 @@ export default function ReportPage() {
     }
   };
 
-  // HANDLER: Exportar a PDF
-  const handleExportPDF = async () => {
-    try {
-      await exportDashboardToPDF(reportData.title);
-    } catch (error) {
-      console.error('Error al exportar PDF:', error);
-      alert('Error al generar el PDF. Por favor intenta nuevamente.');
-    }
-  };
-
   // HANDLER: Generar insights con IA (primera vez - gratis)
   const handleGenerateInsights = async () => {
     try {
@@ -634,7 +621,6 @@ export default function ReportPage() {
         onDateRangeClick={handleDateRangeClick}
         onLogoUpload={handleLogoUpload}
         onSave={handleSaveReport}
-        onExportPDF={handleExportPDF}
         isSaving={isSaving}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
@@ -673,14 +659,12 @@ export default function ReportPage() {
           )}
 
           {/* Notas Personales - Visible en ambas hojas */}
-          {user && (
-            <div className="mt-6">
-              <PersonalNotes
-                reportId={reportId}
-                userId={user.uid}
-              />
-            </div>
-          )}
+          <div className="mt-6">
+            <PersonalNotes
+              reportId={reportId}
+              userId="guest"
+            />
+          </div>
         </div>
       </ReportLayoutV2>
 
