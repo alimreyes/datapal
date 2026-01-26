@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-Process)",
+      "Bash(Where-Object {$_ProcessName -like \"*node*\"})",
+      "Bash(Select-Object Id, ProcessName, StartTime)",
+      "Bash(npm install:*)",
+      "Bash(test:*)",
+      "Bash(npm run build:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(dir)",
+      "Bash(dir:*)",
+      "Bash(npx remotion studio --port 3030)",
+      "Bash(git init:*)"
+    ]
+  }
+}
