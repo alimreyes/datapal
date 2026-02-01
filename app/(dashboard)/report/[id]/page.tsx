@@ -5,12 +5,14 @@ import { useParams } from 'next/navigation';
 import ReportLayoutV2 from '@/components/dashboard/ReportLayoutV2';
 import ReportSheet1 from '@/components/dashboard/ReportSheet1';
 import ReportSheet2 from '@/components/dashboard/ReportSheet2';
+import ReportSheetAnalysis from '@/components/dashboard/ReportSheetAnalysis';
+import ReportSheetImprovements from '@/components/dashboard/ReportSheetImprovements';
 import PersonalNotes from '@/components/dashboard/PersonalNotes';
 import DateRangeModal from '@/components/dashboard/DateRangeModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
 import { getDocument, updateDocument } from '@/lib/firebase/firestore';
 import { uploadClientLogo, resizeImage } from '@/lib/firebase/storage';
-import type { Report, PlatformData } from '@/lib/types';
+import type { Report, PlatformData, ReportObjective } from '@/lib/types';
 
 export default function ReportPage() {
   const params = useParams();
@@ -31,6 +33,7 @@ export default function ReportPage() {
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   const [dateStart, setDateStart] = useState<Date>(new Date());
   const [dateEnd, setDateEnd] = useState<Date>(new Date());
+  const [reportObjective, setReportObjective] = useState<ReportObjective>('monthly_report');
 
   // Estado para métrica seleccionada (auto-detectar la más relevante)
   const [selectedMetric, setSelectedMetric] = useState<{
@@ -87,6 +90,9 @@ export default function ReportPage() {
 
         // Establecer plataformas desde el reporte
         setSelectedPlatforms(report.platforms || []);
+
+        // Establecer objetivo del reporte
+        setReportObjective(report.objective || 'monthly_report');
 
         // Establecer logo si existe
         if (report.clientLogo) {
@@ -627,38 +633,73 @@ export default function ReportPage() {
       >
         {/* Contenedor para exportación a PDF */}
         <div id="dashboard-content">
-          {/* HOJA 1 - Métricas */}
-          {currentPage === 0 && (
-            <ReportSheet1
+          {/* Renderizado condicional según el objetivo del reporte */}
+
+          {/* OBJETIVO: Análisis de Resultados */}
+          {reportObjective === 'analysis' && (
+            <ReportSheetAnalysis
               metrics={reportData.metrics}
               chartData={reportData.chartData}
-              selectedMetric={selectedMetric}
               insights={reportData.insights}
               onGenerateInsights={handleGenerateInsights}
               onRegenerateInsights={handleRegenerateInsights}
               isGenerating={isGeneratingInsights}
               tokensRemaining={tokensRemaining}
-              onPurchaseTokens={() => window.location.href = '/tokens'}
+              currentSheet={currentPage}
             />
           )}
 
-          {/* HOJA 2 - Contenido */}
-          {currentPage === 1 && (
-            <ReportSheet2
-              totalPosts={sheet2Data.totalPosts}
-              totalInteractions={sheet2Data.totalInteractions}
-              frequency={sheet2Data.frequency}
-              chartData={sheet2Data.chartData}
-              contentInsights={reportData.insights}
+          {/* OBJETIVO: Evidenciar Mejoras Realizadas */}
+          {reportObjective === 'improvements' && (
+            <ReportSheetImprovements
+              metrics={reportData.metrics}
+              chartData={reportData.chartData}
+              insights={reportData.insights}
               onGenerateInsights={handleGenerateInsights}
               onRegenerateInsights={handleRegenerateInsights}
               isGenerating={isGeneratingInsights}
               tokensRemaining={tokensRemaining}
-              onPurchaseTokens={() => window.location.href = '/tokens'}
+              currentSheet={currentPage}
             />
           )}
 
-          {/* Notas Personales - Visible en ambas hojas */}
+          {/* OBJETIVO: Crear Reporte del Mes (default) */}
+          {reportObjective === 'monthly_report' && (
+            <>
+              {/* HOJA 1 - Métricas */}
+              {currentPage === 0 && (
+                <ReportSheet1
+                  metrics={reportData.metrics}
+                  chartData={reportData.chartData}
+                  selectedMetric={selectedMetric}
+                  insights={reportData.insights}
+                  onGenerateInsights={handleGenerateInsights}
+                  onRegenerateInsights={handleRegenerateInsights}
+                  isGenerating={isGeneratingInsights}
+                  tokensRemaining={tokensRemaining}
+                  onPurchaseTokens={() => window.location.href = '/tokens'}
+                />
+              )}
+
+              {/* HOJA 2 - Contenido */}
+              {currentPage === 1 && (
+                <ReportSheet2
+                  totalPosts={sheet2Data.totalPosts}
+                  totalInteractions={sheet2Data.totalInteractions}
+                  frequency={sheet2Data.frequency}
+                  chartData={sheet2Data.chartData}
+                  contentInsights={reportData.insights}
+                  onGenerateInsights={handleGenerateInsights}
+                  onRegenerateInsights={handleRegenerateInsights}
+                  isGenerating={isGeneratingInsights}
+                  tokensRemaining={tokensRemaining}
+                  onPurchaseTokens={() => window.location.href = '/tokens'}
+                />
+              )}
+            </>
+          )}
+
+          {/* Notas Personales - Visible en todas las hojas */}
           <div className="mt-6">
             <PersonalNotes
               reportId={reportId}
