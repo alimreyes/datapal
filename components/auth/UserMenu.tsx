@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Sparkles, CreditCard, Settings, ChevronDown } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 import LoginModal from './LoginModal';
 
 export default function UserMenu() {
@@ -10,6 +11,7 @@ export default function UserMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   // Cerrar menú al hacer clic fuera
   useEffect(() => {
@@ -149,7 +151,7 @@ export default function UserMenu() {
               <button
                 onClick={() => {
                   setIsMenuOpen(false);
-                  // TODO: Navigate to pricing page
+                  router.push('/pricing');
                 }}
                 className="w-full flex items-center gap-3 px-3 py-2 text-[#FBFEF2] hover:bg-[#019B77]/10 rounded-lg transition-colors"
               >
@@ -164,7 +166,7 @@ export default function UserMenu() {
             <button
               onClick={() => {
                 setIsMenuOpen(false);
-                // TODO: Navigate to settings
+                router.push('/settings');
               }}
               className="w-full flex items-center gap-3 px-3 py-2 text-[#FBFEF2] hover:bg-white/5 rounded-lg transition-colors"
             >

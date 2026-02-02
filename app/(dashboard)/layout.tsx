@@ -18,11 +18,11 @@ export default function DashboardLayout({
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center gap-3 group">
                 <Image
-                  src="/DataPal_Logo_Blanco.png"
+                  src="/Logo_DataPal.png"
                   alt="DataPal"
                   width={40}
                   height={40}
-                  className="object-contain"
+                  className="object-contain invert"
                 />
                 <span className="text-xl font-bold text-[#FBFEF2] font-[var(--font-roboto-mono)] tracking-tight group-hover:text-[#019B77] transition-colors">
                   DataPal
