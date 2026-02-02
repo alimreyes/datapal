@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import ReportLayoutV2 from '@/components/dashboard/ReportLayoutV2';
 import ReportSheet1 from '@/components/dashboard/ReportSheet1';
 import ReportSheet2 from '@/components/dashboard/ReportSheet2';
@@ -9,19 +9,24 @@ import ReportSheetAnalysis from '@/components/dashboard/ReportSheetAnalysis';
 import ReportSheetImprovements from '@/components/dashboard/ReportSheetImprovements';
 import PersonalNotes from '@/components/dashboard/PersonalNotes';
 import DateRangeModal from '@/components/dashboard/DateRangeModal';
+import LoginModal from '@/components/auth/LoginModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
 import { getDocument, updateDocument } from '@/lib/firebase/firestore';
 import { uploadClientLogo, resizeImage } from '@/lib/firebase/storage';
+import { useAuth } from '@/contexts/AuthContext';
 import type { Report, PlatformData, ReportObjective } from '@/lib/types';
 
 export default function ReportPage() {
   const params = useParams();
+  const router = useRouter();
   const reportId = params?.id as string;
+  const { user, canUseAI, aiUsageRemaining, refreshUserData } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [tokensRemaining, setTokensRemaining] = useState(3); // TODO: Cargar desde Firestore user.tokens
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showLimitReachedModal, setShowLimitReachedModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
 
   // Estado principal del reporte
@@ -429,99 +434,164 @@ export default function ReportPage() {
     }
   };
 
-  // HANDLER: Generar insights con IA (primera vez - gratis)
+  // HANDLER: Generar insights con IA
   const handleGenerateInsights = async () => {
-    try {
-      setIsGeneratingInsights(true);
-
-      // TODO: Llamar a tu API route que usa Claude
-      // const response = await fetch('/api/generate-insights', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ reportId, metrics: reportData.metrics }),
-      // });
-      // const insights = await response.json();
-
-      // SIMULACIÓN - Eliminar esto cuando conectes la API real
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const mockInsights = [
-        {
-          id: '1',
-          title: 'Rendimiento Destacado',
-          content: 'Tu alcance está por encima del promedio. Continúa con tu estrategia actual.',
-          type: 'positive' as const,
-        },
-        {
-          id: '2',
-          title: 'Oportunidad de Mejora',
-          content: 'Las interacciones son bajas en comparación con el alcance. Considera agregar más llamados a la acción.',
-          type: 'warning' as const,
-        },
-      ];
-
-      setReportData({
-        ...reportData,
-        insights: mockInsights,
-      });
-
-      setIsGeneratingInsights(false);
-    } catch (error) {
-      console.error('Error generating insights:', error);
-      setIsGeneratingInsights(false);
+    // Verificar autenticación
+    if (!user) {
+      setShowLoginModal(true);
+      return;
     }
-  };
 
-  // HANDLER: Regenerar insights (consume 1 token)
-  const handleRegenerateInsights = async () => {
-    if (tokensRemaining <= 0) {
-      alert('No tienes tokens disponibles');
+    // Verificar límite de uso
+    if (!canUseAI) {
+      setShowLimitReachedModal(true);
       return;
     }
 
     try {
       setIsGeneratingInsights(true);
 
-      // TODO: Llamar a tu API route que usa Claude Y descontar 1 token
-      // const response = await fetch('/api/regenerate-insights', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ reportId, metrics: reportData.metrics, userId: user.uid }),
-      // });
-      // const { insights, tokensRemaining: newTokens } = await response.json();
-
-      // SIMULACIÓN - Eliminar esto cuando conectes la API real
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const mockInsights = [
-        {
-          id: '3',
-          title: 'Nuevo Insight Generado',
-          content: 'Este es un insight regenerado. Tu estrategia de contenido está mejorando.',
-          type: 'info' as const,
+      // Llamar a la API de insights con el userId
+      const response = await fetch('/api/insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.uid,
         },
-        {
-          id: '4',
-          title: 'Recomendación Actualizada',
-          content: 'Enfócate en crear más contenido visual para aumentar el engagement.',
-          type: 'suggestion' as const,
-        },
-      ];
+        body: JSON.stringify({
+          reportData: fullData,
+        }),
+      });
 
-      // Descontar 1 token
-      setTokensRemaining(prev => prev - 1);
+      const data = await response.json();
 
-      // TODO: Actualizar tokens en Firestore
-      // await updateDocument('users', user.uid, { tokens: tokensRemaining - 1 });
+      if (!response.ok) {
+        if (response.status === 401) {
+          setShowLoginModal(true);
+          setIsGeneratingInsights(false);
+          return;
+        }
+        if (response.status === 429) {
+          setShowLimitReachedModal(true);
+          await refreshUserData();
+          setIsGeneratingInsights(false);
+          return;
+        }
+        throw new Error(data.error || 'Error al generar insights');
+      }
+
+      // Parsear el insight recibido
+      const parsedInsights = parseInsightResponse(data.insight);
 
       setReportData({
         ...reportData,
-        insights: mockInsights,
+        insights: parsedInsights,
       });
+
+      // Guardar insights en Firestore
+      await updateDocument('reports', reportId, {
+        aiInsights: parsedInsights,
+        lastInsightGeneration: new Date(),
+      });
+
+      // Refrescar datos del usuario para actualizar contador
+      await refreshUserData();
+
+      setIsGeneratingInsights(false);
+    } catch (error) {
+      console.error('Error generating insights:', error);
+      alert('Error al generar insights. Por favor intenta nuevamente.');
+      setIsGeneratingInsights(false);
+    }
+  };
+
+  // Función para parsear la respuesta de la IA
+  const parseInsightResponse = (insight: string) => {
+    // Crear un insight basado en la respuesta
+    return [
+      {
+        id: Date.now().toString(),
+        title: 'Análisis de IA',
+        content: insight,
+        type: 'info' as const,
+      },
+    ];
+  };
+
+  // HANDLER: Regenerar insights (consume 1 consulta)
+  const handleRegenerateInsights = async () => {
+    // Verificar autenticación
+    if (!user) {
+      setShowLoginModal(true);
+      return;
+    }
+
+    // Verificar límite de uso
+    if (!canUseAI) {
+      setShowLimitReachedModal(true);
+      return;
+    }
+
+    try {
+      setIsGeneratingInsights(true);
+
+      // Llamar a la API de insights con el userId
+      const response = await fetch('/api/insights', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.uid,
+        },
+        body: JSON.stringify({
+          reportData: fullData,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          setShowLoginModal(true);
+          setIsGeneratingInsights(false);
+          return;
+        }
+        if (response.status === 429) {
+          setShowLimitReachedModal(true);
+          await refreshUserData();
+          setIsGeneratingInsights(false);
+          return;
+        }
+        throw new Error(data.error || 'Error al regenerar insights');
+      }
+
+      // Parsear el insight recibido
+      const parsedInsights = parseInsightResponse(data.insight);
+
+      setReportData({
+        ...reportData,
+        insights: parsedInsights,
+      });
+
+      // Guardar insights en Firestore
+      await updateDocument('reports', reportId, {
+        aiInsights: parsedInsights,
+        lastInsightGeneration: new Date(),
+      });
+
+      // Refrescar datos del usuario para actualizar contador
+      await refreshUserData();
 
       setIsGeneratingInsights(false);
     } catch (error) {
       console.error('Error regenerating insights:', error);
+      alert('Error al regenerar insights. Por favor intenta nuevamente.');
       setIsGeneratingInsights(false);
     }
+  };
+
+  // HANDLER: Navegar a página de pricing
+  const handlePurchaseTokens = () => {
+    router.push('/pricing');
   };
 
   // HANDLER: Guardar reporte
@@ -644,8 +714,9 @@ export default function ReportPage() {
               onGenerateInsights={handleGenerateInsights}
               onRegenerateInsights={handleRegenerateInsights}
               isGenerating={isGeneratingInsights}
-              tokensRemaining={tokensRemaining}
+              tokensRemaining={aiUsageRemaining}
               currentSheet={currentPage}
+              onPurchaseTokens={handlePurchaseTokens}
             />
           )}
 
@@ -658,8 +729,9 @@ export default function ReportPage() {
               onGenerateInsights={handleGenerateInsights}
               onRegenerateInsights={handleRegenerateInsights}
               isGenerating={isGeneratingInsights}
-              tokensRemaining={tokensRemaining}
+              tokensRemaining={aiUsageRemaining}
               currentSheet={currentPage}
+              onPurchaseTokens={handlePurchaseTokens}
             />
           )}
 
@@ -676,8 +748,8 @@ export default function ReportPage() {
                   onGenerateInsights={handleGenerateInsights}
                   onRegenerateInsights={handleRegenerateInsights}
                   isGenerating={isGeneratingInsights}
-                  tokensRemaining={tokensRemaining}
-                  onPurchaseTokens={() => window.location.href = '/tokens'}
+                  tokensRemaining={aiUsageRemaining}
+                  onPurchaseTokens={handlePurchaseTokens}
                 />
               )}
 
@@ -692,8 +764,8 @@ export default function ReportPage() {
                   onGenerateInsights={handleGenerateInsights}
                   onRegenerateInsights={handleRegenerateInsights}
                   isGenerating={isGeneratingInsights}
-                  tokensRemaining={tokensRemaining}
-                  onPurchaseTokens={() => window.location.href = '/tokens'}
+                  tokensRemaining={aiUsageRemaining}
+                  onPurchaseTokens={handlePurchaseTokens}
                 />
               )}
             </>
@@ -716,6 +788,20 @@ export default function ReportPage() {
         currentStartDate={dateStart}
         currentEndDate={dateEnd}
         onApply={handleApplyDateRange}
+      />
+
+      {/* Modal de Login */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        reason="feature"
+      />
+
+      {/* Modal de Límite Alcanzado */}
+      <LoginModal
+        isOpen={showLimitReachedModal}
+        onClose={() => setShowLimitReachedModal(false)}
+        reason="ai_limit"
       />
     </>
   );

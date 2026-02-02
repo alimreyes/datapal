@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Roboto_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -83,10 +84,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${robotoMono.variable} antialiased`}
       >
-        {/* ⭐ NUEVO: Envolver con ErrorBoundary para capturar errores */}
-        <ErrorBoundary>
-          {children}
-        </ErrorBoundary>
+        {/* ⭐ Auth Provider para manejo de autenticación */}
+        <AuthProvider>
+          {/* ⭐ ErrorBoundary para capturar errores */}
+          <ErrorBoundary>
+            {children}
+          </ErrorBoundary>
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

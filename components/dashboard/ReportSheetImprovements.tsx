@@ -64,6 +64,7 @@ interface ReportSheetImprovementsProps {
   isGenerating?: boolean;
   tokensRemaining?: number;
   currentSheet: number; // 0 = Comparativa, 1 = Impacto
+  onPurchaseTokens?: () => void;
 }
 
 export default function ReportSheetImprovements({
@@ -76,6 +77,7 @@ export default function ReportSheetImprovements({
   isGenerating = false,
   tokensRemaining = 0,
   currentSheet,
+  onPurchaseTokens,
 }: ReportSheetImprovementsProps) {
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';

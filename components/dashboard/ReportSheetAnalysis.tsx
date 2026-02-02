@@ -58,6 +58,7 @@ interface ReportSheetAnalysisProps {
   isGenerating?: boolean;
   tokensRemaining?: number;
   currentSheet: number; // 0 = Resumen Ejecutivo, 1 = Análisis Profundo
+  onPurchaseTokens?: () => void;
 }
 
 export default function ReportSheetAnalysis({
@@ -69,6 +70,7 @@ export default function ReportSheetAnalysis({
   isGenerating = false,
   tokensRemaining = 0,
   currentSheet,
+  onPurchaseTokens,
 }: ReportSheetAnalysisProps) {
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
