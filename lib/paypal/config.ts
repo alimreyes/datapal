@@ -1,16 +1,30 @@
-import { MercadoPagoConfig } from 'mercadopago';
+import { Client, Environment, LogLevel, OrdersController, PaymentsController } from '@paypal/paypal-server-sdk';
 
-// Initialize MercadoPago with access token
-export const mercadopago = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || '',
+// Initialize PayPal client
+export const paypalClient = new Client({
+  clientCredentialsAuthCredentials: {
+    oAuthClientId: process.env.PAYPAL_CLIENT_ID || '',
+    oAuthClientSecret: process.env.PAYPAL_CLIENT_SECRET || '',
+  },
+  environment: process.env.NODE_ENV === 'production'
+    ? Environment.Production
+    : Environment.Sandbox,
+  logging: {
+    logLevel: LogLevel.Info,
+    logRequest: { logBody: true },
+    logResponse: { logHeaders: true },
+  },
 });
+
+export const ordersController = new OrdersController(paypalClient);
+export const paymentsController = new PaymentsController(paypalClient);
 
 // Plans configuration
 export const PLANS = {
   pro: {
     id: 'pro',
     name: 'DataPal Pro',
-    price: 9.99,
+    price: '9.99',
     currency: 'USD',
     description: 'Consultas de IA ilimitadas + funciones avanzadas',
     features: [
@@ -24,7 +38,7 @@ export const PLANS = {
   enterprise: {
     id: 'enterprise',
     name: 'DataPal Enterprise',
-    price: 29.99,
+    price: '29.99',
     currency: 'USD',
     description: 'Para agencias y equipos grandes',
     features: [

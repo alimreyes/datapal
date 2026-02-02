@@ -104,7 +104,7 @@ export default function PricingPage() {
       return;
     }
 
-    // Iniciar proceso de pago con MercadoPago
+    // Iniciar proceso de pago con PayPal
     setIsProcessing(true);
     setSelectedPlan(planId);
 
@@ -127,11 +127,11 @@ export default function PricingPage() {
         throw new Error(data.error || 'Error al crear el checkout');
       }
 
-      // Redirigir a MercadoPago
-      if (data.initPoint) {
-        window.location.href = data.initPoint;
+      // Redirigir a PayPal
+      if (data.approvalUrl) {
+        window.location.href = data.approvalUrl;
       } else {
-        throw new Error('No se recibió la URL de pago');
+        throw new Error('No se recibió la URL de pago de PayPal');
       }
     } catch (error: any) {
       console.error('Error processing payment:', error);
@@ -268,7 +268,7 @@ export default function PricingPage() {
             </a>
           </p>
           <p className="text-sm text-[#B6B6B6]/60">
-            Todos los pagos son procesados de forma segura a través de MercadoPago.
+            Todos los pagos son procesados de forma segura a través de PayPal.
             Puedes cancelar en cualquier momento.
           </p>
         </div>

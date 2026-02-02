@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Preference } from 'mercadopago';
-import { mercadopago, PLANS, PlanId } from '@/lib/mercadopago/config';
+import { ordersController, PLANS, PlanId } from '@/lib/paypal/config';
+import { CheckoutPaymentIntent, OrderRequest, OrderApplicationContextLandingPage, OrderApplicationContextUserAction } from '@paypal/paypal-server-sdk';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,9 +8,9 @@ export async function POST(request: NextRequest) {
     const { planId, userId, userEmail } = body;
 
     // Validate required fields
-    if (!planId || !userId || !userEmail) {
+    if (!planId || !userId) {
       return NextResponse.json(
-        { error: 'Faltan datos requeridos (planId, userId, userEmail)' },
+        { error: 'Faltan datos requeridos (planId, userId)' },
         { status: 400 }
       );
     }
@@ -26,54 +26,44 @@ export async function POST(request: NextRequest) {
     const plan = PLANS[planId as PlanId];
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://datapal.vercel.app';
 
-    // Create MercadoPago preference
-    const preference = new Preference(mercadopago);
-
-    const preferenceData = await preference.create({
-      body: {
-        items: [
-          {
-            id: plan.id,
-            title: plan.name,
-            description: plan.description,
-            quantity: 1,
-            unit_price: plan.price,
-            currency_id: 'USD',
+    // Create PayPal order
+    const orderRequest: OrderRequest = {
+      intent: CheckoutPaymentIntent.Capture,
+      purchaseUnits: [
+        {
+          amount: {
+            currencyCode: plan.currency,
+            value: plan.price,
           },
-        ],
-        payer: {
-          email: userEmail,
+          description: plan.description,
+          customId: JSON.stringify({ userId, planId }),
         },
-        back_urls: {
-          success: `${appUrl}/payment/success?plan=${planId}`,
-          failure: `${appUrl}/payment/failure`,
-          pending: `${appUrl}/payment/pending`,
-        },
-        auto_return: 'approved',
-        external_reference: JSON.stringify({
-          userId,
-          planId,
-          timestamp: Date.now(),
-        }),
-        notification_url: `${appUrl}/api/webhooks/mercadopago`,
-        statement_descriptor: 'DATAPAL',
-        metadata: {
-          userId,
-          planId,
-        },
+      ],
+      applicationContext: {
+        brandName: 'DataPal',
+        landingPage: OrderApplicationContextLandingPage.Login,
+        userAction: OrderApplicationContextUserAction.PayNow,
+        returnUrl: `${appUrl}/payment/success?plan=${planId}`,
+        cancelUrl: `${appUrl}/payment/failure`,
       },
+    };
+
+    const { result: order } = await ordersController.createOrder({
+      body: orderRequest,
     });
+
+    // Find approval URL
+    const approvalUrl = order.links?.find((link: { rel?: string; href?: string }) => link.rel === 'approve')?.href;
 
     return NextResponse.json({
       success: true,
-      preferenceId: preferenceData.id,
-      initPoint: preferenceData.init_point,
-      sandboxInitPoint: preferenceData.sandbox_init_point,
+      orderId: order.id,
+      approvalUrl,
     });
   } catch (error: any) {
-    console.error('Error creating checkout:', error);
+    console.error('Error creating PayPal order:', error);
     return NextResponse.json(
-      { error: error.message || 'Error al crear el checkout' },
+      { error: error.message || 'Error al crear la orden de PayPal' },
       { status: 500 }
     );
   }
