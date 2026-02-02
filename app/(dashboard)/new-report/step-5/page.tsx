@@ -1,17 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { useAuth as useAuthContext } from '@/contexts/AuthContext';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, FileText, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, FileText, CheckCircle2, AlertCircle, Loader2, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { createDocument } from '@/lib/firebase/firestore';
 import { parseMetaCSV, calculateStats, parseMetaContent, hasValidData } from '@/lib/parsers/metaParser';
+import LoginModal from '@/components/auth/LoginModal';
 
 const objectiveLabels: Record<string, string> = {
   analysis: 'Análisis',
@@ -41,13 +43,31 @@ const categoryLabels = {
 export default function Step5Page() {
   const router = useRouter();
   const { user } = useAuth();
+  const { user: authUser } = useAuthContext();
   const { objective, platforms, instagramFiles, facebookFiles, reset } = useNewReportStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [pendingConfirm, setPendingConfirm] = useState(false);
+  const hasAutoTriggered = useRef(false);
 
   const instagramFileCount = Object.values(instagramFiles).filter(f => f !== null).length;
   const facebookFileCount = Object.values(facebookFiles).filter(f => f !== null).length;
   const totalFiles = instagramFileCount + facebookFileCount;
+
+  // Effect to auto-continue after login
+  useEffect(() => {
+    // If user just logged in and we have a pending confirm, proceed automatically
+    if (user && pendingConfirm && !hasAutoTriggered.current) {
+      hasAutoTriggered.current = true;
+      setPendingConfirm(false);
+      setShowLoginModal(false);
+      // Small delay to ensure auth state is fully propagated
+      setTimeout(() => {
+        handleConfirm();
+      }, 500);
+    }
+  }, [user, pendingConfirm]);
 
   const handleBack = () => {
     // Volver al último step con archivos
@@ -62,6 +82,23 @@ export default function Step5Page() {
 
   const handleGoBack = () => {
     handleBack();
+  };
+
+  const handleConfirmClick = () => {
+    // If user is not authenticated, show login modal
+    if (!user) {
+      setPendingConfirm(true);
+      setShowLoginModal(true);
+      return;
+    }
+
+    // User is authenticated, proceed with confirmation
+    handleConfirm();
+  };
+
+  const handleLoginModalClose = () => {
+    setShowLoginModal(false);
+    // Don't reset pendingConfirm here - we want to auto-continue if they successfully log in
   };
 
   const handleConfirm = async () => {
@@ -125,10 +162,10 @@ export default function Step5Page() {
       // Helper function to process content files
       const processContentFile = async (file: File | null) => {
         if (!file) return null;
-        
+
         try {
           const text = await file.text();
-          
+
           // Parse content/posts
           const parsedContent = parseMetaContent(text);
           return parsedContent.length > 0 ? parsedContent : null;
@@ -141,26 +178,26 @@ export default function Step5Page() {
       // Procesar Instagram
       if (platforms.includes('instagram')) {
         processedData.instagram = {};
-        
+
         // Temporal metrics
         const reach = await processTemporalFile(instagramFiles.reach);
         if (reach) {
           processedData.instagram.reach = reach.data;
           processedData.instagram.reachStats = reach.stats;
         }
-        
+
         const impressions = await processTemporalFile(instagramFiles.impressions);
         if (impressions) {
           processedData.instagram.impressions = impressions.data;
           processedData.instagram.impressionsStats = impressions.stats;
         }
-        
+
         const interactions = await processTemporalFile(instagramFiles.interactions);
         if (interactions) {
           processedData.instagram.interactions = interactions.data;
           processedData.instagram.interactionsStats = interactions.stats;
         }
-        
+
         const followers = await processTemporalFile(instagramFiles.followers);
         if (followers) {
           processedData.instagram.followers = followers.data;
@@ -172,7 +209,7 @@ export default function Step5Page() {
           processedData.instagram.visits = visits.data;
           processedData.instagram.visitsStats = visits.stats;
         }
-        
+
         // Content (posts)
         const content = await processContentFile(instagramFiles.content);
         if (content) {
@@ -183,26 +220,26 @@ export default function Step5Page() {
       // Procesar Facebook
       if (platforms.includes('facebook')) {
         processedData.facebook = {};
-        
+
         // Temporal metrics
         const reach = await processTemporalFile(facebookFiles.reach);
         if (reach) {
           processedData.facebook.reach = reach.data;
           processedData.facebook.reachStats = reach.stats;
         }
-        
+
         const impressions = await processTemporalFile(facebookFiles.impressions);
         if (impressions) {
           processedData.facebook.impressions = impressions.data;
           processedData.facebook.impressionsStats = impressions.stats;
         }
-        
+
         const interactions = await processTemporalFile(facebookFiles.interactions);
         if (interactions) {
           processedData.facebook.interactions = interactions.data;
           processedData.facebook.interactionsStats = interactions.stats;
         }
-        
+
         const followers = await processTemporalFile(facebookFiles.followers);
         if (followers) {
           processedData.facebook.followers = followers.data;
@@ -214,7 +251,7 @@ export default function Step5Page() {
           processedData.facebook.visits = visits.data;
           processedData.facebook.visitsStats = visits.stats;
         }
-        
+
         // Content (posts)
         const content = await processContentFile(facebookFiles.content);
         if (content) {
@@ -381,6 +418,16 @@ export default function Step5Page() {
           </AlertDescription>
         </Alert>
 
+        {/* Login Required Alert (only shown when not authenticated) */}
+        {!user && (
+          <Alert className="mb-6 border-yellow-500/30 bg-yellow-500/10">
+            <LogIn className="h-4 w-4 text-yellow-500" />
+            <AlertDescription className="text-yellow-200">
+              Necesitas iniciar sesión para generar tu reporte. ¡Es gratis y solo toma unos segundos!
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Error Message */}
         {error && (
           <Alert variant="destructive" className="mb-6">
@@ -403,7 +450,7 @@ export default function Step5Page() {
 
           <Button
             size="lg"
-            onClick={handleConfirm}
+            onClick={handleConfirmClick}
             disabled={isProcessing}
             className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
           >
@@ -411,6 +458,11 @@ export default function Step5Page() {
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Procesando...
+              </>
+            ) : !user ? (
+              <>
+                <LogIn className="mr-2 h-5 w-5" />
+                Iniciar sesión y continuar
               </>
             ) : (
               'Sí, avancemos'
@@ -425,6 +477,13 @@ export default function Step5Page() {
           </p>
         </div>
       </div>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={handleLoginModalClose}
+        reason="feature"
+      />
     </div>
   );
 }
