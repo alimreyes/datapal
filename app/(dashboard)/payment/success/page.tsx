@@ -1,14 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, Sparkles, ArrowRight, Loader2, XCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const { user, refreshUserData } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -171,5 +170,28 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="mb-8">
+          <Loader2 className="w-16 h-16 mx-auto text-[#019B77] animate-spin" />
+        </div>
+        <h1 className="text-2xl font-bold text-[#FBFEF2] mb-4">
+          Cargando...
+        </h1>
+      </div>
+    </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }
