@@ -18,6 +18,10 @@ interface UserData {
   aiUsageCount: number;
   aiUsageResetDate: Date | null;
   createdAt: Date;
+  // Subscription fields (optional, set after payment)
+  subscriptionStartDate?: Date | null;
+  subscriptionPaymentId?: string | null;
+  subscriptionStatus?: 'active' | 'cancelled' | 'expired' | null;
 }
 
 interface AuthContextType {
@@ -71,6 +75,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           aiUsageCount: aiUsageCount,
           aiUsageResetDate: resetDate || null,
           createdAt: data.createdAt?.toDate() || new Date(),
+          subscriptionStartDate: data.subscriptionStartDate?.toDate() || null,
+          subscriptionPaymentId: data.subscriptionPaymentId || null,
+          subscriptionStatus: data.subscriptionStatus || null,
         });
       } else {
         // Crear nuevo documento de usuario
@@ -95,6 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           aiUsageCount: 0,
           aiUsageResetDate: new Date(),
           createdAt: new Date(),
+          subscriptionStartDate: null,
+          subscriptionPaymentId: null,
+          subscriptionStatus: null,
         });
       }
     } catch (error) {
