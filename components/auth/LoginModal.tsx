@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, Sparkles, Zap, BarChart3, FileText, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -8,25 +8,64 @@ interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
   reason?: 'required' | 'ai_limit' | 'feature';
+  onCancel?: () => void; // Called when user cancels without completing login
 }
 
-export default function LoginModal({ isOpen, onClose, reason = 'required' }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose, reason = 'required', onCancel }: LoginModalProps) {
   const { signInWithGoogle } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loginAttempted, setLoginAttempted] = useState(false);
+
+  // Handle ESC key to close modal
+  const handleClose = useCallback(() => {
+    if (isLoading) return; // Don't close while loading
+    onCancel?.();
+    onClose();
+  }, [isLoading, onCancel, onClose]);
+
+  // ESC key handler
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen && !isLoading) {
+        handleClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, isLoading, handleClose]);
+
+  // Reset state when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      setError(null);
+      setLoginAttempted(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    // Only close if clicking the backdrop itself, not the modal content
+    if (e.target === e.currentTarget && !isLoading) {
+      handleClose();
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
     setError(null);
+    setLoginAttempted(true);
 
     const result = await signInWithGoogle();
 
     if (result.success) {
       onClose();
     } else {
-      setError(result.error || 'Error al iniciar sesión');
+      setError(result.error || 'No se pudo completar el registro. Inténtalo de nuevo.');
     }
 
     setIsLoading(false);
@@ -43,8 +82,8 @@ export default function LoginModal({ isOpen, onClose, reason = 'required' }: Log
       case 'feature':
         return {
           icon: <Zap className="w-8 h-8 text-[#019B77]" />,
-          title: 'Función Premium',
-          subtitle: 'Esta función requiere una cuenta para continuar.',
+          title: 'Crear cuenta gratuita',
+          subtitle: 'Inicia sesión para generar tu reporte.',
         };
       default:
         return {
@@ -65,22 +104,27 @@ export default function LoginModal({ isOpen, onClose, reason = 'required' }: Log
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={handleBackdropClick}
+    >
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-[#11120D] border border-[#B6B6B6]/20 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div
+        className="relative w-full max-w-md bg-[#11120D] border border-[#B6B6B6]/20 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Decorative gradient */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#019B77] via-[#019B77]/50 to-transparent" />
 
-        {/* Close button */}
+        {/* Close button - more visible */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-white/10 rounded-lg transition-colors"
+          onClick={handleClose}
+          disabled={isLoading}
+          className="absolute top-4 right-4 p-2 text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-white/10 rounded-full transition-colors z-10 border border-[#B6B6B6]/30 hover:border-[#B6B6B6]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          aria-label="Cerrar"
         >
           <X className="w-5 h-5" />
         </button>
@@ -148,7 +192,7 @@ export default function LoginModal({ isOpen, onClose, reason = 'required' }: Log
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continuar con Google
+                Iniciar Sesión / Registrarse
               </>
             )}
           </button>

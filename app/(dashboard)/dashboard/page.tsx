@@ -58,7 +58,7 @@ export default function DashboardPage() {
           Bienvenido a DataPal
         </h1>
         <p className="text-[#B6B6B6] mt-2 text-lg">
-          Crea y gestiona tus reportes de marketing de Instagram y Facebook.
+          Crea y gestiona tus reportes de marketing en poco tiempo.
         </p>
       </div>
 

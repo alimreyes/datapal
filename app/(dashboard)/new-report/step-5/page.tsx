@@ -101,6 +101,12 @@ export default function Step5Page() {
     // Don't reset pendingConfirm here - we want to auto-continue if they successfully log in
   };
 
+  const handleLoginCancel = () => {
+    // User closed the modal without completing login
+    setPendingConfirm(false);
+    setError('No se pudo completar el registro. Inténtalo de nuevo para generar tu reporte.');
+  };
+
   const handleConfirm = async () => {
     if (!user) {
       setError('No estás autenticado');
@@ -482,6 +488,7 @@ export default function Step5Page() {
       <LoginModal
         isOpen={showLoginModal}
         onClose={handleLoginModalClose}
+        onCancel={handleLoginCancel}
         reason="feature"
       />
     </div>
