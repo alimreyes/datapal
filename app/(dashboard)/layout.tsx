@@ -18,7 +18,7 @@ export default function DashboardLayout({
             <div className="flex items-center">
               <Link href="/dashboard" className="flex items-center gap-3 group">
                 <Image
-                  src="/Logo_DataPal.png"
+                  src="/DataPal_Logo_Blanco.png"
                   alt="DataPal"
                   width={40}
                   height={40}

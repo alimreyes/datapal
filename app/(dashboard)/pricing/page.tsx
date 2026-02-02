@@ -100,23 +100,42 @@ export default function PricingPage() {
 
     // Si es el plan gratuito
     if (planId === 'free') {
-      // TODO: Implementar downgrade
       alert('Para cambiar al plan gratuito, contacta a soporte.');
       return;
     }
 
-    // Iniciar proceso de pago
+    // Iniciar proceso de pago con MercadoPago
     setIsProcessing(true);
     setSelectedPlan(planId);
 
     try {
-      // TODO: Integrar con MercadoPago
-      // Por ahora mostrar mensaje
-      alert('¡Próximamente! La integración con MercadoPago estará disponible pronto.');
-    } catch (error) {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          planId,
+          userId: user.uid,
+          userEmail: user.email,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear el checkout');
+      }
+
+      // Redirigir a MercadoPago
+      if (data.initPoint) {
+        window.location.href = data.initPoint;
+      } else {
+        throw new Error('No se recibió la URL de pago');
+      }
+    } catch (error: any) {
       console.error('Error processing payment:', error);
-      alert('Error al procesar el pago. Por favor intenta nuevamente.');
-    } finally {
+      alert(error.message || 'Error al procesar el pago. Por favor intenta nuevamente.');
       setIsProcessing(false);
     }
   };
