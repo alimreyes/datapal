@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Sparkles, Zap, BarChart3, FileText, CheckCircle2 } from 'lucide-react';
+import { X, Sparkles, BarChart3, FileText, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import Image from 'next/image';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -48,9 +49,9 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
 
   if (!isOpen) return null;
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    // Only close if clicking the backdrop itself, not the modal content
-    if (e.target === e.currentTarget && !isLoading) {
+  const handleBackdropClick = () => {
+    // Close when clicking the backdrop
+    if (!isLoading) {
       handleClose();
     }
   };
@@ -72,22 +73,33 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
   };
 
   const getHeaderContent = () => {
+    // Logo de DataPal en blanco para todos los casos
+    const logo = (
+      <Image
+        src="/Logo_DataPal.png"
+        alt="DataPal"
+        width={40}
+        height={40}
+        className="object-contain invert"
+      />
+    );
+
     switch (reason) {
       case 'ai_limit':
         return {
-          icon: <Sparkles className="w-8 h-8 text-[#019B77]" />,
+          icon: logo,
           title: 'Límite de IA alcanzado',
           subtitle: 'Has usado todas tus consultas gratuitas de IA este mes.',
         };
       case 'feature':
         return {
-          icon: <Zap className="w-8 h-8 text-[#019B77]" />,
+          icon: logo,
           title: 'Crear cuenta gratuita',
           subtitle: 'Inicia sesión para generar tu reporte.',
         };
       default:
         return {
-          icon: <BarChart3 className="w-8 h-8 text-[#019B77]" />,
+          icon: logo,
           title: 'Bienvenido a DataPal',
           subtitle: 'Inicia sesión para acceder a todas las funciones.',
         };
@@ -104,12 +116,12 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
   ];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      onClick={handleBackdropClick}
-    >
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop - clickeable para cerrar */}
+      <div
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+        onClick={handleBackdropClick}
+      />
 
       {/* Modal */}
       <div
@@ -119,11 +131,11 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
         {/* Decorative gradient */}
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#019B77] via-[#019B77]/50 to-transparent" />
 
-        {/* Close button - more visible */}
+        {/* Close button - visible */}
         <button
           onClick={handleClose}
           disabled={isLoading}
-          className="absolute top-4 right-4 p-2 text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-white/10 rounded-full transition-colors z-10 border border-[#B6B6B6]/30 hover:border-[#B6B6B6]/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute top-4 right-4 p-2 bg-[#2a2b25] text-[#FBFEF2] hover:bg-[#3a3b35] rounded-full transition-colors z-20 border border-[#B6B6B6]/40 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Cerrar"
         >
           <X className="w-5 h-5" />
@@ -133,7 +145,7 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
         <div className="p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 mx-auto mb-4 bg-[#019B77]/10 rounded-2xl flex items-center justify-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-[#019B77]/10 rounded-2xl flex items-center justify-center p-2">
               {header.icon}
             </div>
             <h2 className="text-2xl font-bold text-[#FBFEF2] mb-2">
