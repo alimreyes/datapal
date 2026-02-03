@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { CSVCategory } from '@/lib/types';
 import { motion } from 'framer-motion';
+import GlowCard from '@/components/ui/GlowCard';
 
 const csvCategories: { id: CSVCategory; label: string; description: string }[] = [
   {
@@ -97,7 +98,7 @@ export default function Step3Page() {
         </div>
 
         {/* Info Card */}
-        <Card className="mb-6 bg-[#1a1b16] border-[rgba(251,254,242,0.1)]">
+        <GlowCard className="mb-6">
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2 text-[#FBFEF2]">
               💡 ¿Dónde obtengo estos archivos?
@@ -109,7 +110,7 @@ export default function Step3Page() {
             <p>3. Ve a <strong className="text-[#FBFEF2]">Estadísticas</strong> → Exportar datos</p>
             <p>4. Descarga los CSV por categoría y súbelos aquí</p>
           </CardContent>
-        </Card>
+        </GlowCard>
 
         {/* Upload Areas */}
         <div className="space-y-4 mb-8">
@@ -120,7 +121,7 @@ export default function Step3Page() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="bg-[#1a1b16] border-[rgba(251,254,242,0.1)]">
+              <GlowCard>
                 <CardContent className="p-4">
                   <FileUpload
                     label={category.label}
@@ -131,7 +132,7 @@ export default function Step3Page() {
                     maxSize={5}
                   />
                 </CardContent>
-              </Card>
+              </GlowCard>
             </motion.div>
           ))}
         </div>

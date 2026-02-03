@@ -2,11 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BarChart3, TrendingUp, FileText, CheckCircle2 } from 'lucide-react';
 import { ReportObjective } from '@/lib/types';
 import { motion } from 'framer-motion';
+import GlowCard from '@/components/ui/GlowCard';
 
 const objectives = [
   {
@@ -91,13 +92,13 @@ export default function Step1Page() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card
-                  className={`cursor-pointer transition-all duration-200 bg-[#1a1b16] border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50 ${
+                <GlowCard
+                  onClick={() => handleSelect(obj.id)}
+                  className={`transition-all duration-200 ${
                     isSelected
-                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77] border-[#019B77]'
+                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77]'
                       : ''
                   }`}
-                  onClick={() => handleSelect(obj.id)}
                 >
                   <CardHeader>
                     <div className="flex items-center gap-4">
@@ -117,7 +118,7 @@ export default function Step1Page() {
                       </div>
                     </div>
                   </CardHeader>
-                </Card>
+                </GlowCard>
               </motion.div>
             );
           })}

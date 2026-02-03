@@ -2,12 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowRight, ArrowLeft, CheckCircle2, Instagram } from 'lucide-react';
 import { Platform } from '@/lib/types';
 import { motion } from 'framer-motion';
+import GlowCard from '@/components/ui/GlowCard';
 
 // Logo de Facebook SVG
 const FacebookLogo = () => (
@@ -23,6 +23,7 @@ const platforms = [
     description: 'Alcance, interacciones, seguidores y más',
     icon: <Instagram className="w-16 h-16 text-purple-400" />,
     bgColor: 'bg-purple-500/10 border border-purple-500/30',
+    glowColor: '168, 85, 247', // purple-500
   },
   {
     id: 'facebook' as Platform,
@@ -30,6 +31,7 @@ const platforms = [
     description: 'Engagement, espectadores y análisis de página',
     icon: <div className="text-blue-400"><FacebookLogo /></div>,
     bgColor: 'bg-blue-500/10 border border-blue-500/30',
+    glowColor: '59, 130, 246', // blue-500
   },
 ];
 
@@ -104,15 +106,16 @@ export default function Step2Page() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Card
-                  className={`cursor-pointer transition-all duration-200 bg-[#1a1b16] border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50 ${
+                <GlowCard
+                  onClick={() => handleToggle(platform.id)}
+                  glowColor={platform.glowColor}
+                  className={`transition-all duration-200 ${
                     isSelected
-                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77] border-[#019B77]'
+                      ? 'ring-2 ring-offset-2 ring-offset-[#11120D] ring-[#019B77]'
                       : ''
                   }`}
-                  onClick={() => handleToggle(platform.id)}
                 >
-                  <CardContent className="p-6">
+                  <div className="p-6">
                     <div className={`${platform.bgColor} rounded-2xl p-8 mb-4`}>
                       <div className="text-center">
                         <div className="flex justify-center mb-4">{platform.icon}</div>
@@ -134,8 +137,8 @@ export default function Step2Page() {
                         <CheckCircle2 className="h-4 w-4 text-[#019B77]" />
                       )}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </GlowCard>
               </motion.div>
             );
           })}
