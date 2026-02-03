@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
-import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, BarChart3, TrendingUp, FileText, CheckCircle2 } from 'lucide-react';
 import { ReportObjective } from '@/lib/types';
@@ -100,24 +99,24 @@ export default function Step1Page() {
                       : ''
                   }`}
                 >
-                  <CardHeader>
+                  <div className="p-6">
                     <div className="flex items-center gap-4">
                       <div className={`${obj.bgColor} p-3 rounded-xl border border-[#019B77]/30`}>
                         <Icon className={`h-6 w-6 ${obj.iconColor}`} />
                       </div>
                       <div className="flex-1">
-                        <CardTitle className="text-xl flex items-center gap-2 text-[#FBFEF2]">
+                        <h3 className="text-xl font-semibold flex items-center gap-2 text-[#FBFEF2]">
                           {obj.title}
                           {isSelected && (
                             <CheckCircle2 className="h-5 w-5 text-[#019B77]" />
                           )}
-                        </CardTitle>
-                        <CardDescription className="mt-1 text-[#B6B6B6]">
+                        </h3>
+                        <p className="mt-1 text-[#B6B6B6]">
                           {obj.description}
-                        </CardDescription>
+                        </p>
                       </div>
                     </div>
-                  </CardHeader>
+                  </div>
                 </GlowCard>
               </motion.div>
             );
