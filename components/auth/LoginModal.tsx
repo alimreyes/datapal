@@ -116,16 +116,16 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop - clickeable para cerrar */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+        className="absolute inset-0 bg-black/70 backdrop-blur-sm cursor-pointer"
         onClick={handleBackdropClick}
       />
 
-      {/* Modal */}
+      {/* Modal - centrado */}
       <div
-        className="relative w-full max-w-md bg-[#11120D] border border-[#B6B6B6]/20 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="relative z-10 w-full max-w-md bg-[#11120D] border border-[#B6B6B6]/30 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Decorative gradient */}
