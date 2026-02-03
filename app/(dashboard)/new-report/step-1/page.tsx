@@ -79,7 +79,7 @@ export default function Step1Page() {
         </div>
 
         {/* Options */}
-        <div className="grid gap-4 mb-8">
+        <div className="grid gap-6 mb-8">
           {objectives.map((obj, index) => {
             const Icon = obj.icon;
             const isSelected = objective === obj.id;
@@ -99,19 +99,19 @@ export default function Step1Page() {
                       : ''
                   }`}
                 >
-                  <div className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className={`${obj.bgColor} p-3 rounded-xl border border-[#019B77]/30`}>
-                        <Icon className={`h-6 w-6 ${obj.iconColor}`} />
+                  <div className="p-8">
+                    <div className="flex items-center gap-6">
+                      <div className={`${obj.bgColor} p-4 rounded-2xl border border-[#019B77]/30`}>
+                        <Icon className={`h-8 w-8 ${obj.iconColor}`} />
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-xl font-semibold flex items-center gap-2 text-[#FBFEF2]">
+                        <h3 className="text-2xl font-semibold flex items-center gap-3 text-[#FBFEF2]">
                           {obj.title}
                           {isSelected && (
-                            <CheckCircle2 className="h-5 w-5 text-[#019B77]" />
+                            <CheckCircle2 className="h-6 w-6 text-[#019B77]" />
                           )}
                         </h3>
-                        <p className="mt-1 text-[#B6B6B6]">
+                        <p className="mt-2 text-base text-[#B6B6B6]">
                           {obj.description}
                         </p>
                       </div>
