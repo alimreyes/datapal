@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Sparkles, BarChart3, FileText, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Image from 'next/image';
@@ -47,7 +48,15 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // State para el portal (client-side only)
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!isOpen || !mounted) return null;
 
   const handleBackdropClick = () => {
     // Close when clicking the backdrop
@@ -115,7 +124,8 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
     { icon: CheckCircle2, text: 'Exportación a PDF' },
   ];
 
-  return (
+  // Usar createPortal para renderizar el modal fuera del DOM tree del componente padre
+  return createPortal(
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
       {/* Backdrop - clickeable para cerrar */}
       <div
@@ -240,6 +250,7 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
