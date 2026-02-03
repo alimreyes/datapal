@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Sparkles, BarChart3, FileText, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,6 +18,10 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loginAttempted, setLoginAttempted] = useState(false);
+
+  // Ref para el efecto de borde con cursor
+  const modalRef = useRef<HTMLDivElement>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   // Handle ESC key to close modal
   const handleClose = useCallback(() => {
@@ -55,6 +59,26 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
     setMounted(true);
     return () => setMounted(false);
   }, []);
+
+  // Efecto de borde que sigue el cursor
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (modalRef.current) {
+        const rect = modalRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        setMousePosition({ x, y });
+      }
+    };
+
+    if (isOpen && mounted) {
+      window.addEventListener('mousemove', handleMouseMove);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, [isOpen, mounted]);
 
   if (!isOpen || !mounted) return null;
 
@@ -133,13 +157,41 @@ export default function LoginModal({ isOpen, onClose, reason = 'required', onCan
         onClick={handleBackdropClick}
       />
 
-      {/* Modal - centrado */}
+      {/* Modal - centrado con efecto de borde que sigue el cursor */}
       <div
-        className="relative z-10 w-full max-w-md bg-[#11120D] border border-[#B6B6B6]/30 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        ref={modalRef}
+        className="relative z-10 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
+        style={{
+          background: `
+            radial-gradient(
+              600px circle at ${mousePosition.x}px ${mousePosition.y}px,
+              rgba(1, 155, 119, 0.15),
+              transparent 40%
+            ),
+            #11120D
+          `,
+        }}
       >
-        {/* Decorative gradient */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#019B77] via-[#019B77]/50 to-transparent" />
+        {/* Borde con efecto de degradado que sigue el cursor */}
+        <div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(
+                400px circle at ${mousePosition.x}px ${mousePosition.y}px,
+                rgba(1, 155, 119, 0.8),
+                rgba(1, 155, 119, 0.3) 30%,
+                rgba(182, 182, 182, 0.1) 60%,
+                transparent 70%
+              )
+            `,
+            padding: '1px',
+            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+            WebkitMaskComposite: 'xor',
+            maskComposite: 'exclude',
+          }}
+        />
 
         {/* Close button - visible */}
         <button
