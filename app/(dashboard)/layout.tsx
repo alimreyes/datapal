@@ -1,54 +1,66 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { Play, Sparkles } from 'lucide-react';
 import UserMenu from '@/components/auth/UserMenu';
 import { useAuth } from '@/lib/hooks/useAuth';
-import { Button } from '@/components/ui/button';
+import DemoPopup from '@/components/demo/DemoPopup';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
-  const { user, isDemo, loginDemo } = useAuth();
+  const { user, isDemo } = useAuth();
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
 
-  const handleDemoClick = async () => {
+  // Mostrar popup automáticamente para usuarios no autenticados después de 1.5s
+  useEffect(() => {
     if (!user) {
-      // Si no está logueado, hacer login demo
-      const { success } = await loginDemo();
-      if (success) {
-        router.push('/dashboard');
-      }
+      const timer = setTimeout(() => {
+        // Solo mostrar si no se ha mostrado antes en esta sesión
+        const hasSeenPopup = sessionStorage.getItem('datapal_demo_popup_seen');
+        if (!hasSeenPopup) {
+          setShowDemoPopup(true);
+        }
+      }, 1500);
+      return () => clearTimeout(timer);
     }
+  }, [user]);
+
+  const handleClosePopup = () => {
+    setShowDemoPopup(false);
+    sessionStorage.setItem('datapal_demo_popup_seen', 'true');
   };
 
   return (
     <div className="min-h-screen bg-[#11120D]">
-      {/* Demo Banner - Solo para usuarios no autenticados */}
+      {/* Demo Popup */}
+      <DemoPopup isOpen={showDemoPopup} onClose={handleClosePopup} />
+
+      {/* Demo Banner - Clickable for non-authenticated users */}
       {!user && (
-        <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-black py-2 px-4">
+        <button
+          onClick={() => setShowDemoPopup(true)}
+          className="w-full bg-gradient-to-r from-[#019B77] to-[#02c494] text-[#FBFEF2] py-2 px-4 hover:from-[#02c494] hover:to-[#019B77] transition-all duration-300"
+        >
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap text-sm">
             <Sparkles className="h-4 w-4" />
             <span className="font-medium">¿Primera vez aquí?</span>
-            <button
-              onClick={handleDemoClick}
-              className="inline-flex items-center gap-1 font-bold underline underline-offset-2 hover:no-underline"
-            >
+            <span className="inline-flex items-center gap-1 font-bold underline underline-offset-2">
               <Play className="h-3 w-3" />
               Mira un reporte de prueba
-            </button>
+            </span>
             <span className="hidden sm:inline">— Sin registro, sin compromiso</span>
           </div>
-        </div>
+        </button>
       )}
 
       {/* Demo Mode Indicator - Para usuarios demo */}
       {isDemo && (
-        <div className="bg-gradient-to-r from-amber-500/90 to-orange-500/90 text-black py-1.5 px-4">
+        <div className="bg-gradient-to-r from-[#019B77]/90 to-[#02c494]/90 text-[#FBFEF2] py-1.5 px-4">
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 text-sm">
             <Sparkles className="h-4 w-4" />
             <span className="font-medium">Modo Demo</span>
