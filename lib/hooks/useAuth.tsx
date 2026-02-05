@@ -7,6 +7,8 @@ import {
   registerWithEmail,
   loginWithEmail,
   loginWithGoogle,
+  loginAsDemo,
+  isDemoUser,
   logout as firebaseLogout,
   resetPassword,
 } from '@/lib/firebase/auth';
@@ -104,6 +106,19 @@ export function useAuth() {
     return { success: !error, error };
   };
 
+  const loginDemo = async () => {
+    setAuthState((prev) => ({ ...prev, loading: true, error: null }));
+    const { user, error } = await loginAsDemo();
+
+    if (error) {
+      setAuthState((prev) => ({ ...prev, loading: false, error }));
+      return { success: false, error };
+    }
+
+    setAuthState({ user, loading: false, error: null });
+    return { success: true, error: null };
+  };
+
   return {
     user: authState.user,
     loading: authState.loading,
@@ -111,8 +126,10 @@ export function useAuth() {
     register,
     login,
     loginGoogle,
+    loginDemo,
     logout,
     sendPasswordReset,
     isAuthenticated: !!authState.user,
+    isDemo: isDemoUser(authState.user),
   };
 }

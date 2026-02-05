@@ -119,3 +119,35 @@ export const resetPassword = async (email: string) => {
 export const getCurrentUser = (): User | null => {
   return auth.currentUser;
 };
+
+/**
+ * Sign in as demo user
+ * Uses environment variable for demo credentials
+ */
+export const loginAsDemo = async () => {
+  try {
+    const demoEmail = 'demo@datapal.cl';
+    const demoPassword = process.env.NEXT_PUBLIC_DEMO_USER_PASSWORD;
+
+    if (!demoPassword) {
+      return { user: null, error: 'Demo no configurado. Contacta al administrador.' };
+    }
+
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      demoEmail,
+      demoPassword
+    );
+    return { user: userCredential.user, error: null };
+  } catch (error: any) {
+    console.error('Error en login demo:', error);
+    return { user: null, error: 'No se pudo acceder al demo. Intenta más tarde.' };
+  }
+};
+
+/**
+ * Check if current user is demo user
+ */
+export const isDemoUser = (user: User | null): boolean => {
+  return user?.email === 'demo@datapal.cl';
+};

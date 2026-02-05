@@ -9,11 +9,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, BarChart3 } from 'lucide-react';
+import { Loader2, BarChart3, Play } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginGoogle, loading } = useAuth();
+  const { login, loginGoogle, loginDemo, loading } = useAuth();
   
   const [formData, setFormData] = useState({
     email: '',
@@ -21,6 +21,7 @@ export default function LoginPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +48,21 @@ export default function LoginPage() {
     if (!success) {
       setError(error || 'Error al iniciar sesión con Google');
       setIsLoading(false);
+      return;
+    }
+
+    router.push('/dashboard');
+  };
+
+  const handleDemoLogin = async () => {
+    setError('');
+    setIsDemoLoading(true);
+
+    const { success, error } = await loginDemo();
+
+    if (!success) {
+      setError(error || 'Error al acceder al demo');
+      setIsDemoLoading(false);
       return;
     }
 
@@ -139,7 +155,7 @@ export default function LoginPage() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleLogin}
-          disabled={isLoading || loading}
+          disabled={isLoading || loading || isDemoLoading}
         >
           {isLoading || loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -164,6 +180,30 @@ export default function LoginPage() {
             </svg>
           )}
           Google
+        </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-muted-foreground">O explora primero</span>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+          onClick={handleDemoLogin}
+          disabled={isLoading || loading || isDemoLoading}
+        >
+          {isDemoLoading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Play className="mr-2 h-4 w-4" />
+          )}
+          Ver Dashboard Demo
         </Button>
       </CardContent>
 

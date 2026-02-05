@@ -1,0 +1,488 @@
+[
+  {
+    "id": "report_enero_2025",
+    "title": "Reporte Mensual - Enero 2025",
+    "objective": "monthly_report",
+    "platforms": ["instagram"],
+    "status": "ready",
+    "createdAt": "2025-01-31T12:00:00Z",
+    "customization": {
+      "creative": 3,
+      "analytical": 4,
+      "professional": 4,
+      "colorPalette": null,
+      "colorPaletteImageUrl": null
+    },
+    "data": {
+      "instagram": {
+        "reach": [
+          { "date": "2025-01-01", "value": 12500 },
+          { "date": "2025-01-02", "value": 13200 },
+          { "date": "2025-01-03", "value": 11800 },
+          { "date": "2025-01-04", "value": 14500 },
+          { "date": "2025-01-05", "value": 15800 },
+          { "date": "2025-01-06", "value": 16200 },
+          { "date": "2025-01-07", "value": 14900 },
+          { "date": "2025-01-08", "value": 17500 },
+          { "date": "2025-01-09", "value": 18200 },
+          { "date": "2025-01-10", "value": 16800 },
+          { "date": "2025-01-11", "value": 19500 },
+          { "date": "2025-01-12", "value": 21200 },
+          { "date": "2025-01-13", "value": 20800 },
+          { "date": "2025-01-14", "value": 22500 },
+          { "date": "2025-01-15", "value": 24200 },
+          { "date": "2025-01-16", "value": 23100 },
+          { "date": "2025-01-17", "value": 25800 },
+          { "date": "2025-01-18", "value": 27500 },
+          { "date": "2025-01-19", "value": 26200 },
+          { "date": "2025-01-20", "value": 28900 },
+          { "date": "2025-01-21", "value": 30200 },
+          { "date": "2025-01-22", "value": 29500 },
+          { "date": "2025-01-23", "value": 31800 },
+          { "date": "2025-01-24", "value": 33500 },
+          { "date": "2025-01-25", "value": 32200 },
+          { "date": "2025-01-26", "value": 34900 },
+          { "date": "2025-01-27", "value": 36200 },
+          { "date": "2025-01-28", "value": 35500 },
+          { "date": "2025-01-29", "value": 37800 },
+          { "date": "2025-01-30", "value": 39500 },
+          { "date": "2025-01-31", "value": 41200 }
+        ],
+        "reachStats": {
+          "total": 785500,
+          "average": 25338,
+          "max": 41200,
+          "min": 11800,
+          "trend": 229.6
+        },
+        "impressions": [
+          { "date": "2025-01-01", "value": 25000 },
+          { "date": "2025-01-02", "value": 26400 },
+          { "date": "2025-01-03", "value": 23600 },
+          { "date": "2025-01-04", "value": 29000 },
+          { "date": "2025-01-05", "value": 31600 },
+          { "date": "2025-01-06", "value": 32400 },
+          { "date": "2025-01-07", "value": 29800 },
+          { "date": "2025-01-08", "value": 35000 },
+          { "date": "2025-01-09", "value": 36400 },
+          { "date": "2025-01-10", "value": 33600 },
+          { "date": "2025-01-11", "value": 39000 },
+          { "date": "2025-01-12", "value": 42400 },
+          { "date": "2025-01-13", "value": 41600 },
+          { "date": "2025-01-14", "value": 45000 },
+          { "date": "2025-01-15", "value": 48400 },
+          { "date": "2025-01-16", "value": 46200 },
+          { "date": "2025-01-17", "value": 51600 },
+          { "date": "2025-01-18", "value": 55000 },
+          { "date": "2025-01-19", "value": 52400 },
+          { "date": "2025-01-20", "value": 57800 },
+          { "date": "2025-01-21", "value": 60400 },
+          { "date": "2025-01-22", "value": 59000 },
+          { "date": "2025-01-23", "value": 63600 },
+          { "date": "2025-01-24", "value": 67000 },
+          { "date": "2025-01-25", "value": 64400 },
+          { "date": "2025-01-26", "value": 69800 },
+          { "date": "2025-01-27", "value": 72400 },
+          { "date": "2025-01-28", "value": 71000 },
+          { "date": "2025-01-29", "value": 75600 },
+          { "date": "2025-01-30", "value": 79000 },
+          { "date": "2025-01-31", "value": 82400 }
+        ],
+        "impressionsStats": {
+          "total": 1571000,
+          "average": 50677,
+          "max": 82400,
+          "min": 23600,
+          "trend": 229.6
+        },
+        "interactions": [
+          { "date": "2025-01-01", "value": 850 },
+          { "date": "2025-01-02", "value": 920 },
+          { "date": "2025-01-03", "value": 780 },
+          { "date": "2025-01-04", "value": 1050 },
+          { "date": "2025-01-05", "value": 1180 },
+          { "date": "2025-01-06", "value": 1220 },
+          { "date": "2025-01-07", "value": 1080 },
+          { "date": "2025-01-08", "value": 1350 },
+          { "date": "2025-01-09", "value": 1420 },
+          { "date": "2025-01-10", "value": 1280 },
+          { "date": "2025-01-11", "value": 1550 },
+          { "date": "2025-01-12", "value": 1720 },
+          { "date": "2025-01-13", "value": 1680 },
+          { "date": "2025-01-14", "value": 1850 },
+          { "date": "2025-01-15", "value": 2020 },
+          { "date": "2025-01-16", "value": 1920 },
+          { "date": "2025-01-17", "value": 2180 },
+          { "date": "2025-01-18", "value": 2350 },
+          { "date": "2025-01-19", "value": 2220 },
+          { "date": "2025-01-20", "value": 2480 },
+          { "date": "2025-01-21", "value": 2650 },
+          { "date": "2025-01-22", "value": 2580 },
+          { "date": "2025-01-23", "value": 2820 },
+          { "date": "2025-01-24", "value": 3050 },
+          { "date": "2025-01-25", "value": 2920 },
+          { "date": "2025-01-26", "value": 3180 },
+          { "date": "2025-01-27", "value": 3350 },
+          { "date": "2025-01-28", "value": 3280 },
+          { "date": "2025-01-29", "value": 3520 },
+          { "date": "2025-01-30", "value": 3750 },
+          { "date": "2025-01-31", "value": 3920 }
+        ],
+        "interactionsStats": {
+          "total": 66350,
+          "average": 2140,
+          "max": 3920,
+          "min": 780,
+          "trend": 361.2
+        },
+        "followers": [
+          { "date": "2025-01-01", "value": 15420 },
+          { "date": "2025-01-07", "value": 15680 },
+          { "date": "2025-01-14", "value": 16120 },
+          { "date": "2025-01-21", "value": 16750 },
+          { "date": "2025-01-28", "value": 17380 },
+          { "date": "2025-01-31", "value": 17850 }
+        ],
+        "followersStats": {
+          "total": 17850,
+          "average": 16533,
+          "max": 17850,
+          "min": 15420,
+          "trend": 15.8
+        },
+        "content": [
+          {
+            "id": "post_001",
+            "postType": "Reel",
+            "description": "Tutorial: 5 tips para mejorar tu engagement",
+            "publishedAt": "2025-01-15T14:00:00Z",
+            "permalink": "https://instagram.com/p/demo001",
+            "date": "2025-01-15",
+            "impressions": 125000,
+            "reach": 62500,
+            "likes": 4850,
+            "comments": 342,
+            "shares": 1280,
+            "saves": 2150,
+            "videoViews": 98000
+          },
+          {
+            "id": "post_002",
+            "postType": "Carousel",
+            "description": "Resultados del mes: Caso de estudio cliente X",
+            "publishedAt": "2025-01-22T10:00:00Z",
+            "permalink": "https://instagram.com/p/demo002",
+            "date": "2025-01-22",
+            "impressions": 89000,
+            "reach": 44500,
+            "likes": 3200,
+            "comments": 185,
+            "shares": 520,
+            "saves": 1450
+          },
+          {
+            "id": "post_003",
+            "postType": "Reel",
+            "description": "Detrás de cámaras: Un día en la agencia",
+            "publishedAt": "2025-01-28T16:00:00Z",
+            "permalink": "https://instagram.com/p/demo003",
+            "date": "2025-01-28",
+            "impressions": 156000,
+            "reach": 78000,
+            "likes": 5920,
+            "comments": 428,
+            "shares": 1850,
+            "saves": 2680,
+            "videoViews": 142000
+          }
+        ]
+      }
+    },
+    "aiInsights": "## Resumen Ejecutivo\n\nEnero 2025 fue un mes excepcional con un crecimiento sostenido en todas las métricas principales. El alcance aumentó un 229% desde el inicio del mes, impulsado principalmente por el contenido de video.\n\n### Highlights del Mes:\n- **Alcance total**: 785,500 usuarios únicos\n- **Interacciones totales**: 66,350 (+361% de crecimiento)\n- **Nuevos seguidores**: +2,430 (15.8% de crecimiento)\n\n### Top Performers:\n1. **Reel \"Detrás de cámaras\"** - 156K impresiones, 142K views\n2. **Reel \"5 tips para engagement\"** - 125K impresiones, 98K views\n3. **Carousel \"Caso de estudio\"** - 89K impresiones\n\n### Recomendaciones:\n- Continuar con la estrategia de Reels, que muestra 2x mejor rendimiento\n- Publicar más contenido tipo \"behind the scenes\"\n- Mantener frecuencia de 2-3 posts semanales\n- Explorar horarios de publicación entre 14:00-16:00"
+  },
+  {
+    "id": "report_diciembre_2024",
+    "title": "Reporte Mensual - Diciembre 2024",
+    "objective": "monthly_report",
+    "platforms": ["instagram"],
+    "status": "ready",
+    "createdAt": "2024-12-31T12:00:00Z",
+    "customization": {
+      "creative": 3,
+      "analytical": 4,
+      "professional": 4,
+      "colorPalette": null,
+      "colorPaletteImageUrl": null
+    },
+    "data": {
+      "instagram": {
+        "reach": [
+          { "date": "2024-12-01", "value": 8500 },
+          { "date": "2024-12-05", "value": 9200 },
+          { "date": "2024-12-10", "value": 10800 },
+          { "date": "2024-12-15", "value": 11500 },
+          { "date": "2024-12-20", "value": 12200 },
+          { "date": "2024-12-25", "value": 10800 },
+          { "date": "2024-12-31", "value": 12500 }
+        ],
+        "reachStats": {
+          "total": 325000,
+          "average": 10483,
+          "max": 12500,
+          "min": 8500,
+          "trend": 47.1
+        },
+        "impressions": [
+          { "date": "2024-12-01", "value": 17000 },
+          { "date": "2024-12-05", "value": 18400 },
+          { "date": "2024-12-10", "value": 21600 },
+          { "date": "2024-12-15", "value": 23000 },
+          { "date": "2024-12-20", "value": 24400 },
+          { "date": "2024-12-25", "value": 21600 },
+          { "date": "2024-12-31", "value": 25000 }
+        ],
+        "impressionsStats": {
+          "total": 650000,
+          "average": 20968,
+          "max": 25000,
+          "min": 17000,
+          "trend": 47.1
+        },
+        "followers": [
+          { "date": "2024-12-01", "value": 14200 },
+          { "date": "2024-12-15", "value": 14850 },
+          { "date": "2024-12-31", "value": 15420 }
+        ],
+        "followersStats": {
+          "total": 15420,
+          "average": 14823,
+          "max": 15420,
+          "min": 14200,
+          "trend": 8.6
+        }
+      }
+    },
+    "aiInsights": "## Resumen - Diciembre 2024\n\nDiciembre mostró un crecimiento moderado con una pausa típica de fin de año.\n\n### Métricas Clave:\n- **Alcance total**: 325,000 usuarios\n- **Crecimiento de seguidores**: +1,220 (8.6%)\n\n### Observaciones:\n- Baja natural de engagement durante festividades\n- Mejor rendimiento en primera quincena del mes\n- Contenido estacional tuvo buena recepción"
+  },
+  {
+    "id": "report_analisis_q4",
+    "title": "Análisis Q4 2024 - Tendencias",
+    "objective": "analysis",
+    "platforms": ["instagram", "facebook"],
+    "status": "ready",
+    "createdAt": "2025-01-05T12:00:00Z",
+    "customization": {
+      "creative": 2,
+      "analytical": 5,
+      "professional": 5,
+      "colorPalette": null,
+      "colorPaletteImageUrl": null
+    },
+    "data": {
+      "instagram": {
+        "reach": [
+          { "date": "2024-10-01", "value": 45000 },
+          { "date": "2024-11-01", "value": 52000 },
+          { "date": "2024-12-01", "value": 48000 }
+        ],
+        "reachStats": {
+          "total": 1450000,
+          "average": 48333,
+          "max": 52000,
+          "min": 45000,
+          "trend": 6.7
+        },
+        "impressions": [
+          { "date": "2024-10-01", "value": 90000 },
+          { "date": "2024-11-01", "value": 104000 },
+          { "date": "2024-12-01", "value": 96000 }
+        ],
+        "impressionsStats": {
+          "total": 2900000,
+          "average": 96667,
+          "max": 104000,
+          "min": 90000,
+          "trend": 6.7
+        }
+      },
+      "facebook": {
+        "reach": [
+          { "date": "2024-10-01", "value": 22000 },
+          { "date": "2024-11-01", "value": 25000 },
+          { "date": "2024-12-01", "value": 23500 }
+        ],
+        "reachStats": {
+          "total": 705000,
+          "average": 23500,
+          "max": 25000,
+          "min": 22000,
+          "trend": 6.8
+        }
+      }
+    },
+    "aiInsights": "## Análisis Trimestral Q4 2024\n\n### Comparativa de Plataformas:\n\n| Métrica | Instagram | Facebook |\n|---------|-----------|----------|\n| Alcance Total | 1.45M | 705K |\n| Crecimiento | +6.7% | +6.8% |\n\n### Insights Clave:\n- Instagram genera 2x más alcance que Facebook\n- Ambas plataformas muestran crecimiento similar\n- Noviembre fue el mejor mes del trimestre\n\n### Recomendaciones Q1 2025:\n1. Incrementar inversión en Instagram Reels\n2. Mantener presencia en Facebook para audiencia 35+\n3. Experimentar con contenido cross-platform"
+  },
+  {
+    "id": "report_mejoras_engagement",
+    "title": "Evidencia de Mejoras - Engagement",
+    "objective": "improvements",
+    "platforms": ["instagram"],
+    "status": "ready",
+    "createdAt": "2025-01-20T12:00:00Z",
+    "customization": {
+      "creative": 3,
+      "analytical": 5,
+      "professional": 4,
+      "colorPalette": null,
+      "colorPaletteImageUrl": null
+    },
+    "data": {
+      "instagram": {
+        "interactions": [
+          { "date": "2024-10-15", "value": 450 },
+          { "date": "2024-11-15", "value": 680 },
+          { "date": "2024-12-15", "value": 920 },
+          { "date": "2025-01-15", "value": 1350 }
+        ],
+        "interactionsStats": {
+          "total": 34000,
+          "average": 850,
+          "max": 1350,
+          "min": 450,
+          "trend": 200
+        },
+        "content": [
+          {
+            "id": "before_001",
+            "postType": "Image",
+            "description": "Post estático - Antes de optimización",
+            "publishedAt": "2024-10-15T10:00:00Z",
+            "permalink": "https://instagram.com/p/before001",
+            "date": "2024-10-15",
+            "impressions": 15000,
+            "reach": 7500,
+            "likes": 320,
+            "comments": 25,
+            "shares": 45,
+            "saves": 60
+          },
+          {
+            "id": "after_001",
+            "postType": "Reel",
+            "description": "Reel optimizado - Después de cambios",
+            "publishedAt": "2025-01-15T14:00:00Z",
+            "permalink": "https://instagram.com/p/after001",
+            "date": "2025-01-15",
+            "impressions": 85000,
+            "reach": 42500,
+            "likes": 2850,
+            "comments": 185,
+            "shares": 420,
+            "saves": 680,
+            "videoViews": 72000
+          }
+        ]
+      }
+    },
+    "aiInsights": "## Evidencia de Mejoras Implementadas\n\n### Cambios Realizados (Oct 2024 - Ene 2025):\n1. Migración de contenido estático a Reels\n2. Optimización de horarios de publicación\n3. Implementación de CTAs en descripciones\n4. Mejora de thumbnails y primeros frames\n\n### Resultados Medibles:\n\n| Métrica | Antes | Después | Cambio |\n|---------|-------|---------|--------|\n| Interacciones diarias | 450 | 1,350 | +200% |\n| Alcance por post | 7,500 | 42,500 | +467% |\n| Engagement rate | 2.1% | 4.8% | +129% |\n\n### Conclusión:\nLas optimizaciones implementadas han resultado en un aumento del 200% en interacciones, validando la estrategia de contenido en video."
+  },
+  {
+    "id": "report_campana_lanzamiento",
+    "title": "Campaña Lanzamiento Producto X",
+    "objective": "analysis",
+    "platforms": ["instagram", "facebook"],
+    "status": "ready",
+    "createdAt": "2025-01-25T12:00:00Z",
+    "customization": {
+      "creative": 4,
+      "analytical": 4,
+      "professional": 3,
+      "colorPalette": ["#FF6B6B", "#4ECDC4", "#45B7D1"],
+      "colorPaletteImageUrl": null
+    },
+    "data": {
+      "instagram": {
+        "reach": [
+          { "date": "2025-01-20", "value": 35000 },
+          { "date": "2025-01-21", "value": 42000 },
+          { "date": "2025-01-22", "value": 58000 },
+          { "date": "2025-01-23", "value": 72000 },
+          { "date": "2025-01-24", "value": 65000 },
+          { "date": "2025-01-25", "value": 48000 }
+        ],
+        "reachStats": {
+          "total": 320000,
+          "average": 53333,
+          "max": 72000,
+          "min": 35000,
+          "trend": 37.1
+        },
+        "impressions": [
+          { "date": "2025-01-20", "value": 70000 },
+          { "date": "2025-01-21", "value": 84000 },
+          { "date": "2025-01-22", "value": 116000 },
+          { "date": "2025-01-23", "value": 144000 },
+          { "date": "2025-01-24", "value": 130000 },
+          { "date": "2025-01-25", "value": 96000 }
+        ],
+        "impressionsStats": {
+          "total": 640000,
+          "average": 106667,
+          "max": 144000,
+          "min": 70000,
+          "trend": 37.1
+        },
+        "content": [
+          {
+            "id": "launch_001",
+            "postType": "Reel",
+            "description": "Teaser - Algo grande viene",
+            "publishedAt": "2025-01-20T12:00:00Z",
+            "permalink": "https://instagram.com/p/launch001",
+            "date": "2025-01-20",
+            "impressions": 95000,
+            "reach": 47500,
+            "likes": 4200,
+            "comments": 520,
+            "shares": 1850,
+            "saves": 2100,
+            "videoViews": 82000
+          },
+          {
+            "id": "launch_002",
+            "postType": "Reel",
+            "description": "¡LANZAMIENTO! Conoce Producto X",
+            "publishedAt": "2025-01-22T14:00:00Z",
+            "permalink": "https://instagram.com/p/launch002",
+            "date": "2025-01-22",
+            "impressions": 185000,
+            "reach": 92500,
+            "likes": 8500,
+            "comments": 1250,
+            "shares": 3200,
+            "saves": 4500,
+            "videoViews": 156000
+          }
+        ]
+      },
+      "facebook": {
+        "reach": [
+          { "date": "2025-01-20", "value": 18000 },
+          { "date": "2025-01-21", "value": 22000 },
+          { "date": "2025-01-22", "value": 35000 },
+          { "date": "2025-01-23", "value": 42000 },
+          { "date": "2025-01-24", "value": 38000 },
+          { "date": "2025-01-25", "value": 28000 }
+        ],
+        "reachStats": {
+          "total": 183000,
+          "average": 30500,
+          "max": 42000,
+          "min": 18000,
+          "trend": 55.6
+        }
+      }
+    },
+    "aiInsights": "## Análisis Campaña de Lanzamiento - Producto X\n\n### Performance General:\n- **Duración**: 6 días (20-25 Enero 2025)\n- **Alcance combinado**: 503,000 usuarios\n- **Impresiones totales**: 823,000+\n\n### Desglose por Plataforma:\n\n**Instagram:**\n- Alcance: 320,000 (63.6%)\n- Mejor día: 23 de Enero (72K alcance)\n- Reel de lanzamiento: 185K impresiones, 156K views\n\n**Facebook:**\n- Alcance: 183,000 (36.4%)\n- Crecimiento de +55.6% durante campaña\n\n### Momentos Clave:\n1. **Día 1 (Teaser)**: Generó expectativa, 47.5K alcance\n2. **Día 3 (Lanzamiento)**: Pico de actividad, 92.5K alcance solo en IG\n3. **Día 4**: Momentum sostenido con shares orgánicos\n\n### ROI de Contenido:\n- El Reel de lanzamiento obtuvo 8,500 likes y 1,250 comentarios\n- Tasa de compartidos: 3.5% (muy por encima del promedio de 1.2%)\n\n### Recomendaciones Futuras:\n- Mantener formato de teaser + reveal\n- Publicar en miércoles-jueves para máximo impacto\n- Considerar paid media para amplificar picos orgánicos"
+  }
+]

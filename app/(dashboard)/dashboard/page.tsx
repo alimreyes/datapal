@@ -2,24 +2,32 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, FileText, Calendar, ArrowRight } from 'lucide-react';
+import { PlusCircle, FileText, Calendar, ArrowRight, Sparkles, UserPlus, X } from 'lucide-react';
 import Link from 'next/link';
-import { collection, query, getDocs, orderBy, limit } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
+import { useAuth } from '@/lib/hooks/useAuth';
 import type { Report } from '@/lib/types';
 import GlowCard from '@/components/ui/GlowCard';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user, isDemo, logout } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDemoBanner, setShowDemoBanner] = useState(true);
 
   useEffect(() => {
     async function loadReports() {
+      if (!user) return;
+
       try {
         setLoading(true);
         const reportsRef = collection(db, 'reports');
         const q = query(
           reportsRef,
+          where('userId', '==', user.uid),
           orderBy('createdAt', 'desc'),
           limit(20)
         );
@@ -39,7 +47,12 @@ export default function DashboardPage() {
     }
 
     loadReports();
-  }, []);
+  }, [user]);
+
+  const handleCreateRealAccount = async () => {
+    await logout();
+    router.push('/register');
+  };
 
   const formatDate = (date: any) => {
     if (!date) return 'Fecha desconocida';
@@ -53,13 +66,47 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {/* Demo Banner */}
+      {isDemo && showDemoBanner && (
+        <div className="relative bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4">
+          <button
+            onClick={() => setShowDemoBanner(false)}
+            className="absolute top-3 right-3 text-amber-400 hover:text-amber-300 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-amber-400" />
+              <span className="font-medium text-amber-100">
+                Estás viendo datos de ejemplo
+              </span>
+            </div>
+            <p className="text-amber-200/80 text-sm flex-1 min-w-[200px]">
+              Explora todas las funcionalidades de DataPal sin compromiso. Los datos mostrados son ficticios.
+            </p>
+            <Button
+              onClick={handleCreateRealAccount}
+              size="sm"
+              className="bg-amber-500 hover:bg-amber-400 text-black font-medium"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Crear mi cuenta real
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-4xl font-bold text-[#FBFEF2] tracking-tight">
-          Bienvenido a DataPal
+          {isDemo ? '¡Bienvenido al Demo de DataPal!' : 'Bienvenido a DataPal'}
         </h1>
         <p className="text-[#B6B6B6] mt-2 text-lg">
-          Crea y gestiona tus reportes de marketing en poco tiempo.
+          {isDemo
+            ? 'Explora reportes de ejemplo y descubre el poder de DataPal.'
+            : 'Crea y gestiona tus reportes de marketing en poco tiempo.'
+          }
         </p>
       </div>
 
@@ -217,6 +264,43 @@ export default function DashboardPage() {
           </div>
         </div>
       </GlowCard>
+
+      {/* Demo CTA Card */}
+      {isDemo && (
+        <GlowCard glowColor="1, 155, 119">
+          <div className="p-8 text-center">
+            <div className="inline-flex items-center justify-center bg-[#019B77]/20 p-4 rounded-full mb-4 border border-[#019B77]/30">
+              <Sparkles className="h-8 w-8 text-[#019B77]" />
+            </div>
+            <h3 className="text-2xl font-bold text-[#FBFEF2] mb-2">
+              ¿Te gustó lo que viste?
+            </h3>
+            <p className="text-[#B6B6B6] mb-6 max-w-md mx-auto">
+              Crea tu cuenta gratuita y comienza a generar reportes profesionales
+              con tus propios datos de Instagram y Facebook.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button
+                onClick={handleCreateRealAccount}
+                size="lg"
+                className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
+              >
+                <UserPlus className="mr-2 h-5 w-5" />
+                Crear mi cuenta gratis
+              </Button>
+              <Link href="/pricing">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="border-[#019B77] text-[#019B77] hover:bg-[#019B77]/10"
+                >
+                  Ver planes y precios
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </GlowCard>
+      )}
     </div>
   );
 }
