@@ -2,7 +2,6 @@
 
 import { Sparkles, Lightbulb, TrendingUp, Loader2, Lock, Zap } from 'lucide-react';
 import { useState } from 'react';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from '@/components/auth/LoginModal';
@@ -139,16 +138,9 @@ export default function AIInsightsPanel({
             </div>
             <div>
               <h3 className="text-xl font-bold text-[#FBFEF2]">Insights de IA</h3>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-sm text-[#B6B6B6]">Powered by</span>
-                <Image
-                  src="/Claude - Logo.png"
-                  alt="Claude"
-                  width={70}
-                  height={20}
-                  className="object-contain"
-                />
-              </div>
+              <p className="text-sm text-[#B6B6B6] mt-0.5">
+                Powered by <span className="text-[#019B77] font-medium">Claude Sonnet 4</span> by Anthropic
+              </p>
             </div>
           </div>
 
