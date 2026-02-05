@@ -15,10 +15,10 @@
  * 3. Agregar DEMO_USER_PASSWORD al .env.local
  */
 
-import * as admin from 'firebase-admin';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as crypto from 'crypto';
+import admin from 'firebase-admin';
+import fs from 'fs';
+import path from 'path';
+import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 
 // Obtener __dirname en ES modules
@@ -46,10 +46,13 @@ if (!fs.existsSync(serviceAccountPath)) {
 // Inicializar Firebase Admin
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  projectId: serviceAccount.project_id,
-});
+// Inicializar solo si no está ya inicializado
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount as admin.ServiceAccount),
+    projectId: serviceAccount.project_id,
+  });
+}
 
 const auth = admin.auth();
 const db = admin.firestore();
