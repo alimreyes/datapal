@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Play, FileText } from 'lucide-react';
-import { useAuth } from '@/lib/hooks/useAuth';
+import { X, Play } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 interface DemoPopupProps {
@@ -13,8 +12,6 @@ interface DemoPopupProps {
 
 export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
   const router = useRouter();
-  const { loginDemo } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -54,14 +51,9 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
     };
   }, [isOpen, onClose]);
 
-  const handleDemoClick = async () => {
-    setIsLoading(true);
-    const { success } = await loginDemo();
-    if (success) {
-      onClose();
-      router.push('/dashboard');
-    }
-    setIsLoading(false);
+  const handleDemoClick = () => {
+    onClose();
+    router.push('/demo');
   };
 
   if (!mounted || !isOpen) return null;
@@ -428,8 +420,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
             {/* CTA Button - Distinctive style */}
             <button
               onClick={handleDemoClick}
-              disabled={isLoading}
-              className="group relative w-full py-4 px-6 rounded-xl overflow-hidden transition-all duration-300 disabled:opacity-50"
+              className="group relative w-full py-4 px-6 rounded-xl overflow-hidden transition-all duration-300"
               style={{
                 background: 'linear-gradient(135deg, #019B77 0%, #017a5e 100%)',
                 boxShadow: '0 0 30px rgba(1, 155, 119, 0.3)',
@@ -444,17 +435,8 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
               />
 
               <span className="relative flex items-center justify-center gap-3 text-[#FBFEF2] font-semibold text-lg">
-                {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    Cargando demo...
-                  </>
-                ) : (
-                  <>
-                    <Play className="h-5 w-5 group-hover:scale-110 transition-transform" />
-                    Explorar Dashboard Demo
-                  </>
-                )}
+                <Play className="h-5 w-5 group-hover:scale-110 transition-transform" />
+                Explorar Reporte Demo
               </span>
 
               {/* Shine effect on hover */}

@@ -40,11 +40,11 @@ export default function DashboardLayout({
       {/* Demo Popup */}
       <DemoPopup isOpen={showDemoPopup} onClose={handleClosePopup} />
 
-      {/* Demo Banner - Clickable for non-authenticated users */}
+      {/* Demo Banner - Link to /demo for non-authenticated users */}
       {!user && (
-        <button
-          onClick={() => setShowDemoPopup(true)}
-          className="w-full bg-gradient-to-r from-[#019B77] to-[#02c494] text-[#FBFEF2] py-2 px-4 hover:from-[#02c494] hover:to-[#019B77] transition-all duration-300"
+        <Link
+          href="/demo"
+          className="block w-full bg-gradient-to-r from-[#019B77] to-[#02c494] text-[#FBFEF2] py-2 px-4 hover:from-[#02c494] hover:to-[#019B77] transition-all duration-300"
         >
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 flex-wrap text-sm">
             <Sparkles className="h-4 w-4" />
@@ -55,7 +55,7 @@ export default function DashboardLayout({
             </span>
             <span className="hidden sm:inline">— Sin registro, sin compromiso</span>
           </div>
-        </button>
+        </Link>
       )}
 
       {/* Demo Mode Indicator - Para usuarios demo */}

@@ -13,15 +13,14 @@ import { Loader2, BarChart3, Play } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, loginGoogle, loginDemo, loading } = useAuth();
-  
+  const { login, loginGoogle, loading } = useAuth();
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isDemoLoading, setIsDemoLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,21 +53,7 @@ export default function LoginPage() {
     router.push('/dashboard');
   };
 
-  const handleDemoLogin = async () => {
-    setError('');
-    setIsDemoLoading(true);
-
-    const { success, error } = await loginDemo();
-
-    if (!success) {
-      setError(error || 'Error al acceder al demo');
-      setIsDemoLoading(false);
-      return;
-    }
-
-    router.push('/dashboard');
-  };
-
+  
   return (
     <Card className="border-0 shadow-xl">
       <CardHeader className="space-y-1 text-center">
@@ -155,7 +140,7 @@ export default function LoginPage() {
           variant="outline"
           className="w-full"
           onClick={handleGoogleLogin}
-          disabled={isLoading || loading || isDemoLoading}
+          disabled={isLoading || loading}
         >
           {isLoading || loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -191,20 +176,16 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
-          onClick={handleDemoLogin}
-          disabled={isLoading || loading || isDemoLoading}
-        >
-          {isDemoLoading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
+        <Link href="/demo" className="w-full">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full border-emerald-500 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-700"
+          >
             <Play className="mr-2 h-4 w-4" />
-          )}
-          Ver Dashboard Demo
-        </Button>
+            Ver Dashboard Demo
+          </Button>
+        </Link>
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-4">
