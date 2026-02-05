@@ -8,10 +8,14 @@ export async function POST() {
   try {
     const demoPassword = process.env.DEMO_USER_PASSWORD;
 
+    // Log para debugging (solo muestra si existe, no el valor)
+    console.log('DEMO_USER_PASSWORD exists:', !!demoPassword);
+
     if (!demoPassword) {
+      console.error('DEMO_USER_PASSWORD not found in environment variables');
       return NextResponse.json(
-        { error: 'Demo no configurado' },
-        { status: 500 }
+        { error: 'Demo no configurado. Contacta al administrador.' },
+        { status: 503 }
       );
     }
 
