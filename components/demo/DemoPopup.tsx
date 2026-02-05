@@ -128,9 +128,9 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
         </button>
 
         <div className="relative z-10 grid md:grid-cols-2 min-h-[400px]">
-          {/* Left side - Illustration */}
+          {/* Left side - Illustration (Static) */}
           <div className="relative p-8 flex items-center justify-center border-r border-[rgba(251,254,242,0.05)]">
-            {/* Palantir-style illustration */}
+            {/* Palantir-style illustration - Static version */}
             <svg
               viewBox="0 0 400 300"
               className="w-full h-auto max-h-[300px]"
@@ -147,9 +147,9 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   />
                 </pattern>
                 <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#019B77" stopOpacity="0" />
-                  <stop offset="50%" stopColor="#019B77" stopOpacity="1" />
-                  <stop offset="100%" stopColor="#019B77" stopOpacity="0" />
+                  <stop offset="0%" stopColor="#019B77" stopOpacity="0.2" />
+                  <stop offset="50%" stopColor="#019B77" stopOpacity="0.8" />
+                  <stop offset="100%" stopColor="#019B77" stopOpacity="0.2" />
                 </linearGradient>
                 <filter id="glow">
                   <feGaussianBlur stdDeviation="2" result="coloredBlur" />
@@ -164,18 +164,19 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
 
               {/* Left side - Scattered data points */}
               <g className="data-points">
-                {/* Data points with pulse animation */}
                 {[
-                  { cx: 40, cy: 50, delay: 0 },
-                  { cx: 70, cy: 90, delay: 0.2 },
-                  { cx: 30, cy: 140, delay: 0.4 },
-                  { cx: 80, cy: 180, delay: 0.6 },
-                  { cx: 50, cy: 220, delay: 0.8 },
-                  { cx: 90, cy: 260, delay: 1 },
-                  { cx: 60, cy: 30, delay: 0.3 },
-                  { cx: 100, cy: 120, delay: 0.5 },
-                  { cx: 45, cy: 200, delay: 0.7 },
-                  { cx: 85, cy: 70, delay: 0.9 },
+                  { cx: 40, cy: 50 },
+                  { cx: 70, cy: 90 },
+                  { cx: 30, cy: 140 },
+                  { cx: 80, cy: 180 },
+                  { cx: 50, cy: 220 },
+                  { cx: 90, cy: 260 },
+                  { cx: 60, cy: 30 },
+                  { cx: 100, cy: 120 },
+                  { cx: 45, cy: 200 },
+                  { cx: 85, cy: 70 },
+                  { cx: 25, cy: 85 },
+                  { cx: 75, cy: 240 },
                 ].map((point, i) => (
                   <g key={i}>
                     <circle
@@ -184,20 +185,14 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                       r="4"
                       fill="#019B77"
                       filter="url(#glow)"
-                      style={{
-                        animation: `pulse 2s ease-in-out ${point.delay}s infinite`,
-                      }}
                     />
                     <circle
                       cx={point.cx}
                       cy={point.cy}
-                      r="8"
+                      r="10"
                       fill="none"
                       stroke="#019B77"
-                      strokeOpacity="0.3"
-                      style={{
-                        animation: `ripple 2s ease-out ${point.delay}s infinite`,
-                      }}
+                      strokeOpacity="0.2"
                     />
                   </g>
                 ))}
@@ -205,7 +200,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
 
               {/* Center - Processing funnel/cylinder */}
               <g transform="translate(160, 50)">
-                {/* Funnel shape */}
+                {/* Funnel shape - top ellipse */}
                 <ellipse
                   cx="40"
                   cy="0"
@@ -216,6 +211,7 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   strokeWidth="1"
                   strokeOpacity="0.5"
                 />
+                {/* Funnel shape - bottom ellipse */}
                 <ellipse
                   cx="40"
                   cy="200"
@@ -238,7 +234,6 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   strokeOpacity="0.2"
                   fill="none"
                   strokeDasharray="4 4"
-                  style={{ animation: 'dash 3s linear infinite' }}
                 />
                 <path
                   d="M 40 20 Q 50 100 40 180"
@@ -247,7 +242,6 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   strokeOpacity="0.2"
                   fill="none"
                   strokeDasharray="4 4"
-                  style={{ animation: 'dash 3s linear infinite reverse' }}
                 />
 
                 {/* DataPal text */}
@@ -258,31 +252,41 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   fill="#019B77"
                   fontSize="10"
                   fontFamily="monospace"
-                  opacity="0.7"
+                  opacity="0.8"
                 >
                   DataPal
                 </text>
 
-                {/* Processing indicator */}
+                {/* Processing indicator circle */}
                 <circle
                   cx="40"
                   cy="100"
-                  r="15"
+                  r="18"
                   fill="none"
                   stroke="#019B77"
-                  strokeWidth="2"
-                  strokeDasharray="20 60"
-                  style={{ animation: 'spin 3s linear infinite' }}
+                  strokeWidth="1"
+                  strokeOpacity="0.3"
+                />
+                <circle
+                  cx="40"
+                  cy="100"
+                  r="25"
+                  fill="none"
+                  stroke="#019B77"
+                  strokeWidth="1"
+                  strokeOpacity="0.15"
                 />
               </g>
 
               {/* Connecting lines from data points to funnel */}
               {[
-                { x1: 40, y1: 50, x2: 165, y2: 60 },
-                { x1: 70, y1: 90, x2: 165, y2: 80 },
-                { x1: 80, y1: 180, x2: 175, y2: 170 },
-                { x1: 50, y1: 220, x2: 180, y2: 200 },
-                { x1: 90, y1: 260, x2: 185, y2: 230 },
+                { x1: 40, y1: 50, x2: 165, y2: 55 },
+                { x1: 70, y1: 90, x2: 168, y2: 75 },
+                { x1: 100, y1: 120, x2: 170, y2: 95 },
+                { x1: 30, y1: 140, x2: 172, y2: 115 },
+                { x1: 80, y1: 180, x2: 178, y2: 160 },
+                { x1: 50, y1: 220, x2: 182, y2: 190 },
+                { x1: 90, y1: 260, x2: 188, y2: 220 },
               ].map((line, i) => (
                 <line
                   key={i}
@@ -293,14 +297,21 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   stroke="url(#lineGradient)"
                   strokeWidth="1"
                   strokeDasharray="4 4"
-                  style={{
-                    animation: `flowRight 2s ease-in-out ${i * 0.2}s infinite`,
-                  }}
                 />
               ))}
 
               {/* Right side - Report document */}
               <g transform="translate(280, 80)">
+                {/* Document shadow */}
+                <rect
+                  x="4"
+                  y="4"
+                  width="80"
+                  height="110"
+                  rx="4"
+                  fill="#019B77"
+                  fillOpacity="0.1"
+                />
                 {/* Document shape */}
                 <rect
                   x="0"
@@ -314,15 +325,15 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   strokeOpacity="0.5"
                 />
                 {/* Document header */}
-                <rect x="10" y="10" width="60" height="8" rx="2" fill="#019B77" fillOpacity="0.3" />
+                <rect x="10" y="10" width="60" height="8" rx="2" fill="#019B77" fillOpacity="0.4" />
                 {/* Chart bars */}
-                <rect x="10" y="28" width="15" height="30" rx="1" fill="#019B77" fillOpacity="0.6" />
-                <rect x="30" y="38" width="15" height="20" rx="1" fill="#019B77" fillOpacity="0.4" />
-                <rect x="50" y="33" width="15" height="25" rx="1" fill="#019B77" fillOpacity="0.5" />
+                <rect x="10" y="28" width="15" height="30" rx="1" fill="#019B77" fillOpacity="0.7" />
+                <rect x="30" y="38" width="15" height="20" rx="1" fill="#019B77" fillOpacity="0.5" />
+                <rect x="50" y="33" width="15" height="25" rx="1" fill="#019B77" fillOpacity="0.6" />
                 {/* Text lines */}
-                <rect x="10" y="68" width="55" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.2" />
-                <rect x="10" y="76" width="45" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.15" />
-                <rect x="10" y="84" width="50" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.1" />
+                <rect x="10" y="68" width="55" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.25" />
+                <rect x="10" y="76" width="45" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.2" />
+                <rect x="10" y="84" width="50" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.15" />
                 <rect x="10" y="92" width="35" height="3" rx="1" fill="#FBFEF2" fillOpacity="0.1" />
 
                 {/* Glow effect on document */}
@@ -335,20 +346,34 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                   fill="none"
                   stroke="#019B77"
                   strokeWidth="1"
-                  strokeOpacity="0.2"
-                  style={{ animation: 'docGlow 2s ease-in-out infinite' }}
+                  strokeOpacity="0.15"
                 />
               </g>
 
               {/* Connecting lines from funnel to report */}
               <line
                 x1="225"
-                y1="150"
+                y1="130"
                 x2="280"
-                y2="135"
+                y2="120"
                 stroke="url(#lineGradient)"
                 strokeWidth="2"
-                style={{ animation: 'flowRight 1.5s ease-in-out infinite' }}
+              />
+              <line
+                x1="225"
+                y1="150"
+                x2="280"
+                y2="145"
+                stroke="url(#lineGradient)"
+                strokeWidth="2"
+              />
+              <line
+                x1="225"
+                y1="170"
+                x2="280"
+                y2="170"
+                stroke="url(#lineGradient)"
+                strokeWidth="2"
               />
 
               {/* Labels */}
@@ -362,32 +387,6 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
                 Reporte
               </text>
             </svg>
-
-            {/* CSS Animations */}
-            <style jsx>{`
-              @keyframes pulse {
-                0%, 100% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.6; transform: scale(1.2); }
-              }
-              @keyframes ripple {
-                0% { r: 4; opacity: 0.5; }
-                100% { r: 20; opacity: 0; }
-              }
-              @keyframes dash {
-                to { stroke-dashoffset: -20; }
-              }
-              @keyframes spin {
-                to { transform: rotate(360deg); transform-origin: 40px 100px; }
-              }
-              @keyframes flowRight {
-                0%, 100% { opacity: 0.3; }
-                50% { opacity: 1; }
-              }
-              @keyframes docGlow {
-                0%, 100% { opacity: 0.2; }
-                50% { opacity: 0.5; }
-              }
-            `}</style>
           </div>
 
           {/* Right side - Content */}
