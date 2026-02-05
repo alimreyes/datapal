@@ -2,6 +2,7 @@
 
 import { Sparkles, Lightbulb, TrendingUp, Loader2, Lock, Zap } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from '@/components/auth/LoginModal';
@@ -125,7 +126,11 @@ export default function AIInsightsPanel({
 
   return (
     <>
-      <div className="bg-[#1a1b16] rounded-2xl border border-[#B6B6B6]/20 p-6">
+      <div className="relative rounded-2xl border-2 border-[#019B77] bg-[#1a1b16] overflow-hidden transition-all duration-300 hover:border-[#02c494] hover:shadow-[0_0_30px_rgba(1,155,119,0.3)]">
+        {/* Efecto de brillo en el borde */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-[#019B77]/10 via-transparent to-[#019B77]/10 pointer-events-none" />
+
+        <div className="relative p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
@@ -133,8 +138,17 @@ export default function AIInsightsPanel({
               <Sparkles className="w-6 h-6 text-[#11120D]" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-[#FBFEF2]">Insights con IA</h3>
-              <p className="text-sm text-[#B6B6B6]">Powered by Claude</p>
+              <h3 className="text-xl font-bold text-[#FBFEF2]">Insights de IA</h3>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-sm text-[#B6B6B6]">Powered by</span>
+                <Image
+                  src="/Claude - Logo.png"
+                  alt="Claude"
+                  width={70}
+                  height={20}
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
 
@@ -279,6 +293,7 @@ export default function AIInsightsPanel({
             )}
           </>
         )}
+        </div>
       </div>
 
       {/* Login Modal */}
