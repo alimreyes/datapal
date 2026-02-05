@@ -122,21 +122,26 @@ export const getCurrentUser = (): User | null => {
 
 /**
  * Sign in as demo user
- * Uses environment variable for demo credentials
+ * Fetches credentials securely from server-side API
  */
 export const loginAsDemo = async () => {
   try {
-    const demoEmail = 'demo@datapal.cl';
-    const demoPassword = process.env.NEXT_PUBLIC_DEMO_USER_PASSWORD;
+    // Obtener credenciales del servidor (no expuestas en el cliente)
+    const response = await fetch('/api/auth/demo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-    if (!demoPassword) {
-      return { user: null, error: 'Demo no configurado. Contacta al administrador.' };
+    if (!response.ok) {
+      return { user: null, error: 'Demo no disponible. Intenta más tarde.' };
     }
+
+    const { email, password } = await response.json();
 
     const userCredential = await signInWithEmailAndPassword(
       auth,
-      demoEmail,
-      demoPassword
+      email,
+      password
     );
     return { user: userCredential.user, error: null };
   } catch (error: any) {

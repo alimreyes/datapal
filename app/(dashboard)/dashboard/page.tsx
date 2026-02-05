@@ -20,16 +20,20 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function loadReports() {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
         const reportsRef = collection(db, 'reports');
+
+        // Query simple sin orderBy para evitar necesidad de índice compuesto
         const q = query(
           reportsRef,
           where('userId', '==', user.uid),
-          orderBy('createdAt', 'desc'),
-          limit(20)
+          limit(50)
         );
 
         const snapshot = await getDocs(q);
@@ -38,7 +42,18 @@ export default function DashboardPage() {
           ...doc.data(),
         })) as Report[];
 
-        setReports(reportsData);
+        // Ordenar en el cliente por fecha descendente
+        reportsData.sort((a, b) => {
+          const dateA = a.createdAt && typeof a.createdAt === 'object' && 'toDate' in a.createdAt
+            ? a.createdAt.toDate()
+            : new Date(a.createdAt as string);
+          const dateB = b.createdAt && typeof b.createdAt === 'object' && 'toDate' in b.createdAt
+            ? b.createdAt.toDate()
+            : new Date(b.createdAt as string);
+          return dateB.getTime() - dateA.getTime();
+        });
+
+        setReports(reportsData.slice(0, 20));
         setLoading(false);
       } catch (error) {
         console.error('Error loading reports:', error);
