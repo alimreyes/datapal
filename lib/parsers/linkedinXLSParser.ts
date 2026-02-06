@@ -120,6 +120,7 @@ function parsePercentage(value: string): number {
 
 /**
  * Format date to YYYY-MM-DD
+ * LinkedIn exports use MM/DD/YYYY format
  */
 function formatDate(dateValue: any): string {
   if (!dateValue) return '';
@@ -130,15 +131,19 @@ function formatDate(dateValue: any): string {
     if (dateValue.includes('T')) {
       return dateValue.split('T')[0];
     }
-    // Handle DD/MM/YYYY format (European)
+    // Handle MM/DD/YYYY format (LinkedIn uses US format)
     if (dateValue.includes('/')) {
       const parts = dateValue.split('/');
       if (parts.length === 3) {
-        const day = parts[0].padStart(2, '0');
-        const month = parts[1].padStart(2, '0');
+        const month = parts[0].padStart(2, '0');
+        const day = parts[1].padStart(2, '0');
         const year = parts[2].length === 2 ? '20' + parts[2] : parts[2];
         return `${year}-${month}-${day}`;
       }
+    }
+    // Handle YYYY-MM-DD format (already correct)
+    if (dateValue.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateValue;
     }
     // Handle DD-MM-YYYY format
     if (dateValue.match(/^\d{1,2}-\d{1,2}-\d{4}$/)) {
@@ -203,7 +208,42 @@ function calculateStats(data: DataPoint[]): DataStats {
  * Parse the "Indicadores" sheet to extract time-series metrics
  */
 function parseMetricsSheet(sheet: XLSX.WorkSheet): PlatformData {
-  const data = XLSX.utils.sheet_to_json(sheet);
+  // LinkedIn exports have a description row first, then headers
+  // We need to skip the first row and use the second as headers
+  const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+
+  if (rawData.length < 3) {
+    return {};
+  }
+
+  // Find the header row (contains 'Fecha')
+  let headerRowIndex = 0;
+  for (let i = 0; i < Math.min(5, rawData.length); i++) {
+    if (rawData[i] && rawData[i].some((cell: any) =>
+      cell && cell.toString().toLowerCase().includes('fecha'))) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+
+  const headers = rawData[headerRowIndex];
+  const dataRows = rawData.slice(headerRowIndex + 1);
+
+  // Convert to object format with headers
+  const data = dataRows.map(row => {
+    const obj: any = {};
+    headers.forEach((header: string, index: number) => {
+      if (header) {
+        obj[header.toString().trim()] = row[index];
+      }
+    });
+    return obj;
+  }).filter(row => Object.keys(row).length > 0);
+
+  console.log('[LinkedIn Parser] Metrics data rows:', data.length);
+  if (data.length > 0) {
+    console.log('[LinkedIn Parser] First metrics row keys:', Object.keys(data[0]));
+  }
 
   if (data.length === 0) {
     return {};
@@ -260,7 +300,42 @@ function parseMetricsSheet(sheet: XLSX.WorkSheet): PlatformData {
  * Parse the "Todas las publicaciones" sheet to extract content data
  */
 function parseContentSheet(sheet: XLSX.WorkSheet): ContentData[] {
-  const data = XLSX.utils.sheet_to_json(sheet);
+  // LinkedIn exports have a description row first, then headers
+  const rawData = XLSX.utils.sheet_to_json(sheet, { header: 1 }) as any[][];
+
+  if (rawData.length < 3) {
+    return [];
+  }
+
+  // Find the header row (contains 'Título' or 'Enlace')
+  let headerRowIndex = 0;
+  for (let i = 0; i < Math.min(5, rawData.length); i++) {
+    if (rawData[i] && rawData[i].some((cell: any) =>
+      cell && (cell.toString().toLowerCase().includes('título') ||
+               cell.toString().toLowerCase().includes('enlace')))) {
+      headerRowIndex = i;
+      break;
+    }
+  }
+
+  const headers = rawData[headerRowIndex];
+  const dataRows = rawData.slice(headerRowIndex + 1);
+
+  // Convert to object format with headers
+  const data = dataRows.map(row => {
+    const obj: any = {};
+    headers.forEach((header: string, index: number) => {
+      if (header) {
+        obj[header.toString().trim()] = row[index];
+      }
+    });
+    return obj;
+  }).filter(row => Object.keys(row).length > 0);
+
+  console.log('[LinkedIn Parser] Content data rows:', data.length);
+  if (data.length > 0) {
+    console.log('[LinkedIn Parser] First content row keys:', Object.keys(data[0]));
+  }
 
   if (data.length === 0) {
     return [];
@@ -324,9 +399,15 @@ export async function parseLinkedInXLS(file: File): Promise<LinkedInXLSResult> {
     const arrayBuffer = await file.arrayBuffer();
     const workbook = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
 
+    // Debug: Log sheet names
+    console.log('[LinkedIn Parser] Sheet names found:', workbook.SheetNames);
+
     // Find the sheets
     const metricsSheet = findSheet(workbook, SHEET_NAMES.metrics);
     const contentSheet = findSheet(workbook, SHEET_NAMES.content);
+
+    console.log('[LinkedIn Parser] Metrics sheet found:', !!metricsSheet);
+    console.log('[LinkedIn Parser] Content sheet found:', !!contentSheet);
 
     // Parse available sheets
     const metrics = metricsSheet ? parseMetricsSheet(metricsSheet) : {};
