@@ -25,12 +25,28 @@ export function FileUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to check if file extension is allowed
+  const isValidExtension = (fileName: string, acceptTypes: string): boolean => {
+    const fileExtension = '.' + fileName.split('.').pop()?.toLowerCase();
+    const allowedExtensions = acceptTypes.split(',').map(ext => ext.trim().toLowerCase());
+    return allowedExtensions.some(ext => ext === fileExtension);
+  };
+
+  // Get human-readable file types from accept string
+  const getAcceptedTypesLabel = (acceptTypes: string): string => {
+    return acceptTypes
+      .split(',')
+      .map(ext => ext.trim().replace('.', '').toUpperCase())
+      .join(', ');
+  };
+
   const validateFile = (file: File): boolean => {
     setError(null);
 
-    // Check file type
-    if (!file.name.endsWith('.csv')) {
-      setError('Solo se permiten archivos CSV');
+    // Check file type based on accept prop
+    if (!isValidExtension(file.name, accept)) {
+      const allowedTypes = getAcceptedTypesLabel(accept);
+      setError(`Solo se permiten archivos ${allowedTypes}`);
       return false;
     }
 
@@ -125,7 +141,7 @@ export function FileUpload({
               isDragging ? 'text-[#019B77]' : 'text-[#B6B6B6]'
             )} />
             <p className="text-sm font-medium mb-1 text-[#FBFEF2]">
-              {isDragging ? 'Suelta el archivo aquí' : 'Arrastra tu archivo CSV aquí'}
+              {isDragging ? 'Suelta el archivo aquí' : `Arrastra tu archivo ${getAcceptedTypesLabel(accept)} aquí`}
             </p>
             <p className="text-xs text-[#B6B6B6] mb-2">
               o haz click para seleccionar
