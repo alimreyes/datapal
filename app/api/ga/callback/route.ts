@@ -58,10 +58,17 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(
       new URL('/new-report/step-ga?connected=true', request.url)
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in GA OAuth callback:', error);
+    console.error('Error message:', error?.message);
+    console.error('Error stack:', error?.stack);
+
+    // Provide more specific error info in the redirect
+    const errorMessage = error?.message || 'auth_failed';
+    const encodedError = encodeURIComponent(errorMessage.substring(0, 100));
+
     return NextResponse.redirect(
-      new URL('/new-report/step-ga?error=auth_failed', request.url)
+      new URL(`/new-report/step-ga?error=auth_failed&details=${encodedError}`, request.url)
     );
   }
 }

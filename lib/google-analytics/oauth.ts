@@ -12,10 +12,17 @@ const GA_SCOPES = [
 export function createGAOAuthClient(): OAuth2Client {
   const clientId = process.env.GOOGLE_GA_CLIENT_ID || process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_GA_CLIENT_SECRET || process.env.GOOGLE_CLIENT_SECRET;
-  const redirectUri = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/ga/callback`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const redirectUri = `${baseUrl}/api/ga/callback`;
+
+  console.log('[GA OAuth] Creating client with:');
+  console.log('[GA OAuth] - Client ID exists:', !!clientId);
+  console.log('[GA OAuth] - Client Secret exists:', !!clientSecret);
+  console.log('[GA OAuth] - Base URL:', baseUrl);
+  console.log('[GA OAuth] - Redirect URI:', redirectUri);
 
   if (!clientId || !clientSecret) {
-    throw new Error('Google Analytics OAuth credentials not configured');
+    throw new Error('Google Analytics OAuth credentials not configured. Check GOOGLE_GA_CLIENT_ID and GOOGLE_GA_CLIENT_SECRET env vars.');
   }
 
   return new OAuth2Client(clientId, clientSecret, redirectUri);
