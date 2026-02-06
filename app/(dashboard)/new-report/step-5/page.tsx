@@ -13,6 +13,8 @@ import { ArrowLeft, FileText, CheckCircle2, AlertCircle, Loader2, LogIn } from '
 import { motion } from 'framer-motion';
 import { createDocument } from '@/lib/firebase/firestore';
 import { parseMetaCSV, calculateStats, parseMetaContent, hasValidData } from '@/lib/parsers/metaParser';
+import { parseLinkedInXLS } from '@/lib/parsers/linkedinXLSParser';
+import { parseTikTokCSV, parseTikTokContent, hasValidTikTokData } from '@/lib/parsers/tiktokParser';
 import LoginModal from '@/components/auth/LoginModal';
 
 const objectiveLabels: Record<string, string> = {
@@ -47,7 +49,7 @@ export default function Step5Page() {
   const router = useRouter();
   const { user } = useAuth();
   const { user: authUser } = useAuthContext();
-  const { objective, platforms, instagramFiles, facebookFiles, reset } = useNewReportStore();
+  const { objective, platforms, instagramFiles, facebookFiles, linkedinXLSFile, tiktokFiles, gaConnection, reset } = useNewReportStore();
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -56,7 +58,9 @@ export default function Step5Page() {
 
   const instagramFileCount = Object.values(instagramFiles).filter(f => f !== null).length;
   const facebookFileCount = Object.values(facebookFiles).filter(f => f !== null).length;
-  const totalFiles = instagramFileCount + facebookFileCount;
+  const linkedinFileCount = linkedinXLSFile ? 1 : 0;
+  const tiktokFileCount = Object.values(tiktokFiles).filter(f => f !== null).length;
+  const totalFiles = instagramFileCount + facebookFileCount + linkedinFileCount + tiktokFileCount;
 
   // Effect to auto-continue after login
   useEffect(() => {
@@ -73,11 +77,16 @@ export default function Step5Page() {
   }, [user, pendingConfirm]);
 
   const handleBack = () => {
-    // Volver al último step con archivos
-    if (platforms.includes('facebook')) {
-      router.push('/new-report/step-4');
-    } else if (platforms.includes('instagram')) {
-      router.push('/new-report/step-3');
+    // Get previous step based on platform order
+    const { getPreviousStep } = useNewReportStore.getState();
+    // Find the last platform to go back to
+    const platformOrder = ['instagram', 'facebook', 'linkedin', 'tiktok', 'google_analytics'];
+    const selectedPlatforms = platformOrder.filter(p => platforms.includes(p as any));
+    const lastPlatform = selectedPlatforms[selectedPlatforms.length - 1];
+
+    if (lastPlatform) {
+      const previousStep = getPreviousStep(null);
+      router.push(previousStep);
     } else {
       router.push('/new-report/step-2');
     }
@@ -268,6 +277,82 @@ export default function Step5Page() {
         }
       }
 
+      // Procesar LinkedIn (XLS file)
+      if (platforms.includes('linkedin') && linkedinXLSFile) {
+        try {
+          const linkedinData = await parseLinkedInXLS(linkedinXLSFile);
+          processedData.linkedin = {
+            ...linkedinData.metrics,
+            content: linkedinData.content,
+          };
+        } catch (err) {
+          console.error('Error parsing LinkedIn XLS:', err);
+        }
+      }
+
+      // Procesar TikTok
+      if (platforms.includes('tiktok')) {
+        processedData.tiktok = {};
+
+        // Helper for TikTok temporal files
+        const processTikTokTemporalFile = async (file: File | null) => {
+          if (!file) return null;
+          try {
+            const text = await file.text();
+            if (!hasValidTikTokData(text)) return null;
+            const parsedData = parseTikTokCSV(text);
+            if (parsedData.length > 0) {
+              return {
+                data: parsedData,
+                stats: calculateStats(parsedData)
+              };
+            }
+            return null;
+          } catch (err) {
+            console.error('Error processing TikTok file:', err);
+            return null;
+          }
+        };
+
+        // TikTok metrics
+        const reach = await processTikTokTemporalFile(tiktokFiles.reach);
+        if (reach) {
+          processedData.tiktok.reach = reach.data;
+          processedData.tiktok.reachStats = reach.stats;
+        }
+
+        const impressions = await processTikTokTemporalFile(tiktokFiles.impressions);
+        if (impressions) {
+          processedData.tiktok.impressions = impressions.data;
+          processedData.tiktok.impressionsStats = impressions.stats;
+        }
+
+        const interactions = await processTikTokTemporalFile(tiktokFiles.interactions);
+        if (interactions) {
+          processedData.tiktok.interactions = interactions.data;
+          processedData.tiktok.interactionsStats = interactions.stats;
+        }
+
+        const followers = await processTikTokTemporalFile(tiktokFiles.followers);
+        if (followers) {
+          processedData.tiktok.followers = followers.data;
+          processedData.tiktok.followersStats = followers.stats;
+        }
+
+        // TikTok content
+        if (tiktokFiles.content) {
+          try {
+            const text = await tiktokFiles.content.text();
+            const tiktokContent = parseTikTokContent(text);
+            if (tiktokContent.length > 0) {
+              processedData.tiktok.content = tiktokContent;
+            }
+          } catch (err) {
+            console.error('Error parsing TikTok content:', err);
+          }
+        }
+      }
+
       // Generar título automático basado en fecha
       const now = new Date();
       const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -411,6 +496,53 @@ export default function Step5Page() {
                           </div>
                         );
                       })}
+                    </div>
+                  </div>
+                )}
+
+                {/* LinkedIn */}
+                {platforms.includes('linkedin') && linkedinXLSFile && (
+                  <div className="bg-[#0A66C2]/10 border border-[#0A66C2]/30 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-2 text-[#0A66C2]">💼 LinkedIn (1 archivo)</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
+                        <span className="text-[#FBFEF2]">Exportación XLS</span>
+                        <span className="text-[#B6B6B6]">• {linkedinXLSFile.name}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* TikTok */}
+                {platforms.includes('tiktok') && tiktokFileCount > 0 && (
+                  <div className="bg-gradient-to-r from-[#00f2ea]/10 to-[#ff0050]/10 border border-white/20 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-2 text-white">🎵 TikTok ({tiktokFileCount} archivos)</p>
+                    <div className="space-y-1">
+                      {Object.entries(tiktokFiles).map(([category, file]) => {
+                        if (!file) return null;
+                        return (
+                          <div key={category} className="flex items-center gap-2 text-xs">
+                            <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
+                            <span className="text-[#FBFEF2]">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                            <span className="text-[#B6B6B6]">• {file.name}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Google Analytics */}
+                {platforms.includes('google_analytics') && gaConnection.connected && (
+                  <div className="bg-[#E37400]/10 border border-[#E37400]/30 rounded-lg p-3">
+                    <p className="text-sm font-medium mb-2 text-[#E37400]">📊 Google Analytics</p>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 text-xs">
+                        <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
+                        <span className="text-[#FBFEF2]">Conectado</span>
+                        <span className="text-[#B6B6B6]">• {gaConnection.propertyName}</span>
+                      </div>
                     </div>
                   </div>
                 )}

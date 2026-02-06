@@ -1,52 +1,53 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { Button } from '@/components/ui/button';
 import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
-import { CSVCategory } from '@/lib/types';
+import { ArrowRight, ArrowLeft, FileSpreadsheet, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import GlowCard from '@/components/ui/GlowCard';
 import { LinkedInIcon } from '@/components/icons/PlatformIcons';
-
-const csvCategories: { id: CSVCategory; label: string; description: string }[] = [
-  {
-    id: 'reach',
-    label: 'Alcance',
-    description: 'Número de personas que vieron tu contenido',
-  },
-  {
-    id: 'impressions',
-    label: 'Impresiones',
-    description: 'Total de veces que se mostró tu contenido',
-  },
-  {
-    id: 'interactions',
-    label: 'Interacciones',
-    description: 'Reacciones, comentarios y compartidos',
-  },
-  {
-    id: 'followers',
-    label: 'Seguidores',
-    description: 'Crecimiento de seguidores y conexiones',
-  },
-  {
-    id: 'content',
-    label: 'Contenido',
-    description: 'Rendimiento individual de cada publicación',
-  },
-  {
-    id: 'visits',
-    label: 'Visitas',
-    description: 'Visitas al perfil de empresa o personal',
-  },
-];
+import { validateLinkedInXLS } from '@/lib/parsers/linkedinXLSParser';
 
 export default function StepLinkedInPage() {
   const router = useRouter();
-  const { linkedinFiles, setLinkedInFile, isLinkedInStepValid, getNextStep, getPreviousStep } = useNewReportStore();
+  const { linkedinXLSFile, setLinkedInXLSFile, isLinkedInStepValid, getNextStep, getPreviousStep } = useNewReportStore();
+  const [validationStatus, setValidationStatus] = useState<{
+    isValid: boolean | null;
+    message: string;
+  }>({ isValid: null, message: '' });
+  const [isValidating, setIsValidating] = useState(false);
+
+  const handleFileChange = useCallback(async (file: File | null) => {
+    if (!file) {
+      setLinkedInXLSFile(null);
+      setValidationStatus({ isValid: null, message: '' });
+      return;
+    }
+
+    setIsValidating(true);
+    try {
+      const result = await validateLinkedInXLS(file);
+      setValidationStatus({ isValid: result.valid, message: result.message });
+
+      if (result.valid) {
+        setLinkedInXLSFile(file);
+      } else {
+        setLinkedInXLSFile(null);
+      }
+    } catch (error) {
+      setValidationStatus({
+        isValid: false,
+        message: 'Error al validar el archivo. Por favor intenta de nuevo.'
+      });
+      setLinkedInXLSFile(null);
+    } finally {
+      setIsValidating(false);
+    }
+  }, [setLinkedInXLSFile]);
 
   const handleNext = () => {
     if (isLinkedInStepValid()) {
@@ -59,8 +60,6 @@ export default function StepLinkedInPage() {
     const previousStep = getPreviousStep('linkedin');
     router.push(previousStep);
   };
-
-  const uploadedCount = Object.values(linkedinFiles).filter((file) => file !== null).length;
 
   return (
     <div className="min-h-screen bg-[#11120D] py-12 px-4">
@@ -90,10 +89,11 @@ export default function StepLinkedInPage() {
             <h1 className="text-3xl font-bold text-[#FBFEF2]">LinkedIn</h1>
           </div>
           <p className="text-[#B6B6B6] mb-2">
-            Carga tus archivos .CSV de LinkedIn
+            Carga tu archivo de exportación de LinkedIn
           </p>
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#0A66C2]/20 text-[#0A66C2] rounded-full text-sm border border-[#0A66C2]/30">
-            <span className="font-medium">{uploadedCount} de 6 archivos</span>
+            <FileSpreadsheet className="w-4 h-4" />
+            <span className="font-medium">Archivo XLS</span>
           </div>
         </div>
 
@@ -101,48 +101,96 @@ export default function StepLinkedInPage() {
         <GlowCard className="mb-6" glowColor="10, 102, 194">
           <CardHeader>
             <CardTitle className="text-sm flex items-center gap-2 text-[#FBFEF2]">
-              💡 ¿Dónde obtengo estos archivos?
+              <span>📊</span> ¿Cómo obtener el archivo de LinkedIn?
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-[#B6B6B6] space-y-2">
-            <p>1. Ve a <strong className="text-[#FBFEF2]">LinkedIn</strong> → Tu página de empresa o perfil</p>
-            <p>2. Selecciona <strong className="text-[#FBFEF2]">Analíticas</strong></p>
-            <p>3. Haz clic en <strong className="text-[#FBFEF2]">Exportar</strong> en cada sección</p>
-            <p>4. Descarga los CSV por categoría y súbelos aquí</p>
+            <p>1. Ve a <strong className="text-[#FBFEF2]">LinkedIn</strong> → Tu página de empresa</p>
+            <p>2. Selecciona <strong className="text-[#FBFEF2]">Analíticas</strong> en el menú superior</p>
+            <p>3. Haz clic en <strong className="text-[#FBFEF2]">Exportar</strong> (icono de descarga)</p>
+            <p>4. Descarga el archivo <strong className="text-[#FBFEF2]">.xls</strong> y súbelo aquí</p>
           </CardContent>
         </GlowCard>
 
-        {/* Upload Areas */}
-        <div className="space-y-4 mb-8">
-          {csvCategories.map((category, index) => (
-            <motion.div
-              key={category.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <GlowCard glowColor="10, 102, 194">
-                <CardContent className="p-4">
-                  <FileUpload
-                    label={category.label}
-                    description={category.description}
-                    file={linkedinFiles[category.id]}
-                    onFileChange={(file) => setLinkedInFile(category.id, file)}
-                    accept=".csv"
-                    maxSize={5}
-                  />
-                </CardContent>
-              </GlowCard>
-            </motion.div>
-          ))}
-        </div>
+        {/* Upload Area */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-6"
+        >
+          <GlowCard glowColor="10, 102, 194">
+            <CardContent className="p-6">
+              <div className="text-center mb-4">
+                <FileSpreadsheet className="w-12 h-12 mx-auto mb-3 text-[#0A66C2]" />
+                <h3 className="text-lg font-semibold text-[#FBFEF2] mb-1">
+                  Archivo de Exportación de LinkedIn
+                </h3>
+                <p className="text-sm text-[#B6B6B6]">
+                  El archivo contiene las hojas "Indicadores" y "Todas las publicaciones"
+                </p>
+              </div>
 
-        {/* Helper Text */}
-        <div className="bg-[#1a1b16] border border-yellow-500/30 rounded-lg p-4 mb-8">
-          <p className="text-sm text-yellow-400">
-            <strong>Importante:</strong> No es necesario subir todos los archivos. Puedes continuar con al menos uno para generar tu reporte.
-          </p>
-        </div>
+              <FileUpload
+                label="Exportación de LinkedIn"
+                description="Arrastra o selecciona tu archivo .xls o .xlsx"
+                file={linkedinXLSFile}
+                onFileChange={handleFileChange}
+                accept=".xls,.xlsx"
+                maxSize={10}
+              />
+
+              {/* Validation Status */}
+              {isValidating && (
+                <div className="mt-4 flex items-center justify-center gap-2 text-[#B6B6B6]">
+                  <div className="animate-spin h-4 w-4 border-2 border-[#0A66C2] border-t-transparent rounded-full" />
+                  <span className="text-sm">Validando archivo...</span>
+                </div>
+              )}
+
+              {validationStatus.isValid === true && (
+                <div className="mt-4 flex items-center justify-center gap-2 text-green-400">
+                  <CheckCircle2 className="w-5 h-5" />
+                  <span className="text-sm font-medium">Archivo válido</span>
+                </div>
+              )}
+
+              {validationStatus.isValid === false && (
+                <div className="mt-4 flex items-center justify-center gap-2 text-red-400">
+                  <AlertCircle className="w-5 h-5" />
+                  <span className="text-sm">{validationStatus.message}</span>
+                </div>
+              )}
+            </CardContent>
+          </GlowCard>
+        </motion.div>
+
+        {/* What's included */}
+        <GlowCard className="mb-8" glowColor="10, 102, 194">
+          <CardContent className="p-6">
+            <h4 className="text-sm font-semibold text-[#FBFEF2] mb-4 flex items-center gap-2">
+              <span>📈</span> Métricas que analizaremos
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                'Impresiones totales',
+                'Alcance único',
+                'Reacciones',
+                'Comentarios',
+                'Compartidos',
+                'Tasa de interacción',
+              ].map((metric) => (
+                <div
+                  key={metric}
+                  className="flex items-center gap-2 text-sm text-[#B6B6B6] bg-[#1a1b16] px-3 py-2 rounded-lg"
+                >
+                  <CheckCircle2 className="w-4 h-4 text-[#0A66C2]" />
+                  <span>{metric}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </GlowCard>
 
         {/* Navigation */}
         <div className="flex justify-between items-center">
@@ -159,7 +207,7 @@ export default function StepLinkedInPage() {
           <Button
             size="lg"
             onClick={handleNext}
-            disabled={!isLinkedInStepValid()}
+            disabled={!isLinkedInStepValid() || isValidating}
             className="bg-[#0A66C2] hover:bg-[#0A66C2]/80 text-white border-0"
           >
             Siguiente

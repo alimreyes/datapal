@@ -113,8 +113,12 @@ export default function DemoPopup({ isOpen, onClose }: DemoPopupProps) {
 
         {/* Close button */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] text-[#B6B6B6] hover:text-[#FBFEF2] hover:border-[#019B77]/50 transition-all"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }}
+          className="absolute top-4 right-4 z-50 p-2.5 rounded-full bg-[#1a1b16] border border-[rgba(251,254,242,0.2)] text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#2a2b25] hover:border-[#019B77] transition-all cursor-pointer"
+          aria-label="Cerrar popup"
         >
           <X className="h-5 w-5" />
         </button>

@@ -25,7 +25,7 @@ interface NewReportState {
   // Step 3-4+: Uploaded files for each platform
   instagramFiles: Record<CSVCategory, File | null>;
   facebookFiles: Record<CSVCategory, File | null>;
-  linkedinFiles: Record<CSVCategory, File | null>;
+  linkedinXLSFile: File | null; // Single XLS file for LinkedIn
   tiktokFiles: Record<CSVCategory, File | null>;
 
   // Google Analytics connection state
@@ -36,7 +36,7 @@ interface NewReportState {
   setPlatforms: (platforms: Platform[]) => void;
   setInstagramFile: (category: CSVCategory, file: File | null) => void;
   setFacebookFile: (category: CSVCategory, file: File | null) => void;
-  setLinkedInFile: (category: CSVCategory, file: File | null) => void;
+  setLinkedInXLSFile: (file: File | null) => void;
   setTikTokFile: (category: CSVCategory, file: File | null) => void;
   setGAConnection: (connection: Partial<GAConnectionState>) => void;
   clearGAConnection: () => void;
@@ -84,7 +84,7 @@ export const useNewReportStore = create<NewReportState>((set, get) => ({
   platforms: [],
   instagramFiles: getInitialFileState(),
   facebookFiles: getInitialFileState(),
-  linkedinFiles: getInitialFileState(),
+  linkedinXLSFile: null,
   tiktokFiles: getInitialFileState(),
   gaConnection: getInitialGAConnection(),
 
@@ -108,13 +108,7 @@ export const useNewReportStore = create<NewReportState>((set, get) => ({
       },
     })),
 
-  setLinkedInFile: (category, file) =>
-    set((state) => ({
-      linkedinFiles: {
-        ...state.linkedinFiles,
-        [category]: file,
-      },
-    })),
+  setLinkedInXLSFile: (file) => set({ linkedinXLSFile: file }),
 
   setTikTokFile: (category, file) =>
     set((state) => ({
@@ -141,7 +135,7 @@ export const useNewReportStore = create<NewReportState>((set, get) => ({
       platforms: [],
       instagramFiles: getInitialFileState(),
       facebookFiles: getInitialFileState(),
-      linkedinFiles: getInitialFileState(),
+      linkedinXLSFile: null,
       tiktokFiles: getInitialFileState(),
       gaConnection: getInitialGAConnection(),
     }),
@@ -168,8 +162,7 @@ export const useNewReportStore = create<NewReportState>((set, get) => ({
   isLinkedInStepValid: () => {
     const state = get();
     if (!state.platforms.includes('linkedin')) return true;
-    const files = Object.values(state.linkedinFiles);
-    return files.some((file) => file !== null);
+    return state.linkedinXLSFile !== null;
   },
 
   isTikTokStepValid: () => {

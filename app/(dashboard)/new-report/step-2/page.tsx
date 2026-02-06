@@ -51,15 +51,16 @@ const platforms: {
     bgColor: 'bg-gradient-to-br from-[#00f2ea]/10 to-[#ff0050]/10 border border-white/20',
     glowColor: '255, 0, 80',
   },
-  {
-    id: 'google_analytics',
-    name: 'Google Analytics',
-    description: 'Usuarios, sesiones, páginas vistas y comportamiento',
-    icon: <GoogleAnalyticsIcon className="w-16 h-16" />,
-    bgColor: 'bg-[#E37400]/10 border border-[#E37400]/30',
-    glowColor: '227, 116, 0',
-    badge: 'API',
-  },
+  // Google Analytics temporalmente oculto hasta aprobación de Google
+  // {
+  //   id: 'google_analytics',
+  //   name: 'Google Analytics',
+  //   description: 'Usuarios, sesiones, páginas vistas y comportamiento',
+  //   icon: <GoogleAnalyticsIcon className="w-16 h-16" />,
+  //   bgColor: 'bg-[#E37400]/10 border border-[#E37400]/30',
+  //   glowColor: '227, 116, 0',
+  //   badge: 'API',
+  // },
 ];
 
 export default function Step2Page() {
@@ -176,8 +177,8 @@ export default function Step2Page() {
         {/* Info Notice */}
         <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-4 mb-8">
           <p className="text-sm text-[#B6B6B6] text-center">
-            <strong className="text-[#019B77]">Tip:</strong> Para redes sociales (Instagram, Facebook, LinkedIn, TikTok) necesitarás exportar tus datos en formato CSV.
-            Google Analytics se conecta directamente a tu cuenta.
+            <strong className="text-[#019B77]">Tip:</strong> Para cada plataforma necesitarás exportar tus datos.
+            Instagram, Facebook y TikTok usan archivos CSV, mientras que LinkedIn usa un archivo XLS.
           </p>
         </div>
 
