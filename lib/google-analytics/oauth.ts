@@ -54,7 +54,12 @@ export async function exchangeCodeForTokens(code: string): Promise<GATokens> {
   const client = createGAOAuthClient();
 
   try {
+    console.log('[GA OAuth] Exchanging code for tokens...');
+    console.log('[GA OAuth] Code length:', code?.length);
+
     const { tokens } = await client.getToken(code);
+
+    console.log('[GA OAuth] Token exchange successful');
 
     if (!tokens.access_token) {
       throw new Error('No access token received');
@@ -67,9 +72,18 @@ export async function exchangeCodeForTokens(code: string): Promise<GATokens> {
       expiry_date: tokens.expiry_date || undefined,
       scope: tokens.scope || undefined,
     };
-  } catch (error) {
-    console.error('Error exchanging code for tokens:', error);
-    throw new Error('Failed to exchange authorization code for tokens');
+  } catch (error: any) {
+    console.error('[GA OAuth] Error exchanging code for tokens:', error);
+    console.error('[GA OAuth] Error response:', error?.response?.data);
+    console.error('[GA OAuth] Error message:', error?.message);
+
+    // Extract more specific error from Google's response
+    const googleError = error?.response?.data?.error_description ||
+                        error?.response?.data?.error ||
+                        error?.message ||
+                        'Unknown error';
+
+    throw new Error(`Token exchange failed: ${googleError}`);
   }
 }
 
