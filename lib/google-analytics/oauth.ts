@@ -2,9 +2,9 @@ import { OAuth2Client } from 'google-auth-library';
 import { GATokens } from './types';
 
 // Google Analytics API scopes
+// See: https://developers.google.com/identity/protocols/oauth2/scopes#analytics
 const GA_SCOPES = [
-  'https://www.googleapis.com/auth/analytics.readonly', // For reading GA4 data
-  'https://www.googleapis.com/auth/analytics.edit', // For Admin API (list accounts/properties)
+  'https://www.googleapis.com/auth/analytics.readonly', // For reading GA4 data and listing accounts/properties
 ];
 
 /**

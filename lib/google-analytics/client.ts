@@ -75,22 +75,37 @@ export class GADataClient {
    */
   async listProperties(): Promise<GAProperty[]> {
     try {
+      console.log('[GA Client] Fetching accounts...');
+
       // First, get all accounts
       const accountsResponse = await this.fetchWithAuth(
         `${GA_ADMIN_API_BASE}/accounts`
       );
 
+      console.log('[GA Client] Accounts response status:', accountsResponse.status);
+
       if (!accountsResponse.ok) {
-        throw new Error(`Failed to fetch accounts: ${accountsResponse.statusText}`);
+        const errorText = await accountsResponse.text();
+        console.error('[GA Client] Accounts error response:', errorText);
+        throw new Error(`Failed to fetch accounts: ${accountsResponse.status} - ${errorText}`);
       }
 
       const accountsData = await accountsResponse.json();
       const accounts = accountsData.accounts || [];
 
+      console.log('[GA Client] Found accounts:', accounts.length);
+
+      if (accounts.length === 0) {
+        console.log('[GA Client] No accounts found - user may not have GA access');
+        return [];
+      }
+
       // Then, get properties for each account
       const properties: GAProperty[] = [];
 
       for (const account of accounts) {
+        console.log('[GA Client] Fetching properties for account:', account.name);
+
         const propertiesResponse = await this.fetchWithAuth(
           `${GA_ADMIN_API_BASE}/properties?filter=parent:${account.name}`
         );
@@ -107,12 +122,17 @@ export class GADataClient {
             currencyCode: prop.currencyCode,
           }));
           properties.push(...accountProperties);
+          console.log('[GA Client] Found properties for account:', accountProperties.length);
+        } else {
+          console.error('[GA Client] Failed to fetch properties for account:', account.name);
         }
       }
 
+      console.log('[GA Client] Total properties found:', properties.length);
       return properties;
-    } catch (error) {
-      console.error('Error listing GA properties:', error);
+    } catch (error: any) {
+      console.error('[GA Client] Error listing GA properties:', error);
+      console.error('[GA Client] Error message:', error?.message);
       throw error;
     }
   }
