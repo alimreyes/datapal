@@ -3,7 +3,8 @@ import { GATokens } from './types';
 
 // Google Analytics API scopes
 const GA_SCOPES = [
-  'https://www.googleapis.com/auth/analytics.readonly',
+  'https://www.googleapis.com/auth/analytics.readonly', // For reading GA4 data
+  'https://www.googleapis.com/auth/analytics.edit', // For Admin API (list accounts/properties)
 ];
 
 /**
