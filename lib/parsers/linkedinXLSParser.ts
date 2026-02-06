@@ -216,11 +216,13 @@ function parseMetricsSheet(sheet: XLSX.WorkSheet): PlatformData {
     return {};
   }
 
-  // Find the header row (contains 'Fecha')
-  let headerRowIndex = 0;
+  // Find the header row - look for row where first cell is exactly "Fecha"
+  // (not a description text that happens to contain "fecha")
+  let headerRowIndex = 1; // Default to row 1 (LinkedIn usually has description in row 0)
   for (let i = 0; i < Math.min(5, rawData.length); i++) {
-    if (rawData[i] && rawData[i].some((cell: any) =>
-      cell && cell.toString().toLowerCase().includes('fecha'))) {
+    const firstCell = rawData[i]?.[0];
+    // Check if first cell is exactly "Fecha" (the header we expect)
+    if (firstCell && firstCell.toString().trim() === 'Fecha') {
       headerRowIndex = i;
       break;
     }
@@ -307,12 +309,17 @@ function parseContentSheet(sheet: XLSX.WorkSheet): ContentData[] {
     return [];
   }
 
-  // Find the header row (contains 'Título' or 'Enlace')
-  let headerRowIndex = 0;
+  // Find the header row - look for row where first cell is exactly "Título de la publicación"
+  // (not a description text)
+  let headerRowIndex = 1; // Default to row 1 (LinkedIn usually has description in row 0)
   for (let i = 0; i < Math.min(5, rawData.length); i++) {
-    if (rawData[i] && rawData[i].some((cell: any) =>
-      cell && (cell.toString().toLowerCase().includes('título') ||
-               cell.toString().toLowerCase().includes('enlace')))) {
+    const firstCell = rawData[i]?.[0];
+    // Check if first cell matches expected content headers
+    if (firstCell && (
+      firstCell.toString().trim() === 'Título de la publicación' ||
+      firstCell.toString().trim() === 'Post Title' ||
+      firstCell.toString().trim().toLowerCase().startsWith('título')
+    )) {
       headerRowIndex = i;
       break;
     }

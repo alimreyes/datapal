@@ -11,7 +11,7 @@ import GlowCard from '@/components/ui/GlowCard';
 import { LinkedInIcon, TikTokIcon, GoogleAnalyticsIcon, FacebookIcon } from '@/components/icons/PlatformIcons';
 
 // Plataformas disponibles en producción
-// LinkedIn, TikTok y Google Analytics están temporalmente ocultos
+// TikTok y Google Analytics están temporalmente ocultos
 // Pueden probarse en /prueba-interna
 const platforms: {
   id: Platform;
@@ -38,15 +38,14 @@ const platforms: {
     bgColor: 'bg-blue-500/10 border border-blue-500/30',
     glowColor: '59, 130, 246',
   },
-  // LinkedIn - temporalmente oculto, probar en /prueba-interna
-  // {
-  //   id: 'linkedin',
-  //   name: 'LinkedIn',
-  //   description: 'Publicaciones, impresiones y engagement profesional',
-  //   icon: <div className="text-[#0A66C2]"><LinkedInIcon className="w-16 h-16" /></div>,
-  //   bgColor: 'bg-[#0A66C2]/10 border border-[#0A66C2]/30',
-  //   glowColor: '10, 102, 194',
-  // },
+  {
+    id: 'linkedin',
+    name: 'LinkedIn',
+    description: 'Publicaciones, impresiones y engagement profesional',
+    icon: <div className="text-[#0A66C2]"><LinkedInIcon className="w-16 h-16" /></div>,
+    bgColor: 'bg-[#0A66C2]/10 border border-[#0A66C2]/30',
+    glowColor: '10, 102, 194',
+  },
   // TikTok - temporalmente oculto, probar en /prueba-interna
   // {
   //   id: 'tiktok',
@@ -182,7 +181,7 @@ export default function Step2Page() {
         {/* Info Notice */}
         <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-lg p-4 mb-8">
           <p className="text-sm text-[#B6B6B6] text-center">
-            <strong className="text-[#019B77]">Tip:</strong> Para cada plataforma necesitarás exportar tus datos en formato CSV desde Meta Business Suite.
+            <strong className="text-[#019B77]">Tip:</strong> Para Instagram y Facebook necesitarás exportar tus datos en formato CSV desde Meta Business Suite. Para LinkedIn, exporta el archivo XLS desde la plataforma.
           </p>
         </div>
 

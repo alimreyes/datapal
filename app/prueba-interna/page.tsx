@@ -177,11 +177,31 @@ export default function PruebaInternaPage() {
   };
 
   // Start GA OAuth
-  const startGAOAuth = () => {
+  const startGAOAuth = async () => {
+    if (!user) {
+      alert('Debes iniciar sesión para conectar Google Analytics');
+      return;
+    }
+
     setGaStatus('connecting');
-    // Redirect to GA connect with return URL to this page
-    const returnUrl = encodeURIComponent(window.location.origin + '/prueba-interna?ga=connected');
-    window.location.href = `/api/ga/connect?returnUrl=${returnUrl}`;
+
+    try {
+      // Call API to get auth URL with userId
+      const returnUrl = encodeURIComponent(window.location.origin + '/prueba-interna?ga=connected');
+      const response = await fetch(`/api/ga/connect?userId=${user.uid}&returnUrl=${returnUrl}`);
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Error al conectar con GA');
+      }
+
+      const { authUrl } = await response.json();
+      window.location.href = authUrl;
+    } catch (error: any) {
+      console.error('Error starting GA OAuth:', error);
+      setGaStatus('error');
+      alert(`Error: ${error.message}`);
+    }
   };
 
   // Create Test Report with all data
