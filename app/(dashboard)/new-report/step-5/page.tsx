@@ -26,9 +26,12 @@ const objectiveLabels: Record<string, string> = {
   'content-performance': 'Rendimiento de Contenido',
 };
 
-const platformLabels = {
+const platformLabels: Record<string, string> = {
   instagram: 'Instagram 📸',
   facebook: 'Facebook 👍',
+  linkedin: 'LinkedIn 💼',
+  tiktok: 'TikTok 🎵',
+  google_analytics: 'Google Analytics 📊',
 };
 
 const categoryLabels = {

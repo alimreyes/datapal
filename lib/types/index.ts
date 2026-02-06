@@ -34,7 +34,7 @@ export type ReportObjective =
   | 'conversions'
   | 'sales';
   
-export type Platform = 'instagram' | 'facebook';
+export type Platform = 'instagram' | 'facebook' | 'linkedin' | 'tiktok' | 'google_analytics';
 export type ReportStatus = 'uploading' | 'processing' | 'ready' | 'error';
 
 export interface ReportCustomization {
@@ -79,6 +79,9 @@ export interface PlatformData {
 export interface ReportData {
   instagram?: PlatformData;
   facebook?: PlatformData;
+  linkedin?: PlatformData;
+  tiktok?: PlatformData;
+  googleAnalytics?: GAData;
 }
 
 export interface DataPoint {
@@ -108,6 +111,53 @@ export interface ContentData {
   shares: number;
   saves?: number;
   videoViews?: number;
+}
+
+// ==================== GOOGLE ANALYTICS TYPES ====================
+
+export interface GAMetrics {
+  activeUsers?: DataPoint[];
+  newUsers?: DataPoint[];
+  sessions?: DataPoint[];
+  pageviews?: DataPoint[];
+  bounceRate?: DataPoint[];
+  avgSessionDuration?: DataPoint[];
+}
+
+export interface GADimensionItem {
+  name: string;
+  users: number;
+  percentage?: number;
+}
+
+export interface GADimensions {
+  deviceCategory?: GADimensionItem[];
+  countries?: GADimensionItem[];
+  browsers?: GADimensionItem[];
+  operatingSystems?: GADimensionItem[];
+}
+
+export interface GAData extends GAMetrics, GADimensions {
+  propertyId: string;
+  propertyName: string;
+  dateRange: { start: string; end: string };
+  summary?: {
+    totalUsers: number;
+    totalSessions: number;
+    totalPageviews: number;
+    avgEngagementTime: string;
+    newUserPercentage: number;
+    engagementRate: number;
+  };
+}
+
+export interface GAConnection {
+  propertyId: string;
+  propertyName: string;
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+  connectedAt: string;
 }
 
 // ==================== AI INSIGHTS TYPES ====================
@@ -187,5 +237,8 @@ export interface NewReportForm {
   files: {
     instagram: Record<CSVCategory, File | null>;
     facebook: Record<CSVCategory, File | null>;
+    linkedin: Record<CSVCategory, File | null>;
+    tiktok: Record<CSVCategory, File | null>;
   };
+  gaConnection?: GAConnection;
 }
