@@ -373,18 +373,19 @@ function parseContentSheet(sheet: XLSX.WorkSheet): ContentData[] {
 
     content.push({
       id: `linkedin-post-${i}`,
-      postType,
-      description: title.substring(0, 200),
-      publishedAt: createdDate,
-      permalink: url,
-      date: createdDate,
-      impressions,
-      reach: views || impressions, // Use views as reach, fallback to impressions
-      likes: reactions,
-      comments,
-      shares,
+      postType: postType || 'Post',
+      description: title ? title.substring(0, 200) : '',
+      publishedAt: createdDate || '',
+      permalink: url || '',
+      date: createdDate || '',
+      impressions: impressions || 0,
+      reach: views || impressions || 0,
+      likes: reactions || 0,
+      comments: comments || 0,
+      shares: shares || 0,
       saves: 0,
-      videoViews: views > 0 ? views : undefined,
+      // Only include videoViews if it has a value (Firestore doesn't accept undefined)
+      ...(views > 0 ? { videoViews: views } : {}),
     });
   }
 
