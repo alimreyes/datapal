@@ -4,7 +4,8 @@ import { GATokens } from './types';
 // Google Analytics API scopes
 // See: https://developers.google.com/identity/protocols/oauth2/scopes#analytics
 const GA_SCOPES = [
-  'https://www.googleapis.com/auth/analytics.readonly', // For reading GA4 data and listing accounts/properties
+  'https://www.googleapis.com/auth/analytics.readonly', // For reading GA4 data
+  'https://www.googleapis.com/auth/analytics.manage.users.readonly', // For listing accounts/properties
 ];
 
 /**
