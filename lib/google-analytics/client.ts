@@ -72,59 +72,49 @@ export class GADataClient {
 
   /**
    * List all GA4 properties the user has access to
+   * Uses accountSummaries endpoint which is the recommended method
+   * See: https://developers.google.com/analytics/devguides/config/admin/v1/rest/v1beta/accountSummaries/list
    */
   async listProperties(): Promise<GAProperty[]> {
     try {
-      console.log('[GA Client] Fetching accounts...');
+      console.log('[GA Client] Fetching account summaries...');
 
-      // First, get all accounts
-      const accountsResponse = await this.fetchWithAuth(
-        `${GA_ADMIN_API_BASE}/accounts`
+      // Use accountSummaries - the recommended endpoint for listing properties
+      const response = await this.fetchWithAuth(
+        `${GA_ADMIN_API_BASE}/accountSummaries`
       );
 
-      console.log('[GA Client] Accounts response status:', accountsResponse.status);
+      console.log('[GA Client] Account summaries response status:', response.status);
 
-      if (!accountsResponse.ok) {
-        const errorText = await accountsResponse.text();
-        console.error('[GA Client] Accounts error response:', errorText);
-        throw new Error(`Failed to fetch accounts: ${accountsResponse.status} - ${errorText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('[GA Client] Account summaries error response:', errorText);
+        throw new Error(`Failed to fetch account summaries: ${response.status} - ${errorText}`);
       }
 
-      const accountsData = await accountsResponse.json();
-      const accounts = accountsData.accounts || [];
+      const data = await response.json();
+      const accountSummaries = data.accountSummaries || [];
 
-      console.log('[GA Client] Found accounts:', accounts.length);
+      console.log('[GA Client] Found account summaries:', accountSummaries.length);
 
-      if (accounts.length === 0) {
+      if (accountSummaries.length === 0) {
         console.log('[GA Client] No accounts found - user may not have GA access');
         return [];
       }
 
-      // Then, get properties for each account
+      // Extract properties from all accounts
       const properties: GAProperty[] = [];
 
-      for (const account of accounts) {
-        console.log('[GA Client] Fetching properties for account:', account.name);
+      for (const account of accountSummaries) {
+        const propertySummaries = account.propertySummaries || [];
+        console.log('[GA Client] Account:', account.displayName, '- Properties:', propertySummaries.length);
 
-        const propertiesResponse = await this.fetchWithAuth(
-          `${GA_ADMIN_API_BASE}/properties?filter=parent:${account.name}`
-        );
-
-        if (propertiesResponse.ok) {
-          const propertiesData = await propertiesResponse.json();
-          const accountProperties = (propertiesData.properties || []).map((prop: any) => ({
-            propertyId: prop.name?.replace('properties/', '') || '',
+        for (const prop of propertySummaries) {
+          properties.push({
+            propertyId: prop.property?.replace('properties/', '') || '',
             displayName: prop.displayName || 'Unnamed Property',
-            createTime: prop.createTime,
-            updateTime: prop.updateTime,
-            parent: account.name,
-            timeZone: prop.timeZone,
-            currencyCode: prop.currencyCode,
-          }));
-          properties.push(...accountProperties);
-          console.log('[GA Client] Found properties for account:', accountProperties.length);
-        } else {
-          console.error('[GA Client] Failed to fetch properties for account:', account.name);
+            parent: account.account,
+          });
         }
       }
 
