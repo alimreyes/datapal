@@ -7,13 +7,38 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/'],
+        allow: ['/', '/demo', '/demo/*', '/login', '/register'],
         disallow: [
           '/dashboard',
+          '/dashboard/*',
           '/create',
           '/report/*',
           '/api/*',
+          '/checkout/*',
+          '/tokens',
+          '/settings',
         ],
+      },
+      // Explicitly allow AI crawlers to index public content
+      {
+        userAgent: 'GPTBot',
+        allow: ['/', '/demo', '/demo/*'],
+        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+      },
+      {
+        userAgent: 'ChatGPT-User',
+        allow: ['/', '/demo', '/demo/*'],
+        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+      },
+      {
+        userAgent: 'PerplexityBot',
+        allow: ['/', '/demo', '/demo/*'],
+        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+      },
+      {
+        userAgent: 'Google-Extended',
+        allow: ['/', '/demo', '/demo/*'],
+        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
       },
     ],
     sitemap: `${APP_URL}/sitemap.xml`,

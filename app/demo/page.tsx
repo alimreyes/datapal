@@ -137,10 +137,10 @@ export default function DemoPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold text-[#FBFEF2] tracking-tight mb-4">
-            Explora los tipos de reportes de DataPal
+            ¿Qué tipos de reportes de redes sociales puedes crear con DataPal?
           </h1>
           <p className="text-[#B6B6B6] text-lg max-w-2xl mx-auto">
-            Descubre los 3 tipos de reportes que puedes crear para analizar y presentar tus métricas de redes sociales.
+            DataPal genera 3 tipos de reportes automatizados para analizar y presentar tus métricas de Instagram, Facebook, LinkedIn, TikTok y Google Analytics.
           </p>
         </div>
 
@@ -214,7 +214,7 @@ export default function DemoPage() {
         {/* Info sobre cada tipo */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-[#FBFEF2] mb-6 text-center">
-            ¿Cuál es el indicado para ti?
+            ¿Cuál es el mejor tipo de reporte de marketing para tu agencia o negocio?
           </h2>
           <div className="grid gap-4 md:grid-cols-3">
             <div className="p-5 rounded-xl bg-[#1a1b16] border border-blue-500/20">
@@ -257,11 +257,11 @@ export default function DemoPage() {
               <Sparkles className="h-8 w-8 text-[#019B77]" />
             </div>
             <h3 className="text-2xl font-bold text-[#FBFEF2] mb-2">
-              ¿Listo para crear tus propios reportes?
+              ¿Cómo empezar a automatizar los reportes de tu agencia?
             </h3>
             <p className="text-[#B6B6B6] mb-6 max-w-md mx-auto">
               Crea tu cuenta gratuita y genera reportes profesionales
-              con tus propios datos de Instagram y Facebook.
+              con tus datos de Instagram, Facebook, LinkedIn, TikTok y Google Analytics.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link href="/register">

@@ -24,7 +24,31 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
-    // Note: Dashboard and individual reports are behind auth,
+    {
+      url: `${APP_URL}/demo`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${APP_URL}/demo/analisis-resultados`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${APP_URL}/demo/mejoras-realizadas`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${APP_URL}/demo/reporte-mensual`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    // Dashboard and individual reports are behind auth,
     // so we don't include them in public sitemap
   ];
 }

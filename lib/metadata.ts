@@ -1,13 +1,13 @@
 import { Metadata } from 'next';
 
 const APP_NAME = 'DataPal';
-const APP_DESCRIPTION = 'Analiza el desempeño de tus redes sociales con reportes profesionales. Instagram y Facebook analytics con visualizaciones avanzadas, insights automáticos y exportación PDF.';
+const APP_DESCRIPTION = 'Plataforma de analytics y reportes automatizados para redes sociales. Diseñada para agencias boutique y freelancers de marketing en LATAM. Conecta Instagram, Facebook, Google Analytics, LinkedIn y TikTok.';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://datapal.vercel.app';
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
   title: {
-    default: `${APP_NAME} - Social Media Analytics & Reports`,
+    default: `${APP_NAME} - Reportes Automatizados de Redes Sociales para Agencias y Freelancers`,
     template: `%s | ${APP_NAME}`,
   },
   description: APP_DESCRIPTION,
@@ -15,6 +15,9 @@ export const metadata: Metadata = {
     'social media analytics',
     'instagram analytics',
     'facebook analytics',
+    'google analytics dashboard',
+    'linkedin analytics',
+    'tiktok analytics',
     'social media reports',
     'engagement rate',
     'analytics dashboard',
@@ -23,6 +26,14 @@ export const metadata: Metadata = {
     'reportes redes sociales',
     'análisis instagram',
     'análisis facebook',
+    'reportes automatizados marketing',
+    'dashboard agencias marketing',
+    'herramientas reporting agencias boutique',
+    'alternativa looker studio agencias',
+    'automatizar reportes freelancers',
+    'KPIs marketing agencias LATAM',
+    'métricas ROI agencias marketing',
+    'dashboard económico marketing',
   ],
   authors: [{ name: 'DataPal Team' }],
   creator: 'DataPal',
@@ -37,20 +48,20 @@ export const metadata: Metadata = {
     locale: 'es_ES',
     url: APP_URL,
     siteName: APP_NAME,
-    title: `${APP_NAME} - Social Media Analytics & Reports`,
+    title: `${APP_NAME} - Reportes Automatizados de Redes Sociales para Agencias y Freelancers`,
     description: APP_DESCRIPTION,
     images: [
       {
         url: `${APP_URL}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: `${APP_NAME} - Social Media Analytics`,
+        alt: `${APP_NAME} - Analytics y Reportes para Agencias Boutique en LATAM`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${APP_NAME} - Social Media Analytics & Reports`,
+    title: `${APP_NAME} - Reportes Automatizados de Redes Sociales`,
     description: APP_DESCRIPTION,
     images: [`${APP_URL}/og-image.png`],
     creator: '@datapal',
@@ -80,6 +91,10 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   verification: {
     google: 'your-google-verification-code', // Add when you have it
+    // other: { 'msvalidate.01': 'your-bing-verification-code' }, // Bing Webmaster
+  },
+  alternates: {
+    canonical: APP_URL,
   },
 };
 
@@ -116,15 +131,20 @@ export const dashboardMetadata: Metadata = {
 
 export const loginMetadata: Metadata = {
   title: 'Iniciar Sesión',
-  description: 'Inicia sesión en DataPal para acceder a tus reportes de redes sociales.',
+  description: 'Inicia sesión en DataPal para acceder a tus reportes automatizados de redes sociales.',
 };
 
 export const registerMetadata: Metadata = {
   title: 'Registrarse',
-  description: 'Crea tu cuenta en DataPal y comienza a analizar tus redes sociales.',
+  description: 'Crea tu cuenta gratis en DataPal y comienza a generar reportes automatizados de Instagram, Facebook, LinkedIn, TikTok y Google Analytics.',
 };
 
 export const createReportMetadata: Metadata = {
   title: 'Crear Reporte',
-  description: 'Crea un nuevo reporte de análisis para tus redes sociales.',
+  description: 'Crea un nuevo reporte automatizado de analytics para tus redes sociales.',
+};
+
+export const demoMetadata: Metadata = {
+  title: '¿Qué tipos de reportes de redes sociales puedes crear con DataPal?',
+  description: 'Explora los 3 tipos de reportes automatizados que DataPal genera para agencias boutique y freelancers: análisis de resultados, evidenciar mejoras y reporte mensual.',
 };
