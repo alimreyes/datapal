@@ -12,7 +12,7 @@ import DateRangeModal from '@/components/dashboard/DateRangeModal';
 import LoginModal from '@/components/auth/LoginModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
 import { getDocument, updateDocument, deleteDocument } from '@/lib/firebase/firestore';
-import { uploadClientLogo, resizeImage } from '@/lib/firebase/storage';
+import { uploadClientLogo } from '@/lib/cloudinary/upload';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Report, PlatformData, ReportObjective } from '@/lib/types';
 import AIConfirmModal from '@/components/dashboard/AIConfirmModal';
@@ -530,33 +530,30 @@ export default function ReportPage() {
     // TODO: Filtrar datos del gráfico por rango de fechas si lo deseas
   };
 
-  // HANDLER: Upload de logo
+  // HANDLER: Upload de logo (usando Cloudinary)
   const handleLogoUpload = async (file: File) => {
     try {
       setIsUploadingLogo(true);
-      
-      // Redimensionar imagen para optimizar
-      const resizedFile = await resizeImage(file, 128, 128);
-      
-      // Subir a Firebase Storage
-      const { url, error } = await uploadClientLogo(resizedFile, reportId);
-      
+
+      // Subir a Cloudinary (redimensiona automáticamente)
+      const { url, error } = await uploadClientLogo(file, reportId);
+
       if (error) {
         alert(`Error al subir logo: ${error}`);
         setIsUploadingLogo(false);
         return;
       }
-      
+
       if (url) {
         // Actualizar en Firestore
         await updateDocument('reports', reportId, { clientLogo: url });
-        
+
         // Actualizar localmente
         setClientLogo(url);
-        
+
         console.log('Logo subido exitosamente:', url);
       }
-      
+
       setIsUploadingLogo(false);
     } catch (error) {
       console.error('Error al subir logo:', error);

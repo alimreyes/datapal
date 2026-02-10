@@ -180,14 +180,6 @@ export default function ReportLayoutV2({
             )}
           </div>
 
-          {/* Grid Visual */}
-          <div className="grid grid-cols-2 gap-1 w-10 h-10">
-            <div className="bg-[#019B77]/40 rounded-sm"></div>
-            <div className="bg-[#019B77]/30 rounded-sm"></div>
-            <div className="bg-[#019B77]/20 rounded-sm"></div>
-            <div className="bg-[#019B77]/10 rounded-sm"></div>
-          </div>
-
           {/* Botones de Acción */}
           <div className="flex gap-2">
             {onSave && (

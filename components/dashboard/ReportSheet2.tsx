@@ -152,8 +152,8 @@ export default function ReportSheet2({
               onClick={() => toggleMetric('posts')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 visibleMetrics.posts
-                  ? 'bg-[#019B77] text-[#FBFEF2]'
-                  : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
+                  ? 'bg-[#9333ea] text-[#FBFEF2]'
+                  : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#9333ea]/50'
               }`}
             >
               <FileText className="w-3.5 h-3.5 inline mr-1" />
@@ -163,8 +163,8 @@ export default function ReportSheet2({
               onClick={() => toggleMetric('interactions')}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 visibleMetrics.interactions
-                  ? 'bg-[#02c494] text-[#FBFEF2]'
-                  : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
+                  ? 'bg-[#3b82f6] text-[#FBFEF2]'
+                  : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#3b82f6]/50'
               }`}
             >
               <MessageCircle className="w-3.5 h-3.5 inline mr-1" />
@@ -206,7 +206,7 @@ export default function ReportSheet2({
               <Bar
                 yAxisId="left"
                 dataKey="posts"
-                fill="#019B77"
+                fill="#9333ea"
                 name="Publicaciones"
                 radius={[4, 4, 0, 0]}
                 barSize={20}
@@ -217,11 +217,11 @@ export default function ReportSheet2({
                 yAxisId="right"
                 type="monotone"
                 dataKey="interactions"
-                stroke="#02c494"
+                stroke="#3b82f6"
                 strokeWidth={3}
                 name="Interacciones"
-                dot={{ fill: '#02c494', strokeWidth: 0, r: 4 }}
-                activeDot={{ r: 6, fill: '#02c494' }}
+                dot={{ fill: '#3b82f6', strokeWidth: 0, r: 4 }}
+                activeDot={{ r: 6, fill: '#3b82f6' }}
               />
             )}
           </ComposedChart>
