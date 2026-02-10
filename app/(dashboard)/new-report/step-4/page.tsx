@@ -12,7 +12,7 @@ import { motion } from 'framer-motion';
 const csvCategories: { id: CSVCategory; label: string; description: string }[] = [
   {
     id: 'reach',
-    label: 'Alcance',
+    label: 'Espectadores',
     description: 'Número de personas que vieron tu contenido',
   },
   {
@@ -44,21 +44,18 @@ const csvCategories: { id: CSVCategory; label: string; description: string }[] =
 
 export default function Step4Page() {
   const router = useRouter();
-  const { facebookFiles, setFacebookFile, platforms, isStep4Valid } = useNewReportStore();
+  const { facebookFiles, setFacebookFile, platforms, isStep4Valid, getNextStep, getPreviousStep } = useNewReportStore();
 
   const handleNext = () => {
     if (isStep4Valid()) {
-      router.push('/new-report/step-5');
+      const nextStep = getNextStep('facebook');
+      router.push(nextStep);
     }
   };
 
   const handleBack = () => {
-    // Si Instagram está en platforms, volver a step-3, sino a step-2
-    if (platforms.includes('instagram')) {
-      router.push('/new-report/step-3');
-    } else {
-      router.push('/new-report/step-2');
-    }
+    const previousStep = getPreviousStep('facebook');
+    router.push(previousStep);
   };
 
   const uploadedCount = Object.values(facebookFiles).filter((file) => file !== null).length;

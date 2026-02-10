@@ -45,21 +45,18 @@ const csvCategories: { id: CSVCategory; label: string; description: string }[] =
 
 export default function Step3Page() {
   const router = useRouter();
-  const { instagramFiles, setInstagramFile, platforms, isStep3Valid } = useNewReportStore();
+  const { instagramFiles, setInstagramFile, platforms, isStep3Valid, getNextStep, getPreviousStep } = useNewReportStore();
 
   const handleNext = () => {
     if (isStep3Valid()) {
-      // Si Facebook también está seleccionado, ir a step-4, sino a step-5
-      if (platforms.includes('facebook')) {
-        router.push('/new-report/step-4');
-      } else {
-        router.push('/new-report/step-5');
-      }
+      const nextStep = getNextStep('instagram');
+      router.push(nextStep);
     }
   };
 
   const handleBack = () => {
-    router.push('/new-report/step-2');
+    const previousStep = getPreviousStep('instagram');
+    router.push(previousStep);
   };
 
   const uploadedCount = Object.values(instagramFiles).filter((file) => file !== null).length;

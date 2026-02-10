@@ -45,6 +45,16 @@ const categoryLabels = {
   visits: 'Visitas',
 };
 
+// Labels específicos para Facebook (usa "Espectadores" en lugar de "Alcance")
+const facebookCategoryLabels = {
+  reach: 'Espectadores',
+  impressions: 'Visualizaciones',
+  interactions: 'Interacciones',
+  followers: 'Seguidores',
+  content: 'Contenido',
+  visits: 'Visitas',
+};
+
 export default function Step5Page() {
   const router = useRouter();
   const { user } = useAuth();
@@ -491,7 +501,7 @@ export default function Step5Page() {
                         return (
                           <div key={category} className="flex items-center gap-2 text-xs">
                             <CheckCircle2 className="h-3 w-3 text-[#019B77]" />
-                            <span className="text-[#FBFEF2]">{categoryLabels[category as keyof typeof categoryLabels]}</span>
+                            <span className="text-[#FBFEF2]">{facebookCategoryLabels[category as keyof typeof facebookCategoryLabels]}</span>
                             <span className="text-[#B6B6B6]">• {file.name}</span>
                           </div>
                         );
