@@ -118,13 +118,27 @@ export default function PruebaInternaPage() {
       const data = await parseLinkedInXLS(linkedinFile);
 
       setLinkedinParsedData(data);
+
+      // Log detailed data for debugging
+      console.log('[LinkedIn Test] Full parsed data:', data);
+      console.log('[LinkedIn Test] Impressions stats:', data.metrics.impressionsStats);
+      console.log('[LinkedIn Test] Reach stats:', data.metrics.reachStats);
+      console.log('[LinkedIn Test] Interactions stats:', data.metrics.interactionsStats);
+
+      const impressionsTotal = data.metrics.impressionsStats?.total || 0;
+      const reachTotal = data.metrics.reachStats?.total || 0;
+      const interactionsTotal = data.metrics.interactionsStats?.total || 0;
+
       setLinkedinResult({
         name: 'LinkedIn XLS Parser',
         status: 'success',
-        message: `Parseado exitoso! Métricas: ${data.metrics.impressions?.length || 0} días, Contenido: ${data.content?.length || 0} publicaciones`,
+        message: `✅ Parseado exitoso! ${data.metrics.impressions?.length || 0} días de datos. Impresiones: ${impressionsTotal.toLocaleString()}, Alcance: ${reachTotal.toLocaleString()}, Interacciones: ${interactionsTotal.toLocaleString()}. Contenido: ${data.content?.length || 0} publicaciones`,
         data: {
           metricsCount: data.metrics.impressions?.length || 0,
           contentCount: data.content?.length || 0,
+          impressionsTotal,
+          reachTotal,
+          interactionsTotal,
           hasReach: !!data.metrics.reach?.length,
           hasInteractions: !!data.metrics.interactions?.length,
         }

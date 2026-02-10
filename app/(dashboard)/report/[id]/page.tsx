@@ -91,6 +91,24 @@ export default function ReportPage() {
           console.log('Facebook impressions length:', report.data.facebook.impressions?.length || 0);
         }
 
+        if (report.data?.linkedin) {
+          console.log('LinkedIn data keys:', Object.keys(report.data.linkedin));
+          console.log('LinkedIn impressions length:', report.data.linkedin.impressions?.length || 0);
+          console.log('LinkedIn reach length:', report.data.linkedin.reach?.length || 0);
+          console.log('LinkedIn impressions stats:', report.data.linkedin.impressionsStats);
+          console.log('LinkedIn reach stats:', report.data.linkedin.reachStats);
+          console.log('LinkedIn interactions stats:', report.data.linkedin.interactionsStats);
+          console.log('LinkedIn content length:', report.data.linkedin.content?.length || 0);
+        }
+
+        if (report.data?.tiktok) {
+          console.log('TikTok data keys:', Object.keys(report.data.tiktok));
+          console.log('TikTok impressions length:', report.data.tiktok.impressions?.length || 0);
+          console.log('TikTok reach length:', report.data.tiktok.reach?.length || 0);
+          console.log('TikTok impressions stats:', report.data.tiktok.impressionsStats);
+          console.log('TikTok reach stats:', report.data.tiktok.reachStats);
+        }
+
         console.log('========================================');
 
         // Establecer plataformas desde el reporte
@@ -245,6 +263,113 @@ export default function ReportPage() {
 
       if (facebook.followers) {
         facebook.followers.forEach((point) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.followers += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      combinedDailyData = Array.from(dailyDataMap.values());
+    }
+
+    // Procesar LinkedIn
+    if (platforms.includes('linkedin') && report.data?.linkedin) {
+      const linkedin = report.data.linkedin;
+
+      console.log('[LinkedIn] Processing LinkedIn data:', Object.keys(linkedin));
+      console.log('[LinkedIn] impressionsStats:', linkedin.impressionsStats);
+      console.log('[LinkedIn] reachStats:', linkedin.reachStats);
+      console.log('[LinkedIn] interactionsStats:', linkedin.interactionsStats);
+
+      // Sumar totales de cada métrica
+      combinedMetrics.visualizations += linkedin.impressionsStats?.total || 0;
+      combinedMetrics.reach += linkedin.reachStats?.total || 0;
+      combinedMetrics.interactions += linkedin.interactionsStats?.total || 0;
+      // LinkedIn no tiene followers en el export de métricas
+
+      // Combinar datos diarios
+      const dailyDataMap = new Map<string, any>();
+
+      // Si ya hay datos de otras plataformas, cargar en el mapa
+      combinedDailyData.forEach(day => {
+        dailyDataMap.set(day.date, day);
+      });
+
+      // Procesar cada métrica de LinkedIn
+      if (linkedin.impressions && Array.isArray(linkedin.impressions)) {
+        linkedin.impressions.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.visualizations += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      if (linkedin.reach && Array.isArray(linkedin.reach)) {
+        linkedin.reach.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.reach += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      if (linkedin.interactions && Array.isArray(linkedin.interactions)) {
+        linkedin.interactions.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.interactions += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      combinedDailyData = Array.from(dailyDataMap.values());
+    }
+
+    // Procesar TikTok
+    if (platforms.includes('tiktok') && report.data?.tiktok) {
+      const tiktok = report.data.tiktok;
+
+      console.log('[TikTok] Processing TikTok data:', Object.keys(tiktok));
+
+      // Sumar totales de cada métrica
+      combinedMetrics.visualizations += tiktok.impressionsStats?.total || 0;
+      combinedMetrics.reach += tiktok.reachStats?.total || 0;
+      combinedMetrics.interactions += tiktok.interactionsStats?.total || 0;
+      combinedMetrics.followers += tiktok.followersStats?.total || 0;
+
+      // Combinar datos diarios
+      const dailyDataMap = new Map<string, any>();
+
+      // Si ya hay datos de otras plataformas, cargar en el mapa
+      combinedDailyData.forEach(day => {
+        dailyDataMap.set(day.date, day);
+      });
+
+      // Procesar cada métrica de TikTok
+      if (tiktok.impressions && Array.isArray(tiktok.impressions)) {
+        tiktok.impressions.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.visualizations += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      if (tiktok.reach && Array.isArray(tiktok.reach)) {
+        tiktok.reach.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.reach += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      if (tiktok.interactions && Array.isArray(tiktok.interactions)) {
+        tiktok.interactions.forEach((point: any) => {
+          const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
+          existing.interactions += point.value;
+          dailyDataMap.set(point.date, existing);
+        });
+      }
+
+      if (tiktok.followers && Array.isArray(tiktok.followers)) {
+        tiktok.followers.forEach((point: any) => {
           const existing = dailyDataMap.get(point.date) || { date: point.date, visualizations: 0, reach: 0, interactions: 0, followers: 0 };
           existing.followers += point.value;
           dailyDataMap.set(point.date, existing);
