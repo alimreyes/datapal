@@ -14,13 +14,14 @@ export interface LinkedInXLSResult {
 }
 
 // Column mappings for "Indicadores" sheet (Spanish column names from LinkedIn export)
+// These must match EXACTLY what LinkedIn exports
 const METRICS_COLUMNS = {
   date: 'Fecha',
-  impressionsTotal: 'Impresiones totales',
+  impressionsTotal: 'Impresiones (totales)',  // Fixed: was missing parentheses
   impressionsOrganic: 'Impresiones (orgánicas)',
   impressionsSponsored: 'Impresiones (patrocinadas)',
   uniqueImpressions: 'Impresiones únicas (orgánicas)',
-  clicksTotal: 'Clics (Totales)',
+  clicksTotal: 'Clics (totales)',  // Fixed: lowercase 't'
   clicksOrganic: 'Clics (orgánicos)',
   clicksSponsored: 'Clics (patrocinados)',
   reactionsTotal: 'Reacciones (total)',
