@@ -11,10 +11,12 @@ import PersonalNotes from '@/components/dashboard/PersonalNotes';
 import DateRangeModal from '@/components/dashboard/DateRangeModal';
 import LoginModal from '@/components/auth/LoginModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
-import { getDocument, updateDocument } from '@/lib/firebase/firestore';
+import { getDocument, updateDocument, deleteDocument } from '@/lib/firebase/firestore';
 import { uploadClientLogo, resizeImage } from '@/lib/firebase/storage';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Report, PlatformData, ReportObjective } from '@/lib/types';
+import AIConfirmModal from '@/components/dashboard/AIConfirmModal';
+import DiscardConfirmModal from '@/components/dashboard/DiscardConfirmModal';
 
 export default function ReportPage() {
   const params = useParams();
@@ -27,12 +29,15 @@ export default function ReportPage() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLimitReachedModal, setShowLimitReachedModal] = useState(false);
+  const [showAIConfirmModal, setShowAIConfirmModal] = useState(false);
+  const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
 
   // Estado principal del reporte
   const [reportData, setReportData] = useState<any>(null);
   const [fullData, setFullData] = useState<any>(null); // Datos completos sin filtrar
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
+  const [availablePlatforms, setAvailablePlatforms] = useState<string[]>([]);
   const [clientLogo, setClientLogo] = useState<string | undefined>(undefined);
   const [isSaving, setIsSaving] = useState(false);
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
@@ -113,6 +118,7 @@ export default function ReportPage() {
 
         // Establecer plataformas desde el reporte
         setSelectedPlatforms(report.platforms || []);
+        setAvailablePlatforms(report.platforms || []);
 
         // Establecer objetivo del reporte
         setReportObjective(report.objective || 'monthly_report');
@@ -559,8 +565,8 @@ export default function ReportPage() {
     }
   };
 
-  // HANDLER: Generar insights con IA
-  const handleGenerateInsights = async () => {
+  // HANDLER: Mostrar modal de confirmación para generar insights
+  const handleGenerateInsights = () => {
     // Verificar autenticación
     if (!user) {
       setShowLoginModal(true);
@@ -573,6 +579,14 @@ export default function ReportPage() {
       return;
     }
 
+    // Mostrar modal de confirmación
+    setShowAIConfirmModal(true);
+  };
+
+  // HANDLER: Confirmar y ejecutar generación de insights
+  const handleConfirmGenerateInsights = async () => {
+    setShowAIConfirmModal(false);
+
     try {
       setIsGeneratingInsights(true);
 
@@ -581,7 +595,7 @@ export default function ReportPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': user.uid,
+          'x-user-id': user?.uid || '',
         },
         body: JSON.stringify({
           reportData: fullData,
@@ -665,7 +679,7 @@ export default function ReportPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-user-id': user.uid,
+          'x-user-id': user?.uid || '',
         },
         body: JSON.stringify({
           reportData: fullData,
@@ -737,6 +751,25 @@ export default function ReportPage() {
       console.error('Error saving report:', error);
       alert('Error al guardar el reporte');
       setIsSaving(false);
+    }
+  };
+
+  // HANDLER: Mostrar modal de descartar
+  const handleShowDiscardModal = () => {
+    setShowDiscardModal(true);
+  };
+
+  // HANDLER: Confirmar descarte del reporte
+  const handleConfirmDiscard = async () => {
+    try {
+      // Eliminar el reporte de Firestore
+      await deleteDocument('reports', reportId);
+
+      // Redirigir al dashboard
+      router.push('/dashboard');
+    } catch (error) {
+      console.error('Error al descartar reporte:', error);
+      alert('Error al descartar el reporte');
     }
   };
 
@@ -816,12 +849,14 @@ export default function ReportPage() {
         reportTitle={reportData.title}
         dateRange={reportData.dateRange}
         platforms={selectedPlatforms}
+        availablePlatforms={availablePlatforms}
         clientLogo={clientLogo}
         onTitleChange={handleTitleChange}
         onPlatformChange={handlePlatformChange}
         onDateRangeClick={handleDateRangeClick}
         onLogoUpload={handleLogoUpload}
         onSave={handleSaveReport}
+        onDiscard={handleShowDiscardModal}
         isSaving={isSaving}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
@@ -900,7 +935,7 @@ export default function ReportPage() {
           <div className="mt-6">
             <PersonalNotes
               reportId={reportId}
-              userId="guest"
+              userId={user?.uid || 'guest'}
             />
           </div>
         </div>
@@ -927,6 +962,22 @@ export default function ReportPage() {
         isOpen={showLimitReachedModal}
         onClose={() => setShowLimitReachedModal(false)}
         reason="ai_limit"
+      />
+
+      {/* Modal de Confirmación para IA */}
+      <AIConfirmModal
+        isOpen={showAIConfirmModal}
+        onClose={() => setShowAIConfirmModal(false)}
+        onConfirm={handleConfirmGenerateInsights}
+        selectedPlatforms={selectedPlatforms}
+      />
+
+      {/* Modal de Confirmación para Descartar */}
+      <DiscardConfirmModal
+        isOpen={showDiscardModal}
+        onClose={() => setShowDiscardModal(false)}
+        onConfirm={handleConfirmDiscard}
+        reportTitle={reportData?.title || 'Reporte'}
       />
     </>
   );

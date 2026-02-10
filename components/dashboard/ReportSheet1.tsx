@@ -83,24 +83,28 @@ export default function ReportSheet1({
   const vizToReach = calculateConversion(metrics.visualizations, metrics.reach);
   const reachToInteractions = calculateConversion(metrics.reach, metrics.interactions);
 
+  // Colores por tipo de métrica para diferenciarlas mejor en el gráfico
+  // Morado para visualizaciones (asociado a Instagram)
+  // Azul para alcance (asociado a Facebook)
+  // Verde para interacciones (color principal de DataPal)
   const metricsArray = [
     {
       label: 'Visualizaciones',
       value: metrics.visualizations,
       icon: Eye,
-      color: '#019B77',
+      color: '#9333ea', // Morado (Instagram)
     },
     {
       label: 'Alcance',
       value: metrics.reach,
       icon: Users,
-      color: '#02c494',
+      color: '#3b82f6', // Azul (Facebook)
     },
     {
       label: 'Interacciones',
       value: metrics.interactions,
       icon: Heart,
-      color: '#017a5e',
+      color: '#019B77', // Verde (DataPal)
     },
     {
       label: 'Seguidores',
@@ -211,8 +215,8 @@ export default function ReportSheet1({
                   onClick={() => toggleMetric('visualizations')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.visualizations
-                      ? 'bg-[#019B77] text-[#FBFEF2]'
-                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
+                      ? 'bg-purple-600 text-[#FBFEF2]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-purple-500/50'
                   }`}
                 >
                   <Eye className="w-3.5 h-3.5 inline mr-1" />
@@ -222,8 +226,8 @@ export default function ReportSheet1({
                   onClick={() => toggleMetric('reach')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.reach
-                      ? 'bg-[#02c494] text-[#FBFEF2]'
-                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
+                      ? 'bg-blue-500 text-[#FBFEF2]'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-blue-500/50'
                   }`}
                 >
                   <Users className="w-3.5 h-3.5 inline mr-1" />
@@ -233,7 +237,7 @@ export default function ReportSheet1({
                   onClick={() => toggleMetric('interactions')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.interactions
-                      ? 'bg-[#017a5e] text-[#FBFEF2]'
+                      ? 'bg-[#019B77] text-[#FBFEF2]'
                       : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
                   }`}
                 >
@@ -245,7 +249,7 @@ export default function ReportSheet1({
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     visibleMetrics.followers
                       ? 'bg-[#B6B6B6] text-[#11120D]'
-                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#019B77]/50'
+                      : 'bg-[#2a2b25] text-[#B6B6B6] border border-[rgba(251,254,242,0.1)] hover:border-[#B6B6B6]/50'
                   }`}
                 >
                   <UserPlus className="w-3.5 h-3.5 inline mr-1" />
@@ -273,33 +277,33 @@ export default function ReportSheet1({
                   <Line
                     type="monotone"
                     dataKey="visualizations"
-                    stroke="#019B77"
+                    stroke="#9333ea"
                     strokeWidth={2}
                     name="Visualizaciones"
-                    dot={{ fill: '#019B77', strokeWidth: 0, r: 3 }}
-                    activeDot={{ r: 5, fill: '#019B77' }}
+                    dot={{ fill: '#9333ea', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#9333ea' }}
                   />
                 )}
                 {visibleMetrics.reach && (
                   <Line
                     type="monotone"
                     dataKey="reach"
-                    stroke="#02c494"
+                    stroke="#3b82f6"
                     strokeWidth={2}
                     name="Alcance"
-                    dot={{ fill: '#02c494', strokeWidth: 0, r: 3 }}
-                    activeDot={{ r: 5, fill: '#02c494' }}
+                    dot={{ fill: '#3b82f6', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#3b82f6' }}
                   />
                 )}
                 {visibleMetrics.interactions && (
                   <Line
                     type="monotone"
                     dataKey="interactions"
-                    stroke="#017a5e"
+                    stroke="#019B77"
                     strokeWidth={2}
                     name="Interacciones"
-                    dot={{ fill: '#017a5e', strokeWidth: 0, r: 3 }}
-                    activeDot={{ r: 5, fill: '#017a5e' }}
+                    dot={{ fill: '#019B77', strokeWidth: 0, r: 3 }}
+                    activeDot={{ r: 5, fill: '#019B77' }}
                   />
                 )}
                 {visibleMetrics.followers && (

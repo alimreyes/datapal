@@ -1,21 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Instagram } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
+import { LinkedInIcon } from '@/components/icons/PlatformIcons';
 
 interface ReportLayoutV2Props {
   reportTitle: string;
   dateRange: string;
   platforms: string[];
+  availablePlatforms: string[]; // Plataformas que tiene el reporte (para mostrar botones)
   clientLogo?: string;
   onTitleChange?: (title: string) => void;
   onPlatformChange?: (platforms: string[]) => void;
   onDateRangeClick?: () => void;
   onLogoUpload?: (file: File) => void;
   onSave?: () => void;
+  onDiscard?: () => void;
   isSaving?: boolean;
   currentPage: number;
   onPageChange: (page: number) => void;
@@ -26,12 +29,14 @@ export default function ReportLayoutV2({
   reportTitle,
   dateRange,
   platforms,
+  availablePlatforms,
   clientLogo,
   onTitleChange,
   onPlatformChange,
   onDateRangeClick,
   onLogoUpload,
   onSave,
+  onDiscard,
   isSaving = false,
   currentPage,
   onPageChange,
@@ -45,6 +50,42 @@ export default function ReportLayoutV2({
       onTitleChange(editedTitle);
     }
     setIsEditingTitle(false);
+  };
+
+  // Función para manejar selección de plataforma con lógica especial
+  // LinkedIn es exclusivo (no se puede combinar con Instagram/Facebook)
+  const handlePlatformToggle = (platform: string) => {
+    if (!onPlatformChange) return;
+
+    if (platform === 'linkedin') {
+      // Si se selecciona LinkedIn, solo mostrar LinkedIn
+      if (platforms.includes('linkedin')) {
+        // Si ya está seleccionado, volver a mostrar todas las disponibles
+        onPlatformChange(availablePlatforms);
+      } else {
+        // Seleccionar solo LinkedIn
+        onPlatformChange(['linkedin']);
+      }
+    } else {
+      // Instagram o Facebook
+      if (platforms.includes('linkedin')) {
+        // Si LinkedIn está activo, cambiar a la nueva plataforma
+        onPlatformChange([platform]);
+      } else {
+        // Toggle normal
+        const newPlatforms = platforms.includes(platform)
+          ? platforms.filter(p => p !== platform)
+          : [...platforms, platform];
+
+        // Si queda vacío, mostrar todas
+        if (newPlatforms.length === 0) {
+          onPlatformChange(availablePlatforms.filter(p => p !== 'linkedin'));
+        } else {
+          // Asegurar que LinkedIn no esté incluido
+          onPlatformChange(newPlatforms.filter(p => p !== 'linkedin'));
+        }
+      }
+    }
   };
 
   return (
@@ -159,49 +200,69 @@ export default function ReportLayoutV2({
                 {isSaving ? 'Guardando...' : 'Guardar Reporte'}
               </Button>
             )}
+            {onDiscard && (
+              <Button
+                onClick={onDiscard}
+                size="sm"
+                variant="outline"
+                className="border-red-500/50 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Descartar
+              </Button>
+            )}
           </div>
 
-          {/* Filtros RRSS */}
+          {/* Filtros RRSS - Solo mostrar botones para plataformas disponibles */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                if (onPlatformChange) {
-                  const newPlatforms = platforms.includes('instagram')
-                    ? platforms.filter(p => p !== 'instagram')
-                    : [...platforms, 'instagram'];
-                  onPlatformChange(newPlatforms);
-                }
-              }}
-              className={`p-2 rounded-lg border transition-all ${
-                platforms.includes('instagram')
-                  ? 'bg-purple-500/20 border-purple-500/50'
-                  : 'bg-[#1a1b16] border-[rgba(251,254,242,0.1)] opacity-50'
-              }`}
-              title={platforms.includes('instagram') ? 'Ocultar Instagram' : 'Mostrar Instagram'}
-            >
-              <Instagram className={`w-5 h-5 ${platforms.includes('instagram') ? 'text-purple-400' : 'text-[#B6B6B6]'}`} />
-            </button>
+            {/* Instagram */}
+            {availablePlatforms.includes('instagram') && (
+              <button
+                onClick={() => handlePlatformToggle('instagram')}
+                className={`p-2 rounded-lg border transition-all ${
+                  platforms.includes('instagram')
+                    ? 'bg-purple-500/20 border-purple-500/50'
+                    : 'bg-[#1a1b16] border-[rgba(251,254,242,0.1)] opacity-50'
+                }`}
+                title={platforms.includes('instagram') ? 'Ocultar Instagram' : 'Mostrar Instagram'}
+              >
+                <svg className={`w-5 h-5 ${platforms.includes('instagram') ? 'text-purple-400' : 'text-[#B6B6B6]'}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </button>
+            )}
 
-            <button
-              onClick={() => {
-                if (onPlatformChange) {
-                  const newPlatforms = platforms.includes('facebook')
-                    ? platforms.filter(p => p !== 'facebook')
-                    : [...platforms, 'facebook'];
-                  onPlatformChange(newPlatforms);
-                }
-              }}
-              className={`p-2 rounded-lg border transition-all ${
-                platforms.includes('facebook')
-                  ? 'bg-blue-500/20 border-blue-500/50'
-                  : 'bg-[#1a1b16] border-[rgba(251,254,242,0.1)] opacity-50'
-              }`}
-              title={platforms.includes('facebook') ? 'Ocultar Facebook' : 'Mostrar Facebook'}
-            >
-              <svg className={`w-5 h-5 ${platforms.includes('facebook') ? 'text-blue-400' : 'text-[#B6B6B6]'}`} fill="currentColor" viewBox="0 0 24 24">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-            </button>
+            {/* Facebook */}
+            {availablePlatforms.includes('facebook') && (
+              <button
+                onClick={() => handlePlatformToggle('facebook')}
+                className={`p-2 rounded-lg border transition-all ${
+                  platforms.includes('facebook')
+                    ? 'bg-blue-500/20 border-blue-500/50'
+                    : 'bg-[#1a1b16] border-[rgba(251,254,242,0.1)] opacity-50'
+                }`}
+                title={platforms.includes('facebook') ? 'Ocultar Facebook' : 'Mostrar Facebook'}
+              >
+                <svg className={`w-5 h-5 ${platforms.includes('facebook') ? 'text-blue-400' : 'text-[#B6B6B6]'}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </button>
+            )}
+
+            {/* LinkedIn */}
+            {availablePlatforms.includes('linkedin') && (
+              <button
+                onClick={() => handlePlatformToggle('linkedin')}
+                className={`p-2 rounded-lg border transition-all ${
+                  platforms.includes('linkedin')
+                    ? 'bg-[#0A66C2]/20 border-[#0A66C2]/50'
+                    : 'bg-[#1a1b16] border-[rgba(251,254,242,0.1)] opacity-50'
+                }`}
+                title={platforms.includes('linkedin') ? 'Ocultar LinkedIn' : 'Mostrar LinkedIn'}
+              >
+                <LinkedInIcon className={`w-5 h-5 ${platforms.includes('linkedin') ? 'text-[#0A66C2]' : 'text-[#B6B6B6]'}`} />
+              </button>
+            )}
           </div>
         </div>
       </div>
