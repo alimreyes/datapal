@@ -3,8 +3,103 @@ import jsPDF from 'jspdf';
 import type { Report } from './types';
 
 /**
+ * Convierte un color CSS moderno (lab, oklch, oklab) a rgb usando un canvas temporal.
+ * html2canvas no soporta lab()/oklch() que Tailwind CSS 4 genera.
+ */
+function resolveColor(colorValue: string): string {
+  if (
+    !colorValue ||
+    !colorValue.includes('lab(') &&
+    !colorValue.includes('oklch(') &&
+    !colorValue.includes('oklab(') &&
+    !colorValue.includes('lch(')
+  ) {
+    return colorValue;
+  }
+
+  try {
+    const canvas = document.createElement('canvas');
+    canvas.width = 1;
+    canvas.height = 1;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return 'transparent';
+
+    ctx.fillStyle = colorValue;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b, a] = ctx.getImageData(0, 0, 1, 1).data;
+
+    if (a === 0) return 'transparent';
+    if (a < 255) return `rgba(${r}, ${g}, ${b}, ${(a / 255).toFixed(2)})`;
+    return `rgb(${r}, ${g}, ${b})`;
+  } catch {
+    return 'transparent';
+  }
+}
+
+/**
+ * Sanitiza los estilos de un elemento clonado, reemplazando colores CSS modernos
+ * (lab, oklch) por equivalentes rgb que html2canvas pueda parsear.
+ */
+function sanitizeColorsForHtml2Canvas(clonedDoc: Document) {
+  const clonedElement = clonedDoc.getElementById('dashboard-content');
+  if (!clonedElement) return;
+
+  const colorProps = [
+    'color',
+    'background-color',
+    'border-color',
+    'border-top-color',
+    'border-right-color',
+    'border-bottom-color',
+    'border-left-color',
+    'outline-color',
+    'text-decoration-color',
+    'fill',
+    'stroke',
+  ];
+
+  const allElements = clonedElement.querySelectorAll('*');
+  const elementsToProcess = [clonedElement, ...Array.from(allElements)] as HTMLElement[];
+
+  for (const el of elementsToProcess) {
+    try {
+      const computed = clonedDoc.defaultView?.getComputedStyle(el);
+      if (!computed) continue;
+
+      for (const prop of colorProps) {
+        try {
+          const val = computed.getPropertyValue(prop);
+          if (val && (val.includes('lab(') || val.includes('oklch(') || val.includes('oklab(') || val.includes('lch('))) {
+            el.style.setProperty(prop, resolveColor(val), 'important');
+          }
+        } catch {
+          // Skip individual property errors
+        }
+      }
+
+      // Handle background (can contain gradients with lab colors)
+      try {
+        const bg = computed.getPropertyValue('background');
+        if (bg && (bg.includes('lab(') || bg.includes('oklch('))) {
+          // For gradients with lab() colors, replace with solid background-color
+          const bgColor = computed.getPropertyValue('background-color');
+          if (bgColor) {
+            el.style.setProperty('background', resolveColor(bgColor), 'important');
+          }
+        }
+      } catch {
+        // Skip
+      }
+    } catch {
+      // Skip problematic elements
+    }
+  }
+}
+
+/**
  * Captura un elemento del DOM como canvas con configuración optimizada
- * para el tema oscuro de DataPal y charts de Recharts
+ * para el tema oscuro de DataPal y charts de Recharts.
+ * Sanitiza colores lab()/oklch() de Tailwind CSS 4 que html2canvas no soporta.
  */
 async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> {
   const options: Record<string, unknown> = {
@@ -21,6 +116,9 @@ async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> 
         el.tagName === 'SCRIPT' ||
         el.classList?.contains('pdf-ignore')
       );
+    },
+    onclone: (clonedDoc: Document) => {
+      sanitizeColorsForHtml2Canvas(clonedDoc);
     },
   };
 
