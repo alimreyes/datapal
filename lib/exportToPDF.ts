@@ -1,32 +1,274 @@
-// lib/utils/exportPDF.ts
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import type { Report } from './types';
 
 /**
- * Exporta un reporte a PDF desde la página principal
- * Abre el reporte en una nueva ventana y genera el PDF
- * @param report - El reporte a exportar
- * @param reportId - ID del reporte
+ * Captura un elemento del DOM como canvas con configuración optimizada
+ * para el tema oscuro de DataPal y charts de Recharts
  */
-export async function exportToPDF(report: Report, reportId: string) {
-  try {
-    // Abrir el reporte en una nueva ventana
-    const reportWindow = window.open(`/report/${reportId}`, '_blank');
+async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> {
+  const options: Record<string, unknown> = {
+    scale: 2,
+    useCORS: true,
+    logging: false,
+    backgroundColor: '#11120D',
+    windowWidth: element.scrollWidth,
+    windowHeight: element.scrollHeight,
+    foreignObjectRendering: false,
+    ignoreElements: (el: HTMLElement) => {
+      return (
+        el.tagName === 'IFRAME' ||
+        el.tagName === 'SCRIPT' ||
+        el.classList?.contains('pdf-ignore')
+      );
+    },
+  };
 
-    if (!reportWindow) {
-      throw new Error('No se pudo abrir la ventana del reporte. Por favor, permite las ventanas emergentes.');
+  return html2canvas(element, options as any);
+}
+
+/**
+ * Agrega un header con branding DataPal a una página del PDF
+ */
+function addPDFHeader(pdf: jsPDF, title: string, pageLabel: string) {
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+
+  // Fondo del header
+  pdf.setFillColor(17, 18, 13); // #11120D
+  pdf.rect(0, 0, pdfWidth, 18, 'F');
+
+  // Línea accent debajo del header
+  pdf.setDrawColor(1, 155, 119); // #019B77
+  pdf.setLineWidth(0.5);
+  pdf.line(10, 18, pdfWidth - 10, 18);
+
+  // Título del reporte
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(12);
+  pdf.setTextColor(251, 254, 242); // #FBFEF2
+  pdf.text(title, 10, 10);
+
+  // Label de página (ej: "Hoja 1 de 2")
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.setTextColor(182, 182, 182); // #B6B6B6
+  pdf.text(pageLabel, pdfWidth - 10, 10, { align: 'right' });
+
+  // "DataPal" branding
+  pdf.setFontSize(8);
+  pdf.setTextColor(1, 155, 119); // #019B77
+  pdf.text('DataPal', pdfWidth - 10, 15, { align: 'right' });
+}
+
+/**
+ * Agrega un footer a una página del PDF
+ */
+function addPDFFooter(pdf: jsPDF) {
+  const pdfWidth = pdf.internal.pageSize.getWidth();
+  const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  // Línea separadora
+  pdf.setDrawColor(1, 155, 119); // #019B77
+  pdf.setLineWidth(0.3);
+  pdf.line(10, pdfHeight - 12, pdfWidth - 10, pdfHeight - 12);
+
+  // Fecha de generación
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-CL', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(7);
+  pdf.setTextColor(182, 182, 182);
+  pdf.text(`Generado el ${dateStr}`, 10, pdfHeight - 7);
+
+  // Branding
+  pdf.setTextColor(1, 155, 119);
+  pdf.text('Generado con DataPal | datapal.vercel.app', pdfWidth - 10, pdfHeight - 7, {
+    align: 'right',
+  });
+}
+
+/**
+ * Exporta el reporte completo a PDF capturando ambas hojas.
+ *
+ * @param reportTitle - Título del reporte para el nombre del archivo y headers
+ * @param onPageChange - Callback para cambiar la página visible del reporte
+ * @param currentPage - Página actualmente visible (0 o 1)
+ * @param totalPages - Total de páginas del reporte (default 2)
+ */
+export async function exportReportToPDF(
+  reportTitle: string,
+  onPageChange: (page: number) => void,
+  currentPage: number,
+  totalPages: number = 2,
+): Promise<boolean> {
+  const originalPage = currentPage;
+
+  try {
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    const headerHeight = 22; // mm reservados para header
+    const footerHeight = 15; // mm reservados para footer
+    const contentHeight = pdfHeight - headerHeight - footerHeight;
+    const margin = 6; // mm de margen lateral
+
+    // Capturar cada página del reporte
+    for (let page = 0; page < totalPages; page++) {
+      // Cambiar a la página correspondiente
+      onPageChange(page);
+
+      // Esperar a que React renderice la nueva página y los charts se dibujen
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const dashboardElement = document.getElementById('dashboard-content');
+      if (!dashboardElement) {
+        throw new Error('No se encontró el contenido del reporte');
+      }
+
+      // Capturar el contenido actual
+      const canvas = await captureElement(dashboardElement);
+
+      // Agregar nueva página si no es la primera
+      if (page > 0) {
+        pdf.addPage();
+      }
+
+      // Fondo oscuro completo
+      pdf.setFillColor(17, 18, 13);
+      pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+      // Header
+      addPDFHeader(pdf, reportTitle, `Hoja ${page + 1} de ${totalPages}`);
+
+      // Calcular dimensiones de la imagen para que quepa en el área de contenido
+      const imgData = canvas.toDataURL('image/png');
+      const imgAspect = canvas.width / canvas.height;
+      const availableWidth = pdfWidth - margin * 2;
+
+      let imgWidth = availableWidth;
+      let imgHeight = imgWidth / imgAspect;
+
+      // Si la imagen es muy alta, ajustar por altura
+      if (imgHeight > contentHeight) {
+        imgHeight = contentHeight;
+        imgWidth = imgHeight * imgAspect;
+      }
+
+      // Centrar la imagen horizontalmente
+      const imgX = (pdfWidth - imgWidth) / 2;
+      const imgY = headerHeight + 2;
+
+      pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
+
+      // Footer
+      addPDFFooter(pdf);
     }
 
-    // Esperar a que la ventana cargue y luego exportar
-    reportWindow.addEventListener('load', () => {
-      setTimeout(() => {
-        // Llamar a la función de exportación en la ventana del reporte
-        if (reportWindow.document.getElementById('export-pdf-button')) {
-          reportWindow.document.getElementById('export-pdf-button')?.click();
-        }
-      }, 2000);
+    // Metadatos del PDF
+    pdf.setProperties({
+      title: reportTitle,
+      subject: 'Reporte de Analytics de Redes Sociales',
+      author: 'DataPal',
+      keywords: 'analytics, redes sociales, instagram, facebook, linkedin, tiktok, datapal',
+      creator: 'DataPal - Reportes Automatizados',
     });
+
+    // Generar nombre de archivo seguro
+    const safeFileName = reportTitle
+      .replace(/[^a-z0-9áéíóúñü\s]/gi, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase()
+      .substring(0, 50);
+
+    const fileName = `${safeFileName}_${new Date().toISOString().split('T')[0]}.pdf`;
+
+    // Descargar
+    pdf.save(fileName);
+
+    // Restaurar la página original
+    onPageChange(originalPage);
+
+    return true;
+  } catch (error) {
+    console.error('Error al exportar PDF:', error);
+
+    // Restaurar la página original en caso de error
+    onPageChange(originalPage);
+
+    throw error;
+  }
+}
+
+/**
+ * Exporta el contenido visible del dashboard a PDF (versión simple, una sola página)
+ * Mantiene compatibilidad con la función anterior
+ */
+export async function exportDashboardToPDF(
+  reportTitle: string = 'Reporte DataPal',
+): Promise<boolean> {
+  try {
+    const dashboardElement = document.getElementById('dashboard-content');
+
+    if (!dashboardElement) {
+      throw new Error('No se encontró el elemento del dashboard');
+    }
+
+    const canvas = await captureElement(dashboardElement);
+
+    const pdf = new jsPDF('landscape', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = pdf.internal.pageSize.getHeight();
+
+    // Fondo oscuro
+    pdf.setFillColor(17, 18, 13);
+    pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
+
+    // Header y Footer
+    addPDFHeader(pdf, reportTitle, 'Hoja 1 de 1');
+    addPDFFooter(pdf);
+
+    // Imagen del contenido
+    const imgData = canvas.toDataURL('image/png');
+    const imgAspect = canvas.width / canvas.height;
+    const margin = 6;
+    const headerHeight = 22;
+    const footerHeight = 15;
+    const contentHeight = pdfHeight - headerHeight - footerHeight;
+    const availableWidth = pdfWidth - margin * 2;
+
+    let imgWidth = availableWidth;
+    let imgHeight = imgWidth / imgAspect;
+
+    if (imgHeight > contentHeight) {
+      imgHeight = contentHeight;
+      imgWidth = imgHeight * imgAspect;
+    }
+
+    const imgX = (pdfWidth - imgWidth) / 2;
+    pdf.addImage(imgData, 'PNG', imgX, headerHeight + 2, imgWidth, imgHeight);
+
+    // Metadatos
+    pdf.setProperties({
+      title: reportTitle,
+      subject: 'Reporte de Analytics de Redes Sociales',
+      author: 'DataPal',
+      keywords: 'analytics, redes sociales, datapal',
+      creator: 'DataPal - Reportes Automatizados',
+    });
+
+    const safeFileName = reportTitle
+      .replace(/[^a-z0-9áéíóúñü\s]/gi, '')
+      .replace(/\s+/g, '_')
+      .toLowerCase()
+      .substring(0, 50);
+
+    pdf.save(`${safeFileName}_${new Date().toISOString().split('T')[0]}.pdf`);
 
     return true;
   } catch (error) {
@@ -36,167 +278,20 @@ export async function exportToPDF(report: Report, reportId: string) {
 }
 
 /**
- * Exporta el contenido del dashboard a PDF
- * @param reportTitle - Título del reporte para el nombre del archivo
+ * Exporta un reporte desde el dashboard abriendo la vista del reporte.
+ * Mantiene compatibilidad con el dashboard principal.
  */
-export async function exportDashboardToPDF(reportTitle: string = 'Reporte DataPal') {
+export async function exportToPDF(report: Report, reportId: string) {
   try {
-    // Obtener el elemento del dashboard
-    const dashboardElement = document.getElementById('dashboard-content');
-    
-    if (!dashboardElement) {
-      throw new Error('No se encontró el elemento del dashboard');
+    const reportWindow = window.open(`/report/${reportId}`, '_blank');
+
+    if (!reportWindow) {
+      throw new Error('No se pudo abrir la ventana del reporte. Por favor, permite las ventanas emergentes.');
     }
-
-    // Mostrar mensaje de loading
-    const loadingToast = document.createElement('div');
-    loadingToast.className = 'fixed top-4 right-4 bg-purple-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
-    loadingToast.innerHTML = `
-      <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-      <span>Generando PDF...</span>
-    `;
-    document.body.appendChild(loadingToast);
-
-    // Capturar el contenido como imagen con alta calidad
-    const html2canvasOptions: any = {
-      scale: 2, // Mayor calidad
-      useCORS: true,
-      logging: false, // Desactivar logging para evitar spam
-      backgroundColor: '#f9fafb',
-      windowWidth: dashboardElement.scrollWidth,
-      windowHeight: dashboardElement.scrollHeight,
-      ignoreElements: (element: HTMLElement) => {
-        // Ignorar elementos que puedan causar problemas
-        return element.tagName === 'IFRAME' || element.tagName === 'SCRIPT';
-      },
-      onclone: (clonedDoc: Document) => {
-        const clonedElement = clonedDoc.getElementById('dashboard-content');
-        if (clonedElement) {
-          // Aplicar estilos computados de forma segura
-          const allElements = clonedElement.getElementsByTagName('*');
-          for (let i = 0; i < allElements.length; i++) {
-            const el = allElements[i] as HTMLElement;
-            const original = document.getElementById(el.id) ||
-                           document.querySelector(`[data-id="${el.getAttribute('data-id')}"]`);
-
-            if (original) {
-              try {
-                const computedStyle = window.getComputedStyle(original as HTMLElement);
-
-                // Copiar solo propiedades esenciales de forma segura
-                const safeProps = ['backgroundColor', 'color', 'fontSize', 'fontWeight'];
-                safeProps.forEach(prop => {
-                  try {
-                    const value = computedStyle.getPropertyValue(prop);
-                    if (value && !value.includes('lab(') && !value.includes('oklch(')) {
-                      el.style.setProperty(prop, value, 'important');
-                    }
-                  } catch (e) {
-                    // Ignorar errores de propiedades individuales
-                  }
-                });
-              } catch (err) {
-                // Ignorar elementos problemáticos
-              }
-            }
-          }
-        }
-      },
-    };
-
-    const canvas = await html2canvas(dashboardElement, html2canvasOptions);
-
-    // Crear PDF
-    const imgData = canvas.toDataURL('image/png');
-    
-    // Dimensiones A4 en mm
-    const pdfWidth = 210;
-    const pdfHeight = 297;
-    
-    // Calcular dimensiones de la imagen para ajustar al PDF
-    const imgWidth = pdfWidth - 20; // Márgenes de 10mm
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-    
-    // Crear PDF en orientación que mejor se ajuste
-    const orientation = imgHeight > pdfHeight ? 'portrait' : 'portrait';
-    const pdf = new jsPDF(orientation, 'mm', 'a4');
-    
-    // Si la imagen es más alta que una página, dividir en múltiples páginas
-    let heightLeft = imgHeight;
-    let position = 10; // Margen superior
-    
-    // Agregar primera página
-    pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-    heightLeft -= (pdfHeight - 20);
-    
-    // Agregar páginas adicionales si es necesario
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight + 10;
-      pdf.addPage();
-      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
-      heightLeft -= (pdfHeight - 20);
-    }
-
-    // Agregar metadatos al PDF
-    pdf.setProperties({
-      title: reportTitle,
-      subject: 'Reporte de Analytics - Instagram y Facebook',
-      author: 'DataPal',
-      keywords: 'analytics, instagram, facebook, redes sociales',
-      creator: 'DataPal - Plataforma de Analytics con IA',
-    });
-
-    // Generar nombre de archivo seguro
-    const safeFileName = reportTitle
-      .replace(/[^a-z0-9]/gi, '_')
-      .toLowerCase()
-      .substring(0, 50);
-    
-    const fileName = `${safeFileName}_${new Date().toISOString().split('T')[0]}.pdf`;
-    
-    // Descargar el PDF
-    pdf.save(fileName);
-
-    // Remover loading toast
-    document.body.removeChild(loadingToast);
-
-    // Mostrar mensaje de éxito
-    const successToast = document.createElement('div');
-    successToast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
-    successToast.innerHTML = `
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-      </svg>
-      <span>PDF descargado exitosamente</span>
-    `;
-    document.body.appendChild(successToast);
-    
-    // Remover mensaje de éxito después de 3 segundos
-    setTimeout(() => {
-      document.body.removeChild(successToast);
-    }, 3000);
 
     return true;
   } catch (error) {
     console.error('Error al exportar PDF:', error);
-    
-    // Mostrar mensaje de error
-    const errorToast = document.createElement('div');
-    errorToast.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center gap-3';
-    errorToast.innerHTML = `
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-      <span>Error al generar PDF</span>
-    `;
-    document.body.appendChild(errorToast);
-    
-    setTimeout(() => {
-      if (document.body.contains(errorToast)) {
-        document.body.removeChild(errorToast);
-      }
-    }, 3000);
-
-    return false;
+    throw error;
   }
 }

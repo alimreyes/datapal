@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -19,7 +19,9 @@ interface ReportLayoutV2Props {
   onLogoUpload?: (file: File) => void;
   onSave?: () => void;
   onDiscard?: () => void;
+  onExportPDF?: () => void;
   isSaving?: boolean;
+  isExporting?: boolean;
   currentPage: number;
   onPageChange: (page: number) => void;
   children: React.ReactNode;
@@ -37,7 +39,9 @@ export default function ReportLayoutV2({
   onLogoUpload,
   onSave,
   onDiscard,
+  onExportPDF,
   isSaving = false,
+  isExporting = false,
   currentPage,
   onPageChange,
   children,
@@ -190,6 +194,27 @@ export default function ReportLayoutV2({
                 className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
               >
                 {isSaving ? 'Guardando...' : 'Guardar Reporte'}
+              </Button>
+            )}
+            {onExportPDF && (
+              <Button
+                onClick={onExportPDF}
+                disabled={isExporting}
+                size="sm"
+                variant="outline"
+                className="border-[#019B77]/50 text-[#019B77] hover:bg-[#019B77]/10 hover:text-[#02c494]"
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-1" />
+                    Descargar PDF
+                  </>
+                )}
               </Button>
             )}
             {onDiscard && (
