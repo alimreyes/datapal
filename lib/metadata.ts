@@ -148,3 +148,25 @@ export const demoMetadata: Metadata = {
   title: '¿Qué tipos de reportes de redes sociales puedes crear con DataPal?',
   description: 'Explora los 3 tipos de reportes automatizados que DataPal genera para agencias boutique y freelancers: análisis de resultados, evidenciar mejoras y reporte mensual.',
 };
+
+export const landingMetadata: Metadata = {
+  title: `${APP_NAME} - Reportes Automatizados de Redes Sociales para Agencias y Freelancers`,
+  description: 'DataPal automatiza los reportes de Instagram, Facebook, LinkedIn, TikTok y Google Analytics para agencias boutique y freelancers de marketing en Latinoamérica. Genera reportes profesionales en minutos.',
+  openGraph: {
+    title: `${APP_NAME} - Reportes Automatizados de Redes Sociales para Agencias y Freelancers`,
+    description: 'Automatiza tus reportes de redes sociales. Diseñado para agencias boutique y freelancers de marketing en LATAM.',
+    url: APP_URL,
+    type: 'website',
+    images: [
+      {
+        url: `${APP_URL}/og-image.png`,
+        width: 1200,
+        height: 630,
+        alt: `${APP_NAME} - Analytics y Reportes para Agencias Boutique en LATAM`,
+      },
+    ],
+  },
+  alternates: {
+    canonical: APP_URL,
+  },
+};
