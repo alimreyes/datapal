@@ -7,38 +7,38 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/demo', '/demo/*', '/login', '/register'],
+        allow: '/',
         disallow: [
           '/dashboard',
           '/dashboard/*',
-          '/create',
           '/report/*',
+          '/new-report/*',
           '/api/*',
-          '/checkout/*',
           '/tokens',
           '/settings',
+          '/prueba-interna',
         ],
       },
-      // Explicitly allow AI crawlers to index public content
+      // AI crawlers — same private routes blocked, everything public allowed
       {
         userAgent: 'GPTBot',
-        allow: ['/', '/demo', '/demo/*'],
-        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
       },
       {
         userAgent: 'ChatGPT-User',
-        allow: ['/', '/demo', '/demo/*'],
-        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
       },
       {
         userAgent: 'PerplexityBot',
-        allow: ['/', '/demo', '/demo/*'],
-        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
       },
       {
         userAgent: 'Google-Extended',
-        allow: ['/', '/demo', '/demo/*'],
-        disallow: ['/dashboard', '/dashboard/*', '/api/*'],
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
       },
     ],
     sitemap: `${APP_URL}/sitemap.xml`,
