@@ -20,6 +20,7 @@ import GlowCard from '@/components/ui/GlowCard';
 import LandingRedirect from '@/components/landing/LandingRedirect';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingFooter from '@/components/landing/LandingFooter';
+import LandingFAQ from '@/components/landing/LandingFAQ';
 import { landingMetadata } from '@/lib/metadata';
 
 export const metadata = landingMetadata;
@@ -345,8 +346,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final CTA */}
+      {/* FAQ */}
       <section className="py-20 sm:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#FBFEF2] mb-4">
+              Preguntas frecuentes sobre DataPal
+            </h2>
+            <p className="text-[#B6B6B6] text-lg max-w-xl mx-auto">
+              Todo lo que necesitas saber antes de empezar.
+            </p>
+          </div>
+          <LandingFAQ />
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 sm:py-28 bg-[#0d0e09]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <GlowCard glowColor="1, 155, 119">
             <div className="p-8 sm:p-12 text-center">

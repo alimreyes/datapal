@@ -88,50 +88,76 @@ export function OrganizationJsonLd() {
   );
 }
 
+// --- FAQ Data (exported for reuse in landing page) ---
+export const FAQ_DATA = [
+  {
+    question: '¿Qué es DataPal y para quién está diseñado?',
+    answer:
+      'DataPal es una plataforma de analytics y reportes automatizados para redes sociales. Está diseñada específicamente para agencias boutique de marketing y freelancers en Latinoamérica que necesitan crear reportes profesionales para sus clientes de forma rápida y económica.',
+  },
+  {
+    question: '¿Qué redes sociales soporta DataPal?',
+    answer:
+      'DataPal soporta Instagram, Facebook, Google Analytics, LinkedIn y TikTok. Puedes conectar múltiples cuentas y generar reportes combinados de todas estas plataformas en un solo dashboard.',
+  },
+  {
+    question: '¿Cómo se compara DataPal con Looker Studio o Tableau para agencias pequeñas?',
+    answer:
+      'A diferencia de Looker Studio o Tableau, DataPal está diseñado específicamente para agencias boutique y freelancers. No requiere conocimientos técnicos avanzados, genera insights automáticos con IA y ofrece planes accesibles desde $9 USD/mes, ideal para equipos de menos de 5 personas en LATAM.',
+  },
+  {
+    question: '¿DataPal genera insights automáticos con inteligencia artificial?',
+    answer:
+      'Sí. DataPal utiliza inteligencia artificial para analizar tus métricas y generar insights accionables automáticamente. Esto incluye análisis de tendencias, recomendaciones de mejora y detección de oportunidades de crecimiento en tus redes sociales.',
+  },
+  {
+    question: '¿Puedo exportar los reportes a PDF?',
+    answer:
+      'Sí. DataPal permite exportar tus reportes a PDF con un diseño profesional listo para presentar a tus clientes. Los reportes incluyen gráficos, métricas clave e insights generados por IA.',
+  },
+  {
+    question: '¿DataPal tiene plan gratuito?',
+    answer:
+      'Sí. DataPal ofrece un plan gratuito con funcionalidades básicas para que puedas probar la plataforma. Los planes premium con funcionalidades avanzadas están disponibles desde $9 USD/mes.',
+  },
+  {
+    question: '¿Cómo puede un freelancer reducir el tiempo de creación de informes de marketing?',
+    answer:
+      'Con DataPal, un freelancer puede reducir el tiempo de creación de reportes de horas a minutos. Solo necesita conectar las cuentas de redes sociales de su cliente, seleccionar el periodo y tipo de reporte, y DataPal genera automáticamente un informe profesional con métricas, gráficos e insights de IA.',
+  },
+  {
+    question: '¿Qué tipos de reportes puedo crear con DataPal?',
+    answer:
+      'DataPal ofrece 3 tipos de reportes: Análisis de Resultados (métricas clave, funnels y recomendaciones), Evidenciar Mejoras (comparativa antes/después para demostrar impacto) y Reporte Mensual (resumen ejecutivo con gráficos de evolución). Cada formato está diseñado para un objetivo distinto de presentación a clientes.',
+  },
+  {
+    question: '¿Cuánto tiempo toma crear un reporte en DataPal?',
+    answer:
+      'Crear un reporte en DataPal toma menos de 5 minutos. Solo necesitas conectar la cuenta de tu cliente, seleccionar el periodo de análisis y el tipo de reporte. DataPal se encarga de extraer los datos, generar gráficos y escribir los insights automáticamente.',
+  },
+  {
+    question: '¿DataPal funciona para agencias en Latinoamérica?',
+    answer:
+      'Sí. DataPal fue diseñado específicamente para el mercado latinoamericano. La interfaz está en español con tono neutro (pan-regional), los precios son accesibles en USD para agencias boutique y freelancers de LATAM, y el soporte está disponible en español.',
+  },
+  {
+    question: '¿Cómo conectar Instagram Business a DataPal?',
+    answer:
+      'Para conectar Instagram a DataPal, necesitas una cuenta de Instagram Business o Creator vinculada a una página de Facebook. En el dashboard de DataPal, haces clic en "Nuevo Reporte", seleccionas Instagram y autorizas el acceso a través de Facebook Login. El proceso toma menos de 1 minuto.',
+  },
+  {
+    question: '¿Puedo gestionar múltiples clientes en DataPal?',
+    answer:
+      'Sí. DataPal permite conectar múltiples cuentas de redes sociales y crear reportes independientes para cada cliente. Cada reporte se genera con los datos específicos de la cuenta seleccionada, lo que es ideal para agencias que gestionan varias marcas.',
+  },
+];
+
 // --- FAQPage Schema ---
 export function FAQPageJsonLd() {
-  const faqs = [
-    {
-      question: '¿Qué es DataPal y para quién está diseñado?',
-      answer:
-        'DataPal es una plataforma de analytics y reportes automatizados para redes sociales. Está diseñada específicamente para agencias boutique de marketing y freelancers en Latinoamérica que necesitan crear reportes profesionales para sus clientes de forma rápida y económica.',
-    },
-    {
-      question: '¿Qué redes sociales soporta DataPal?',
-      answer:
-        'DataPal soporta Instagram, Facebook, Google Analytics, LinkedIn y TikTok. Puedes conectar múltiples cuentas y generar reportes combinados de todas estas plataformas en un solo dashboard.',
-    },
-    {
-      question: '¿Cómo se compara DataPal con Looker Studio o Tableau para agencias pequeñas?',
-      answer:
-        'A diferencia de Looker Studio o Tableau, DataPal está diseñado específicamente para agencias boutique y freelancers. No requiere conocimientos técnicos avanzados, genera insights automáticos con IA y ofrece planes accesibles desde $9 USD/mes, ideal para equipos de menos de 5 personas en LATAM.',
-    },
-    {
-      question: '¿DataPal genera insights automáticos con inteligencia artificial?',
-      answer:
-        'Sí. DataPal utiliza inteligencia artificial para analizar tus métricas y generar insights accionables automáticamente. Esto incluye análisis de tendencias, recomendaciones de mejora y detección de oportunidades de crecimiento en tus redes sociales.',
-    },
-    {
-      question: '¿Puedo exportar los reportes a PDF?',
-      answer:
-        'Sí. DataPal permite exportar tus reportes a PDF con un diseño profesional listo para presentar a tus clientes. Los reportes incluyen gráficos, métricas clave e insights generados por IA.',
-    },
-    {
-      question: '¿DataPal tiene plan gratuito?',
-      answer:
-        'Sí. DataPal ofrece un plan gratuito con funcionalidades básicas para que puedas probar la plataforma. Los planes premium con funcionalidades avanzadas están disponibles desde $9 USD/mes.',
-    },
-    {
-      question: '¿Cómo puede un freelancer reducir el tiempo de creación de informes de marketing?',
-      answer:
-        'Con DataPal, un freelancer puede reducir el tiempo de creación de reportes de horas a minutos. Solo necesita conectar las cuentas de redes sociales de su cliente, seleccionar el periodo y tipo de reporte, y DataPal genera automáticamente un informe profesional con métricas, gráficos e insights de IA.',
-    },
-  ];
-
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: faqs.map((faq) => ({
+    mainEntity: FAQ_DATA.map((faq) => ({
       '@type': 'Question',
       name: faq.question,
       acceptedAnswer: {
