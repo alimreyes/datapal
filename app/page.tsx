@@ -14,6 +14,8 @@ import {
   Users,
   Briefcase,
   CheckCircle2,
+  MessageCircle,
+  Repeat,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlowCard from '@/components/ui/GlowCard';
@@ -114,7 +116,7 @@ export default function LandingPage() {
           <div className="text-center max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#019B77]/10 border border-[#019B77]/20 text-sm text-[#019B77] mb-6">
               <Zap className="w-3.5 h-3.5" />
-              Reportes automatizados en minutos
+              Un clic. Un reporte profesional.
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#FBFEF2] tracking-tight leading-tight mb-6">
@@ -122,7 +124,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-lg sm:text-xl text-[#B6B6B6] mb-8 max-w-2xl mx-auto leading-relaxed">
-              DataPal genera reportes profesionales de Instagram, Facebook, LinkedIn, TikTok y Google Analytics. Diseñado para agencias boutique y freelancers de marketing en Latinoamérica.
+              DataPal es la herramienta de reportes que reemplaza tus horas en Excel y Looker Studio. Conecta Instagram, Facebook, LinkedIn, TikTok o Google Analytics y genera reportes listos para enviar a tus clientes. Sin configuraciones complejas. Sin prompt engineering.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -287,8 +289,46 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Benefits */}
+      {/* Social Proof */}
       <section className="py-20 sm:py-28 bg-[#0d0e09]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#FBFEF2] mb-4">
+              ¿Qué dicen los profesionales de marketing?
+            </h2>
+            <p className="text-[#B6B6B6] text-lg max-w-xl mx-auto">
+              Feedback real de la comunidad.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.1)]">
+              <MessageCircle className="w-5 h-5 text-[#019B77] mb-3" />
+              <p className="text-sm text-[#B6B6B6] leading-relaxed mb-4">
+                &ldquo;La mayoría de freelancers de marketing no van a hacer prompt engineering cada semana solo para enviar un reporte. Quieren algo repetible y rápido. Si las agencias boutique en LATAM pueden subir datos y obtener un reporte profesional en dos minutos, eso es valor real.&rdquo;
+              </p>
+              <p className="text-xs text-[#B6B6B6]/50">Comunidad de marketing digital</p>
+            </div>
+            <div className="p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.1)]">
+              <MessageCircle className="w-5 h-5 text-[#019B77] mb-3" />
+              <p className="text-sm text-[#B6B6B6] leading-relaxed mb-4">
+                &ldquo;Si esto le ahorra tiempo a un marketer cada semana y se vuelve parte de cómo entregan reportes a sus clientes, probablemente estás construyendo algo realmente útil.&rdquo;
+              </p>
+              <p className="text-xs text-[#B6B6B6]/50">Comunidad de SaaS y startups</p>
+            </div>
+            <div className="p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.1)]">
+              <MessageCircle className="w-5 h-5 text-[#019B77] mb-3" />
+              <p className="text-sm text-[#B6B6B6] leading-relaxed mb-4">
+                &ldquo;Si te enfocas en construir templates específicos y repetibles para reportes de Instagram y Facebook que se formatean de manera consistente, no estás construyendo una feature — estás construyendo una herramienta especializada.&rdquo;
+              </p>
+              <p className="text-xs text-[#B6B6B6]/50">Comunidad de desarrollo de producto</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits */}
+      <section className="py-20 sm:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#FBFEF2] mb-4">
@@ -322,10 +362,10 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="flex gap-4 p-4">
-              <Zap className="w-5 h-5 text-[#019B77] mt-0.5 flex-shrink-0" />
+              <Repeat className="w-5 h-5 text-[#019B77] mt-0.5 flex-shrink-0" />
               <div>
-                <h3 className="text-sm font-semibold text-[#FBFEF2] mb-1">Fácil de usar</h3>
-                <p className="text-sm text-[#B6B6B6] leading-relaxed">Sin curva de aprendizaje. Conecta, selecciona y genera.</p>
+                <h3 className="text-sm font-semibold text-[#FBFEF2] mb-1">Workflow repetible</h3>
+                <p className="text-sm text-[#B6B6B6] leading-relaxed">El mismo proceso cada semana. Sin prompt engineering ni configuraciones manuales.</p>
               </div>
             </div>
             <div className="flex gap-4 p-4">
@@ -347,7 +387,7 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section className="py-20 sm:py-28">
+      <section className="py-20 sm:py-28 bg-[#0d0e09]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <h2 className="text-3xl sm:text-4xl font-bold text-[#FBFEF2] mb-4">
@@ -362,7 +402,7 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 sm:py-28 bg-[#0d0e09]">
+      <section className="py-20 sm:py-28">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <GlowCard glowColor="1, 155, 119">
             <div className="p-8 sm:p-12 text-center">
