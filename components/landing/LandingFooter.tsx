@@ -73,11 +73,31 @@ export default function LandingFooter() {
           <div>
             <h4 className="text-sm font-semibold text-[#FBFEF2] mb-3">Plataformas</h4>
             <ul className="space-y-2">
-              <li className="text-sm text-[#B6B6B6]">Instagram</li>
-              <li className="text-sm text-[#B6B6B6]">Facebook</li>
-              <li className="text-sm text-[#B6B6B6]">LinkedIn</li>
-              <li className="text-sm text-[#B6B6B6]">TikTok</li>
-              <li className="text-sm text-[#B6B6B6]">Google Analytics</li>
+              <li>
+                <Link href="/plataformas/instagram" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  Instagram
+                </Link>
+              </li>
+              <li>
+                <Link href="/plataformas/facebook" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  Facebook
+                </Link>
+              </li>
+              <li>
+                <Link href="/plataformas/linkedin" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  LinkedIn
+                </Link>
+              </li>
+              <li>
+                <Link href="/plataformas/tiktok" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  TikTok
+                </Link>
+              </li>
+              <li>
+                <Link href="/plataformas/google-analytics" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  Google Analytics
+                </Link>
+              </li>
             </ul>
           </div>
         </div>

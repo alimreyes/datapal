@@ -149,6 +149,30 @@ export const demoMetadata: Metadata = {
   description: 'Explora los 3 tipos de reportes automatizados que DataPal genera para agencias boutique y freelancers: análisis de resultados, evidenciar mejoras y reporte mensual.',
 };
 
+export function generatePlatformMetadata(platformName: string, slug: string, description: string): Metadata {
+  return {
+    title: `Reportes Automatizados de ${platformName} para Agencias y Freelancers`,
+    description,
+    openGraph: {
+      title: `Reportes de ${platformName} | ${APP_NAME}`,
+      description,
+      url: `${APP_URL}/plataformas/${slug}`,
+      type: 'website',
+      images: [
+        {
+          url: `${APP_URL}/og-image.png`,
+          width: 1200,
+          height: 630,
+          alt: `${APP_NAME} - Reportes de ${platformName}`,
+        },
+      ],
+    },
+    alternates: {
+      canonical: `${APP_URL}/plataformas/${slug}`,
+    },
+  };
+}
+
 export const landingMetadata: Metadata = {
   title: `${APP_NAME} - Reportes Automatizados de Redes Sociales para Agencias y Freelancers`,
   description: 'DataPal automatiza los reportes de Instagram, Facebook, LinkedIn, TikTok y Google Analytics para agencias boutique y freelancers de marketing en Latinoamérica. Genera reportes profesionales en minutos.',
