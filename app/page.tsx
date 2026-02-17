@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   BarChart3,
   TrendingUp,
@@ -204,6 +205,93 @@ export default function LandingPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Screenshots Showcase */}
+      <section className="py-20 sm:py-28 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <h2 className="text-3xl sm:text-4xl font-bold text-[#FBFEF2] mb-4">
+              ¿Cómo se ve un reporte en DataPal?
+            </h2>
+            <p className="text-[#B6B6B6] text-lg max-w-xl mx-auto">
+              Datos reales, visualizaciones claras y todo en dark mode.
+            </p>
+          </div>
+
+          {/* Main featured screenshot */}
+          <div className="mb-8 rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-2xl shadow-[#019B77]/5">
+            <Image
+              src="/screenshot-chart.png"
+              alt="Evolución temporal de métricas — Visualizaciones, Alcance e Interacciones"
+              width={1000}
+              height={520}
+              className="w-full h-auto"
+              priority
+            />
+          </div>
+
+          {/* KPI bar */}
+          <div className="mb-8 rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-xl">
+            <Image
+              src="/screenshot-kpis.png"
+              alt="KPIs principales — Visualizaciones, Alcance, Interacciones y Seguidores"
+              width={900}
+              height={100}
+              className="w-full h-auto"
+            />
+          </div>
+
+          {/* Grid of smaller screenshots */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-xl hover:border-[#019B77]/30 transition-colors">
+              <Image
+                src="/screenshot-publications.png"
+                alt="Publicaciones vs Interacciones en el Tiempo"
+                width={750}
+                height={400}
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-xl hover:border-[#019B77]/30 transition-colors">
+              <Image
+                src="/screenshot-schedule.png"
+                alt="Mejores Horarios para Publicar"
+                width={750}
+                height={400}
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-xl hover:border-[#019B77]/30 transition-colors">
+              <Image
+                src="/screenshot-topdays.png"
+                alt="Top 3 Mejores Días de rendimiento"
+                width={750}
+                height={200}
+                className="w-full h-auto"
+              />
+            </div>
+            <div className="rounded-2xl overflow-hidden border border-[rgba(251,254,242,0.1)] shadow-xl hover:border-[#019B77]/30 transition-colors">
+              <Image
+                src="/screenshot-notes.png"
+                alt="Notas Personales para cada reporte"
+                width={750}
+                height={200}
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+
+          {/* CTA */}
+          <div className="mt-10 text-center">
+            <Link href="/demo">
+              <Button size="lg" className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] px-8 py-3 text-base">
+                Probar con datos reales
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
