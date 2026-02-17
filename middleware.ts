@@ -4,14 +4,24 @@ import type { NextRequest } from 'next/server';
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Si está en la raíz, redirigir al dashboard (sin login requerido)
-  if (pathname === '/') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  // Páginas públicas — no interceptar, dejar que se rendericen normalmente
+  // La landing (/) tiene LandingRedirect client-side para usuarios logueados
+  const publicPaths = [
+    '/',
+    '/login',
+    '/register',
+    '/pricing',
+    '/demo',
+    '/share',
+  ];
 
-  // Redirigir /login y /register al dashboard ya que no hay autenticación
-  if (pathname === '/login' || pathname === '/register') {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  const isPublicPath = publicPaths.includes(pathname)
+    || pathname.startsWith('/plataformas/')
+    || pathname.startsWith('/share/')
+    || pathname.startsWith('/demo/');
+
+  if (isPublicPath) {
+    return NextResponse.next();
   }
 
   return NextResponse.next();
