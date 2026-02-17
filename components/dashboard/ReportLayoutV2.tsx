@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2, Download, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, Download, Loader2, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -20,6 +20,7 @@ interface ReportLayoutV2Props {
   onSave?: () => void;
   onDiscard?: () => void;
   onExportPDF?: () => void;
+  onShare?: () => void;
   isSaving?: boolean;
   isExporting?: boolean;
   currentPage: number;
@@ -40,6 +41,7 @@ export default function ReportLayoutV2({
   onSave,
   onDiscard,
   onExportPDF,
+  onShare,
   isSaving = false,
   isExporting = false,
   currentPage,
@@ -194,6 +196,17 @@ export default function ReportLayoutV2({
                 className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] border-0"
               >
                 {isSaving ? 'Guardando...' : 'Guardar Reporte'}
+              </Button>
+            )}
+            {onShare && (
+              <Button
+                onClick={onShare}
+                size="sm"
+                variant="outline"
+                className="border-[#019B77]/50 text-[#019B77] hover:bg-[#019B77]/10 hover:text-[#02c494]"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                Compartir
               </Button>
             )}
             {onExportPDF && (

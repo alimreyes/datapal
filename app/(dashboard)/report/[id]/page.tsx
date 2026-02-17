@@ -17,6 +17,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import type { Report, PlatformData, ReportObjective } from '@/lib/types';
 import AIConfirmModal from '@/components/dashboard/AIConfirmModal';
 import DiscardConfirmModal from '@/components/dashboard/DiscardConfirmModal';
+import ShareReportModal from '@/components/dashboard/ShareReportModal';
 import { exportReportToPDF } from '@/lib/exportToPDF';
 
 export default function ReportPage() {
@@ -32,6 +33,7 @@ export default function ReportPage() {
   const [showLimitReachedModal, setShowLimitReachedModal] = useState(false);
   const [showAIConfirmModal, setShowAIConfirmModal] = useState(false);
   const [showDiscardModal, setShowDiscardModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
 
@@ -876,6 +878,7 @@ export default function ReportPage() {
         onSave={handleSaveReport}
         onDiscard={handleShowDiscardModal}
         onExportPDF={handleExportPDF}
+        onShare={() => setShowShareModal(true)}
         isSaving={isSaving}
         isExporting={isExportingPDF}
         currentPage={currentPage}
@@ -998,6 +1001,14 @@ export default function ReportPage() {
         onClose={() => setShowDiscardModal(false)}
         onConfirm={handleConfirmDiscard}
         reportTitle={reportData?.title || 'Reporte'}
+      />
+
+      {/* Modal de Compartir */}
+      <ShareReportModal
+        open={showShareModal}
+        onOpenChange={setShowShareModal}
+        reportId={reportId}
+        userId={user?.uid || ''}
       />
     </>
   );
