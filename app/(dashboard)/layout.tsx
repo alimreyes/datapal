@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Sparkles } from 'lucide-react';
+import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileText } from 'lucide-react';
 import UserMenu from '@/components/auth/UserMenu';
 import { useAuth } from '@/lib/hooks/useAuth';
 import DemoPopup from '@/components/demo/DemoPopup';
@@ -15,6 +15,7 @@ export default function DashboardLayout({
 }) {
   const { user, isDemo } = useAuth();
   const [showDemoPopup, setShowDemoPopup] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Mostrar popup automáticamente para usuarios no autenticados después de 1.5s
   useEffect(() => {
@@ -88,14 +89,96 @@ export default function DashboardLayout({
               </Link>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-3">
+              <Link href="/dashboard">
+                <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
+                  <LayoutDashboard className="w-4 h-4" />
+                  Dashboard
+                </span>
+              </Link>
+              <Link href="/#faq">
+                <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
+                  <HelpCircle className="w-4 h-4" />
+                  FAQ
+                </span>
+              </Link>
+              <Link href="/pricing">
+                <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
+                  <DollarSign className="w-4 h-4" />
+                  Precios
+                </span>
+              </Link>
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#019B77]/20 text-[#019B77] border border-[#019B77]/30">
                 MVP Beta
               </span>
               <UserMenu />
             </div>
+
+            {/* Mobile: UserMenu + Hamburger */}
+            <div className="flex md:hidden items-center gap-2">
+              <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-[#019B77]/20 text-[#019B77] border border-[#019B77]/30">
+                Beta
+              </span>
+              <UserMenu />
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="p-2 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+                aria-label="Menú"
+              >
+                {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile menu overlay */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#11120D] border-t border-[rgba(251,254,242,0.1)]">
+            <div className="px-4 py-4 space-y-1">
+              <Link
+                href="/dashboard"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <LayoutDashboard className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Dashboard</span>
+              </Link>
+              <Link
+                href="/demo"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <Play className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Demo en vivo</span>
+              </Link>
+              <Link
+                href="/pricing"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <DollarSign className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Precios</span>
+              </Link>
+              <Link
+                href="/#faq"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <HelpCircle className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Preguntas frecuentes</span>
+              </Link>
+              <Link
+                href="https://datapal.vercel.app"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <FileText className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Página principal</span>
+              </Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Main Content */}
