@@ -1,7 +1,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
-export default function LandingFooter() {
+interface DashboardFooterProps {
+  isAuthenticated?: boolean;
+}
+
+export default function DashboardFooter({ isAuthenticated = false }: DashboardFooterProps) {
   return (
     <footer className="bg-[#11120D] border-t border-[rgba(251,254,242,0.1)]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -39,11 +43,20 @@ export default function LandingFooter() {
                   Precios
                 </Link>
               </li>
-              <li>
-                <Link href="/register" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
-                  Crear cuenta gratis
-                </Link>
-              </li>
+              {!isAuthenticated && (
+                <li>
+                  <Link href="/register" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                    Crear cuenta gratis
+                  </Link>
+                </li>
+              )}
+              {isAuthenticated && (
+                <li>
+                  <Link href="/faq" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                    Preguntas frecuentes
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -69,7 +82,7 @@ export default function LandingFooter() {
             </ul>
           </div>
 
-          {/* Plataformas - con colores de hover por RRSS */}
+          {/* Plataformas */}
           <div>
             <h4 className="text-sm font-semibold text-[#FBFEF2] mb-3">Plataformas</h4>
             <ul className="space-y-2">
@@ -107,14 +120,26 @@ export default function LandingFooter() {
           <p className="text-xs text-[#B6B6B6]">
             &copy; {new Date().getFullYear()} DataPal. Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-4">
-            <Link href="/login" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
-              Iniciar sesión
-            </Link>
-            <Link href="/register" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
-              Registrarse
-            </Link>
-          </div>
+          {!isAuthenticated && (
+            <div className="flex items-center gap-4">
+              <Link href="/login" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                Iniciar sesión
+              </Link>
+              <Link href="/register" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                Registrarse
+              </Link>
+            </div>
+          )}
+          {isAuthenticated && (
+            <div className="flex items-center gap-4">
+              <Link href="/dashboard" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                Dashboard
+              </Link>
+              <Link href="/settings" className="text-xs text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                Configuración
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     </footer>

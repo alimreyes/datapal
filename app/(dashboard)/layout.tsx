@@ -7,6 +7,7 @@ import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileT
 import UserMenu from '@/components/auth/UserMenu';
 import { useAuth } from '@/lib/hooks/useAuth';
 import DemoPopup from '@/components/demo/DemoPopup';
+import DashboardFooter from '@/components/landing/DashboardFooter';
 
 export default function DashboardLayout({
   children,
@@ -97,7 +98,7 @@ export default function DashboardLayout({
                   Dashboard
                 </span>
               </Link>
-              <Link href="/#faq">
+              <Link href="/faq">
                 <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
                   <HelpCircle className="w-4 h-4" />
                   FAQ
@@ -161,7 +162,7 @@ export default function DashboardLayout({
                 <span className="text-sm">Precios</span>
               </Link>
               <Link
-                href="/#faq"
+                href="/faq"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
               >
@@ -169,7 +170,7 @@ export default function DashboardLayout({
                 <span className="text-sm">Preguntas frecuentes</span>
               </Link>
               <Link
-                href="https://datapal.vercel.app"
+                href="/"
                 onClick={() => setMenuOpen(false)}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
               >
@@ -185,6 +186,9 @@ export default function DashboardLayout({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* Footer */}
+      <DashboardFooter isAuthenticated={!!user} />
     </div>
   );
 }

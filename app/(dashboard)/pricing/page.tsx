@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Sparkles, Zap, Crown, ArrowRight } from 'lucide-react';
+import { Check, Sparkles, Zap, ArrowRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import LoginModal from '@/components/auth/LoginModal';
 import Link from 'next/link';
@@ -40,40 +40,22 @@ const plans: PricingPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 9.99,
+    price: 4.99,
     currency: 'USD',
     period: '/mes',
-    description: 'Para profesionales y agencias pequeñas',
+    description: 'Para profesionales y agencias que necesitan más',
     features: [
       'Todo lo del plan Gratis',
       'Consultas de IA ilimitadas',
       'Análisis avanzado de tendencias',
       'Comparativas históricas',
       'Exportación personalizada',
+      'Smart Links para compartir',
       'Soporte prioritario',
     ],
     aiQueries: 'unlimited',
     popular: true,
     icon: <Zap className="w-6 h-6" />,
-  },
-  {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 29.99,
-    currency: 'USD',
-    period: '/mes',
-    description: 'Para agencias y equipos grandes',
-    features: [
-      'Todo lo del plan Pro',
-      'API access',
-      'White-label reports',
-      'Multi-usuario (hasta 10)',
-      'Integraciones personalizadas',
-      'Soporte dedicado 24/7',
-      'Capacitación incluida',
-    ],
-    aiQueries: 'unlimited',
-    icon: <Crown className="w-6 h-6" />,
   },
 ];
 
@@ -164,7 +146,7 @@ export default function PricingPage() {
         )}
 
         {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {plans.map((plan) => (
             <div
               key={plan.id}
