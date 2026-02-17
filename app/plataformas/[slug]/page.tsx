@@ -213,16 +213,18 @@ export function generateStaticParams() {
   return Object.keys(PLATFORMS).map((slug) => ({ slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const platform = PLATFORMS[params.slug];
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const platform = PLATFORMS[slug];
   if (!platform) return {};
   return generatePlatformMetadata(platform.name, platform.slug, platform.description);
 }
 
 // --- Page Component ---
 
-export default function PlatformPage({ params }: { params: { slug: string } }) {
-  const platform = PLATFORMS[params.slug];
+export default async function PlatformPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const platform = PLATFORMS[slug];
   if (!platform) notFound();
 
   const PlatformIcon = platform.icon;
