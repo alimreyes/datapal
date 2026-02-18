@@ -18,7 +18,7 @@ import type { Report, PlatformData, ReportObjective } from '@/lib/types';
 import AIConfirmModal from '@/components/dashboard/AIConfirmModal';
 import DiscardConfirmModal from '@/components/dashboard/DiscardConfirmModal';
 import ShareReportModal from '@/components/dashboard/ShareReportModal';
-import { exportReportToPDF } from '@/lib/exportToPDF';
+import { exportReportToPDF, type ExportProgress } from '@/lib/exportToPDF';
 
 export default function ReportPage() {
   const params = useParams();
@@ -35,6 +35,7 @@ export default function ReportPage() {
   const [showDiscardModal, setShowDiscardModal] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [exportProgress, setExportProgress] = useState<ExportProgress | null>(null);
   const [currentPage, setCurrentPage] = useState(0); // 0 = HOJA 1, 1 = HOJA 2
 
   // Estado principal del reporte
@@ -765,17 +766,23 @@ export default function ReportPage() {
     if (!reportData?.title || isExportingPDF) return;
 
     setIsExportingPDF(true);
+    setExportProgress({ step: 0, totalSteps: 4, message: 'Preparando...' });
     try {
       await exportReportToPDF(
         reportData.title,
         setCurrentPage,
         currentPage,
         2,
+        {
+          onProgress: (progress) => setExportProgress(progress),
+        },
       );
     } catch (error) {
       console.error('Error al exportar PDF:', error);
     } finally {
       setIsExportingPDF(false);
+      // Mantener el mensaje de éxito por 2 segundos
+      setTimeout(() => setExportProgress(null), 2000);
     }
   };
 
@@ -881,6 +888,7 @@ export default function ReportPage() {
         onShare={() => setShowShareModal(true)}
         isSaving={isSaving}
         isExporting={isExportingPDF}
+        exportProgress={exportProgress}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
       >

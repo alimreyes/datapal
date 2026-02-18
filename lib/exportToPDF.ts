@@ -81,7 +81,6 @@ function sanitizeColorsForHtml2Canvas(clonedDoc: Document) {
       try {
         const bg = computed.getPropertyValue('background');
         if (bg && (bg.includes('lab(') || bg.includes('oklch('))) {
-          // For gradients with lab() colors, replace with solid background-color
           const bgColor = computed.getPropertyValue('background-color');
           if (bgColor) {
             el.style.setProperty('background', resolveColor(bgColor), 'important');
@@ -103,7 +102,7 @@ function sanitizeColorsForHtml2Canvas(clonedDoc: Document) {
  */
 async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> {
   const options: Record<string, unknown> = {
-    scale: 2,
+    scale: 3, // Alta resolución para PDFs nítidos
     useCORS: true,
     logging: false,
     backgroundColor: '#11120D',
@@ -126,40 +125,52 @@ async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> 
 }
 
 /**
- * Agrega un header con branding DataPal a una página del PDF
+ * Agrega un header profesional al PDF con branding DataPal
  */
 function addPDFHeader(pdf: jsPDF, title: string, pageLabel: string) {
   const pdfWidth = pdf.internal.pageSize.getWidth();
 
   // Fondo del header
   pdf.setFillColor(17, 18, 13); // #11120D
-  pdf.rect(0, 0, pdfWidth, 18, 'F');
+  pdf.rect(0, 0, pdfWidth, 20, 'F');
 
   // Línea accent debajo del header
   pdf.setDrawColor(1, 155, 119); // #019B77
-  pdf.setLineWidth(0.5);
-  pdf.line(10, 18, pdfWidth - 10, 18);
+  pdf.setLineWidth(0.6);
+  pdf.line(10, 20, pdfWidth - 10, 20);
 
-  // Título del reporte
+  // DataPal branding (izquierda superior)
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(9);
+  pdf.setTextColor(1, 155, 119); // #019B77
+  pdf.text('DataPal', 10, 8);
+
+  // Título del reporte (izquierda inferior)
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(12);
   pdf.setTextColor(251, 254, 242); // #FBFEF2
-  pdf.text(title, 10, 10);
+  pdf.text(title, 10, 16);
 
-  // Label de página (ej: "Hoja 1 de 2")
+  // Label de página (derecha superior)
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(8);
   pdf.setTextColor(182, 182, 182); // #B6B6B6
-  pdf.text(pageLabel, pdfWidth - 10, 10, { align: 'right' });
+  pdf.text(pageLabel, pdfWidth - 10, 8, { align: 'right' });
 
-  // "DataPal" branding
-  pdf.setFontSize(8);
-  pdf.setTextColor(1, 155, 119); // #019B77
-  pdf.text('DataPal', pdfWidth - 10, 15, { align: 'right' });
+  // Fecha (derecha inferior del header)
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('es-CL', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+  pdf.setFontSize(7);
+  pdf.setTextColor(182, 182, 182);
+  pdf.text(dateStr, pdfWidth - 10, 16, { align: 'right' });
 }
 
 /**
- * Agrega un footer a una página del PDF
+ * Agrega un footer al PDF
  */
 function addPDFFooter(pdf: jsPDF) {
   const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -170,18 +181,22 @@ function addPDFFooter(pdf: jsPDF) {
   pdf.setLineWidth(0.3);
   pdf.line(10, pdfHeight - 12, pdfWidth - 10, pdfHeight - 12);
 
-  // Fecha de generación
+  // Fecha y hora de generación
   const now = new Date();
   const dateStr = now.toLocaleDateString('es-CL', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   });
+  const timeStr = now.toLocaleTimeString('es-CL', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(7);
   pdf.setTextColor(182, 182, 182);
-  pdf.text(`Generado el ${dateStr}`, 10, pdfHeight - 7);
+  pdf.text(`Generado el ${dateStr} a las ${timeStr}`, 10, pdfHeight - 7);
 
   // Branding
   pdf.setTextColor(1, 155, 119);
@@ -191,38 +206,61 @@ function addPDFFooter(pdf: jsPDF) {
 }
 
 /**
+ * Callback para reportar progreso durante la exportación
+ */
+export interface ExportProgress {
+  step: number;
+  totalSteps: number;
+  message: string;
+}
+
+/**
  * Exporta el reporte completo a PDF capturando ambas hojas.
  *
  * @param reportTitle - Título del reporte para el nombre del archivo y headers
  * @param onPageChange - Callback para cambiar la página visible del reporte
  * @param currentPage - Página actualmente visible (0 o 1)
  * @param totalPages - Total de páginas del reporte (default 2)
+ * @param options - Opciones adicionales (progreso, etc.)
  */
 export async function exportReportToPDF(
   reportTitle: string,
   onPageChange: (page: number) => void,
   currentPage: number,
   totalPages: number = 2,
+  options?: {
+    onProgress?: (progress: ExportProgress) => void;
+  },
 ): Promise<boolean> {
   const originalPage = currentPage;
+  const onProgress = options?.onProgress;
+  const totalSteps = totalPages + 2; // init + pages + save
 
   try {
+    onProgress?.({ step: 0, totalSteps, message: 'Preparando exportación...' });
+
     const pdf = new jsPDF('landscape', 'mm', 'a4');
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    const headerHeight = 22; // mm reservados para header
+    const headerHeight = 24; // mm reservados para header
     const footerHeight = 15; // mm reservados para footer
     const contentHeight = pdfHeight - headerHeight - footerHeight;
-    const margin = 6; // mm de margen lateral
+    const margin = 5; // mm de margen lateral
 
     // Capturar cada página del reporte
     for (let page = 0; page < totalPages; page++) {
+      onProgress?.({
+        step: page + 1,
+        totalSteps,
+        message: `Capturando hoja ${page + 1} de ${totalPages}...`,
+      });
+
       // Cambiar a la página correspondiente
       onPageChange(page);
 
       // Esperar a que React renderice la nueva página y los charts se dibujen
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1800));
 
       const dashboardElement = document.getElementById('dashboard-content');
       if (!dashboardElement) {
@@ -260,13 +298,19 @@ export async function exportReportToPDF(
 
       // Centrar la imagen horizontalmente
       const imgX = (pdfWidth - imgWidth) / 2;
-      const imgY = headerHeight + 2;
+      const imgY = headerHeight;
 
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
 
       // Footer
       addPDFFooter(pdf);
     }
+
+    onProgress?.({
+      step: totalSteps - 1,
+      totalSteps,
+      message: 'Generando archivo PDF...',
+    });
 
     // Metadatos del PDF
     pdf.setProperties({
@@ -291,6 +335,12 @@ export async function exportReportToPDF(
 
     // Restaurar la página original
     onPageChange(originalPage);
+
+    onProgress?.({
+      step: totalSteps,
+      totalSteps,
+      message: '¡PDF descargado exitosamente!',
+    });
 
     return true;
   } catch (error) {
@@ -334,8 +384,8 @@ export async function exportDashboardToPDF(
     // Imagen del contenido
     const imgData = canvas.toDataURL('image/png');
     const imgAspect = canvas.width / canvas.height;
-    const margin = 6;
-    const headerHeight = 22;
+    const margin = 5;
+    const headerHeight = 24;
     const footerHeight = 15;
     const contentHeight = pdfHeight - headerHeight - footerHeight;
     const availableWidth = pdfWidth - margin * 2;
@@ -349,7 +399,7 @@ export async function exportDashboardToPDF(
     }
 
     const imgX = (pdfWidth - imgWidth) / 2;
-    pdf.addImage(imgData, 'PNG', imgX, headerHeight + 2, imgWidth, imgHeight);
+    pdf.addImage(imgData, 'PNG', imgX, headerHeight, imgWidth, imgHeight);
 
     // Metadatos
     pdf.setProperties({

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Trash2, Download, Loader2, Share2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Trash2, Download, Loader2, Share2, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import Link from 'next/link';
 import { LinkedInIcon } from '@/components/icons/PlatformIcons';
+import type { ExportProgress } from '@/lib/exportToPDF';
 
 interface ReportLayoutV2Props {
   reportTitle: string;
@@ -23,6 +24,7 @@ interface ReportLayoutV2Props {
   onShare?: () => void;
   isSaving?: boolean;
   isExporting?: boolean;
+  exportProgress?: ExportProgress | null;
   currentPage: number;
   onPageChange: (page: number) => void;
   children: React.ReactNode;
@@ -44,6 +46,7 @@ export default function ReportLayoutV2({
   onShare,
   isSaving = false,
   isExporting = false,
+  exportProgress,
   currentPage,
   onPageChange,
   children,
@@ -215,12 +218,21 @@ export default function ReportLayoutV2({
                 disabled={isExporting}
                 size="sm"
                 variant="outline"
-                className="border-[#019B77]/50 text-[#019B77] hover:bg-[#019B77]/10 hover:text-[#02c494]"
+                className={`border-[#019B77]/50 text-[#019B77] hover:bg-[#019B77]/10 hover:text-[#02c494] transition-all ${
+                  exportProgress && exportProgress.step === exportProgress.totalSteps
+                    ? 'border-green-500/50 text-green-400'
+                    : ''
+                }`}
               >
-                {isExporting ? (
+                {isExporting && exportProgress ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                    Generando...
+                    {exportProgress.message}
+                  </>
+                ) : exportProgress && exportProgress.step === exportProgress.totalSteps ? (
+                  <>
+                    <CheckCircle2 className="w-4 h-4 mr-1" />
+                    ¡Descargado!
                   </>
                 ) : (
                   <>
@@ -296,6 +308,35 @@ export default function ReportLayoutV2({
           </div>
         </div>
       </div>
+
+      {/* EXPORT PROGRESS OVERLAY */}
+      {isExporting && exportProgress && (
+        <div className="fixed inset-0 z-50 bg-[#11120D]/80 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+            <div className="mb-6">
+              <Loader2 className="w-10 h-10 text-[#019B77] animate-spin mx-auto" />
+            </div>
+            <h3 className="text-lg font-bold text-[#FBFEF2] mb-2 font-[var(--font-roboto-mono)]">
+              Exportando PDF
+            </h3>
+            <p className="text-sm text-[#B6B6B6] mb-4">
+              {exportProgress.message}
+            </p>
+            {/* Progress bar */}
+            <div className="w-full bg-[#11120D] rounded-full h-2 overflow-hidden">
+              <div
+                className="h-full bg-[#019B77] rounded-full transition-all duration-500 ease-out"
+                style={{
+                  width: `${Math.round((exportProgress.step / exportProgress.totalSteps) * 100)}%`,
+                }}
+              />
+            </div>
+            <p className="text-xs text-[#B6B6B6] mt-2">
+              Paso {exportProgress.step} de {exportProgress.totalSteps}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* CONTENIDO */}
       <div className="relative">
