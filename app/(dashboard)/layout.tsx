@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileText, BookOpen } from 'lucide-react';
+import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileText, BookOpen, Plug } from 'lucide-react';
 import UserMenu from '@/components/auth/UserMenu';
 import { useAuth } from '@/lib/hooks/useAuth';
 import DemoPopup from '@/components/demo/DemoPopup';
@@ -98,6 +98,12 @@ export default function DashboardLayout({
                   Dashboard
                 </span>
               </Link>
+              <Link href="/integrations">
+                <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
+                  <Plug className="w-4 h-4" />
+                  Integraciones
+                </span>
+              </Link>
               <Link href="/faq">
                 <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
                   <HelpCircle className="w-4 h-4" />
@@ -150,6 +156,14 @@ export default function DashboardLayout({
               >
                 <LayoutDashboard className="w-4 h-4 text-[#019B77]" />
                 <span className="text-sm">Dashboard</span>
+              </Link>
+              <Link
+                href="/integrations"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <Plug className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Integraciones</span>
               </Link>
               <Link
                 href="/demo"

@@ -56,11 +56,18 @@ export default function DashboardFooter({ isAuthenticated = false }: DashboardFo
                 </li>
               )}
               {isAuthenticated && (
-                <li>
-                  <Link href="/faq" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
-                    Preguntas frecuentes
-                  </Link>
-                </li>
+                <>
+                  <li>
+                    <Link href="/integrations" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                      Integraciones
+                    </Link>
+                  </li>
+                  <li>
+                    <Link href="/faq" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                      Preguntas frecuentes
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </div>
