@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Menu, X, HelpCircle, BarChart3, Sparkles, DollarSign, Play, Instagram, Facebook, Linkedin } from 'lucide-react';
+import { Menu, X, HelpCircle, BarChart3, Sparkles, DollarSign, Play, Instagram, Facebook, Linkedin, BookOpen } from 'lucide-react';
 
 export default function LandingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -39,6 +39,11 @@ export default function LandingNav() {
             <Link href="/pricing">
               <Button variant="ghost" size="sm" className="text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16]">
                 Precios
+              </Button>
+            </Link>
+            <Link href="/blog">
+              <Button variant="ghost" size="sm" className="text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16]">
+                Blog
               </Button>
             </Link>
             <Link href="/#faq">
@@ -99,6 +104,14 @@ export default function LandingNav() {
             >
               <DollarSign className="w-4 h-4 text-[#019B77]" />
               <span className="text-sm">Precios</span>
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+            >
+              <BookOpen className="w-4 h-4 text-[#019B77]" />
+              <span className="text-sm">Blog</span>
             </Link>
             <Link
               href="/#faq"

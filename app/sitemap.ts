@@ -1,9 +1,18 @@
 import { MetadataRoute } from 'next';
+import { getAllPosts } from '@/lib/blog/posts';
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://datapal.vercel.app';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const currentDate = new Date();
+
+  // Get all blog posts for dynamic sitemap entries
+  const blogPosts = getAllPosts().map((post) => ({
+    url: `${APP_URL}/blog/${post.slug}`,
+    lastModified: new Date(post.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }));
 
   return [
     {
@@ -54,6 +63,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    // Blog
+    {
+      url: `${APP_URL}/blog`,
+      lastModified: currentDate,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    ...blogPosts,
     // Platform pages — SEO long-tail
     {
       url: `${APP_URL}/plataformas/instagram`,

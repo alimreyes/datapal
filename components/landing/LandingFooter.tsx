@@ -40,6 +40,11 @@ export default function LandingFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/blog" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href="/register" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
                   Crear cuenta gratis
                 </Link>
