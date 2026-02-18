@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { generateInsights } from '@/lib/anthropic/insights';
 
 const FREE_AI_LIMIT = 10;
@@ -20,11 +20,12 @@ export async function POST(request: NextRequest) {
 
     // If user is authenticated, check AI usage limits
     if (userId) {
-      const userDocRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userDocRef);
+      const adminDb = getAdminDb();
+      const userDocRef = adminDb.collection('users').doc(userId);
+      const userDoc = await userDocRef.get();
 
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
+      if (userDoc.exists) {
+        const userData = userDoc.data()!;
         const subscription = userData.subscription || 'free';
 
         // Check limits only for free users
@@ -37,9 +38,9 @@ export async function POST(request: NextRequest) {
           // Reset if new month
           if (resetDate && (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear())) {
             aiUsageCount = 0;
-            await updateDoc(userDocRef, {
+            await userDocRef.update({
               aiUsageCount: 0,
-              aiUsageResetDate: serverTimestamp(),
+              aiUsageResetDate: FieldValue.serverTimestamp(),
             });
           }
 
@@ -57,9 +58,9 @@ export async function POST(request: NextRequest) {
           }
 
           // Increment usage BEFORE generating (to prevent race conditions)
-          await updateDoc(userDocRef, {
-            aiUsageCount: increment(1),
-            lastAIUsage: serverTimestamp(),
+          await userDocRef.update({
+            aiUsageCount: FieldValue.increment(1),
+            lastAIUsage: FieldValue.serverTimestamp(),
           });
         }
       }
@@ -87,10 +88,11 @@ export async function POST(request: NextRequest) {
     // Get updated usage count
     let remaining = FREE_AI_LIMIT;
     if (userId) {
-      const userDocRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
+      const adminDb = getAdminDb();
+      const userDocRef = adminDb.collection('users').doc(userId);
+      const userDoc = await userDocRef.get();
+      if (userDoc.exists) {
+        const userData = userDoc.data()!;
         if (userData.subscription === 'free') {
           remaining = Math.max(0, FREE_AI_LIMIT - (userData.aiUsageCount || 0));
         } else {

@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { exchangeCodeForTokens } from '@/lib/google-analytics/oauth';
 import { GADataClient } from '@/lib/google-analytics/client';
-import { db } from '@/lib/firebase/config';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
 
 /**
  * GET /api/ga/callback
@@ -39,10 +38,11 @@ export async function GET(request: NextRequest) {
     const client = new GADataClient(tokens.access_token, tokens.refresh_token);
     const properties = await client.listProperties();
 
-    // Store tokens in Firestore (encrypted storage would be better for production)
-    const userGARef = doc(db, 'users', userId, 'integrations', 'google_analytics');
+    // Store tokens in Firestore
+    const adminDb = getAdminDb();
+    const userGARef = adminDb.collection('users').doc(userId).collection('integrations').doc('google_analytics');
 
-    await setDoc(userGARef, {
+    await userGARef.set({
       connected: true,
       accessToken: tokens.access_token,
       refreshToken: tokens.refresh_token || null,

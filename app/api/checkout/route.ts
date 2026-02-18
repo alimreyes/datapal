@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ordersController, PLANS, PlanId } from '@/lib/paypal/config';
 import { CheckoutPaymentIntent, OrderRequest, OrderApplicationContextLandingPage, OrderApplicationContextUserAction } from '@paypal/paypal-server-sdk';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
 
 // Rate limiting for checkout creation
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -70,10 +69,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify user exists in database
-    const userDocRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
+    const adminDb = getAdminDb();
+    const userDoc = await adminDb.collection('users').doc(userId).get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       console.warn(`Checkout attempt for non-existent user: ${userId}`);
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already has an active subscription
-    const userData = userDoc.data();
+    const userData = userDoc.data()!;
     if (userData?.subscription === planId && userData?.subscriptionStatus === 'active') {
       return NextResponse.json(
         { error: 'Ya tienes este plan activo' },

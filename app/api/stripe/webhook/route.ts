@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe/config';
-import { db } from '@/lib/firebase/config';
-import { doc, updateDoc, increment, getDoc, setDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import Stripe from 'stripe';
 
 export async function POST(req: NextRequest) {
@@ -38,13 +38,13 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      // Actualizar tokens del usuario en Firestore
-      const userRef = doc(db, 'users', userId);
-      const userDoc = await getDoc(userRef);
+      const adminDb = getAdminDb();
+      const userRef = adminDb.collection('users').doc(userId);
+      const userDoc = await userRef.get();
 
-      if (!userDoc.exists()) {
+      if (!userDoc.exists) {
         // Si el usuario no existe, crearlo con tokens iniciales
-        await setDoc(userRef, {
+        await userRef.set({
           aiTokens: tokens,
           aiTokensPurchased: tokens,
           lastTokenPurchase: new Date().toISOString(),
@@ -52,17 +52,16 @@ export async function POST(req: NextRequest) {
         }, { merge: true });
       } else {
         // Si existe, incrementar los tokens
-        await updateDoc(userRef, {
-          aiTokens: increment(tokens),
-          aiTokensPurchased: increment(tokens),
+        await userRef.update({
+          aiTokens: FieldValue.increment(tokens),
+          aiTokensPurchased: FieldValue.increment(tokens),
           lastTokenPurchase: new Date().toISOString(),
           stripeCustomerId: session.customer as string,
         });
       }
 
       // Registrar la transacción
-      const transactionRef = doc(db, 'transactions', session.id);
-      await setDoc(transactionRef, {
+      await adminDb.collection('transactions').doc(session.id).set({
         userId,
         sessionId: session.id,
         tokens,
@@ -73,7 +72,7 @@ export async function POST(req: NextRequest) {
         productType: session.metadata?.productType,
       });
 
-      console.log(`✅ Successfully added ${tokens} tokens to user ${userId}`);
+      console.log(`Successfully added ${tokens} tokens to user ${userId}`);
     } catch (error) {
       console.error('Error updating user tokens:', error);
       return NextResponse.json({ error: 'Database error' }, { status: 500 });

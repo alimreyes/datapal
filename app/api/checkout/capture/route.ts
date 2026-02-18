@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ordersController, PLANS, PlanId } from '@/lib/paypal/config';
-import { doc, updateDoc, serverTimestamp, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { OrderCaptureRequest } from '@paypal/paypal-server-sdk';
 
 // In-memory store for processed payments (in production, use Redis/DB)
@@ -208,11 +208,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify user exists before updating
-    const userDocRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
+    const adminDb = getAdminDb();
 
-    if (!userDoc.exists()) {
+    // Verify user exists before updating
+    const userDocRef = adminDb.collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
+
+    if (!userDoc.exists) {
       console.error(`User ${userId} not found in database`);
       return NextResponse.json(
         { error: 'Usuario no encontrado' },
@@ -221,21 +223,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Update user subscription in Firestore
-    await updateDoc(userDocRef, {
+    await userDocRef.update({
       subscription: planId,
-      subscriptionStartDate: serverTimestamp(),
+      subscriptionStartDate: FieldValue.serverTimestamp(),
       subscriptionPaymentId: orderId,
       subscriptionStatus: 'active',
       paypalPayerId: captureData.payer?.payerId,
       // Reset AI usage for new subscribers
       aiUsageCount: 0,
-      aiUsageResetDate: serverTimestamp(),
-      updatedAt: serverTimestamp(),
+      aiUsageResetDate: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
     });
 
     // Store payment record for audit trail
-    const paymentRef = doc(db, 'payments', orderId);
-    await setDoc(paymentRef, {
+    await adminDb.collection('payments').doc(orderId).set({
       orderId,
       userId,
       planId,
@@ -244,7 +245,7 @@ export async function POST(request: NextRequest) {
       status: 'COMPLETED',
       payerId: captureData.payer?.payerId,
       payerEmail: captureData.payer?.emailAddress,
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
     });
 
     console.log(`User ${userId} upgraded to ${planId} plan via PayPal`);

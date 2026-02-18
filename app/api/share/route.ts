@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, setDoc, getDocs, collection, query, where, updateDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
@@ -15,30 +15,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'reportId requerido' }, { status: 400 });
     }
 
-    // Verify report belongs to user
-    const reportRef = doc(db, 'reports', reportId);
-    const reportSnap = await getDoc(reportRef);
+    const adminDb = getAdminDb();
 
-    if (!reportSnap.exists()) {
+    // Verify report belongs to user
+    const reportSnap = await adminDb.collection('reports').doc(reportId).get();
+
+    if (!reportSnap.exists) {
       return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
     }
 
-    const reportData = reportSnap.data();
+    const reportData = reportSnap.data()!;
     if (reportData.userId !== userId) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 403 });
     }
 
     // Check if active link already exists for this report
-    const existingQuery = query(
-      collection(db, 'shared_links'),
-      where('reportId', '==', reportId),
-      where('isActive', '==', true)
-    );
-    const existingSnap = await getDocs(existingQuery);
+    const existingSnap = await adminDb.collection('shared_links')
+      .where('reportId', '==', reportId)
+      .where('isActive', '==', true)
+      .get();
 
     if (!existingSnap.empty) {
-      const existingDoc = existingSnap.docs[0];
-      const existingData = existingDoc.data();
+      const existingData = existingSnap.docs[0].data();
       const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'https://datapal.vercel.app'}/share/${existingData.token}`;
 
       return NextResponse.json({
@@ -52,11 +50,11 @@ export async function POST(request: NextRequest) {
     const token = randomUUID();
     const shareDocId = `share_${token}`;
 
-    await setDoc(doc(db, 'shared_links', shareDocId), {
+    await adminDb.collection('shared_links').doc(shareDocId).set({
       token,
       reportId,
       createdBy: userId,
-      createdAt: serverTimestamp(),
+      createdAt: FieldValue.serverTimestamp(),
       expiresAt: null,
       isActive: true,
       accessCount: 0,
@@ -84,14 +82,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'reportId requerido' }, { status: 400 });
     }
 
+    const adminDb = getAdminDb();
+
     // Find active link for this report
-    const activeQuery = query(
-      collection(db, 'shared_links'),
-      where('reportId', '==', reportId),
-      where('createdBy', '==', userId),
-      where('isActive', '==', true)
-    );
-    const activeSnap = await getDocs(activeQuery);
+    const activeSnap = await adminDb.collection('shared_links')
+      .where('reportId', '==', reportId)
+      .where('createdBy', '==', userId)
+      .where('isActive', '==', true)
+      .get();
 
     if (activeSnap.empty) {
       return NextResponse.json({ error: 'No hay link activo' }, { status: 404 });
@@ -99,7 +97,7 @@ export async function DELETE(request: NextRequest) {
 
     // Deactivate all active links for this report
     for (const docSnap of activeSnap.docs) {
-      await updateDoc(docSnap.ref, { isActive: false });
+      await docSnap.ref.update({ isActive: false });
     }
 
     return NextResponse.json({ success: true });

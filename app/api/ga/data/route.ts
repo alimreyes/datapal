@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GADataClient } from '@/lib/google-analytics/client';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { refreshAccessToken } from '@/lib/google-analytics/oauth';
 import { GADateRange } from '@/lib/google-analytics/types';
 
@@ -22,18 +21,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get stored tokens
-    const userGARef = doc(db, 'users', userId, 'integrations', 'google_analytics');
-    const gaDoc = await getDoc(userGARef);
+    const adminDb = getAdminDb();
+    const userGARef = adminDb.collection('users').doc(userId).collection('integrations').doc('google_analytics');
+    const gaDoc = await userGARef.get();
 
-    if (!gaDoc.exists() || !gaDoc.data()?.connected) {
+    if (!gaDoc.exists || !gaDoc.data()?.connected) {
       return NextResponse.json(
         { error: 'Google Analytics not connected', connected: false },
         { status: 401 }
       );
     }
 
-    const gaData = gaDoc.data();
+    const gaData = gaDoc.data()!;
     let accessToken = gaData.accessToken;
     const refreshToken = gaData.refreshToken;
 
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
         const newTokens = await refreshAccessToken(refreshToken);
         accessToken = newTokens.access_token;
 
-        await updateDoc(userGARef, {
+        await userGARef.update({
           accessToken: newTokens.access_token,
           refreshToken: newTokens.refresh_token || refreshToken,
           expiresAt: newTokens.expiry_date || null,
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
 
     // Create client and fetch data
     const client = new GADataClient(accessToken, refreshToken, async (tokens) => {
-      await updateDoc(userGARef, {
+      await userGARef.update({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token || refreshToken,
       });

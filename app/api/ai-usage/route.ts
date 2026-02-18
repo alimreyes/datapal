@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 const FREE_AI_LIMIT = 10;
 
@@ -16,17 +16,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const userDocRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
+    const adminDb = getAdminDb();
+    const userDocRef = adminDb.collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       return NextResponse.json(
         { error: 'Usuario no encontrado', canUse: false, remaining: 0 },
         { status: 404 }
       );
     }
 
-    const userData = userDoc.data();
+    const userData = userDoc.data()!;
     const subscription = userData.subscription || 'free';
 
     // Pro/Enterprise users have unlimited access
@@ -47,9 +48,9 @@ export async function GET(request: NextRequest) {
     // Reset if new month
     if (resetDate && (now.getMonth() !== resetDate.getMonth() || now.getFullYear() !== resetDate.getFullYear())) {
       aiUsageCount = 0;
-      await updateDoc(userDocRef, {
+      await userDocRef.update({
         aiUsageCount: 0,
-        aiUsageResetDate: serverTimestamp(),
+        aiUsageResetDate: FieldValue.serverTimestamp(),
       });
     }
 
@@ -84,17 +85,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const userDocRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
+    const adminDb = getAdminDb();
+    const userDocRef = adminDb.collection('users').doc(userId);
+    const userDoc = await userDocRef.get();
 
-    if (!userDoc.exists()) {
+    if (!userDoc.exists) {
       return NextResponse.json(
         { error: 'Usuario no encontrado', success: false },
         { status: 404 }
       );
     }
 
-    const userData = userDoc.data();
+    const userData = userDoc.data()!;
     const subscription = userData.subscription || 'free';
 
     // Pro/Enterprise users don't need to track usage
@@ -122,9 +124,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Increment usage
-    await updateDoc(userDocRef, {
-      aiUsageCount: increment(1),
-      lastAIUsage: serverTimestamp(),
+    await userDocRef.update({
+      aiUsageCount: FieldValue.increment(1),
+      lastAIUsage: FieldValue.serverTimestamp(),
     });
 
     const newUsage = aiUsageCount + 1;

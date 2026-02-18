@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GADataClient } from '@/lib/google-analytics/client';
-import { db } from '@/lib/firebase/config';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { refreshAccessToken } from '@/lib/google-analytics/oauth';
 
 /**
@@ -21,18 +20,18 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get stored tokens
-    const userGARef = doc(db, 'users', userId, 'integrations', 'google_analytics');
-    const gaDoc = await getDoc(userGARef);
+    const adminDb = getAdminDb();
+    const userGARef = adminDb.collection('users').doc(userId).collection('integrations').doc('google_analytics');
+    const gaDoc = await userGARef.get();
 
-    if (!gaDoc.exists() || !gaDoc.data()?.connected) {
+    if (!gaDoc.exists || !gaDoc.data()?.connected) {
       return NextResponse.json(
         { error: 'Google Analytics not connected', connected: false },
         { status: 401 }
       );
     }
 
-    const gaData = gaDoc.data();
+    const gaData = gaDoc.data()!;
     let accessToken = gaData.accessToken;
     const refreshToken = gaData.refreshToken;
 
@@ -50,7 +49,7 @@ export async function GET(request: NextRequest) {
         accessToken = newTokens.access_token;
 
         // Update stored tokens
-        await updateDoc(userGARef, {
+        await userGARef.update({
           accessToken: newTokens.access_token,
           refreshToken: newTokens.refresh_token || refreshToken,
           expiresAt: newTokens.expiry_date || null,
@@ -66,7 +65,7 @@ export async function GET(request: NextRequest) {
     // Fetch fresh list of properties
     const client = new GADataClient(accessToken, refreshToken, async (tokens) => {
       // Update tokens if refreshed
-      await updateDoc(userGARef, {
+      await userGARef.update({
         accessToken: tokens.access_token,
         refreshToken: tokens.refresh_token || refreshToken,
       });
@@ -75,7 +74,7 @@ export async function GET(request: NextRequest) {
     const properties = await client.listProperties();
 
     // Update cached properties
-    await updateDoc(userGARef, {
+    await userGARef.update({
       properties: properties.map(p => ({
         propertyId: p.propertyId,
         displayName: p.displayName,

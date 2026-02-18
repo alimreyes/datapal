@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/firebase/config';
-import { doc, deleteDoc, getDoc } from 'firebase/firestore';
+import { getAdminDb } from '@/lib/firebase/admin';
 import { revokeToken } from '@/lib/google-analytics/oauth';
 
 /**
@@ -20,12 +19,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get stored tokens to revoke
-    const userGARef = doc(db, 'users', userId, 'integrations', 'google_analytics');
-    const gaDoc = await getDoc(userGARef);
+    const adminDb = getAdminDb();
+    const userGARef = adminDb.collection('users').doc(userId).collection('integrations').doc('google_analytics');
+    const gaDoc = await userGARef.get();
 
-    if (gaDoc.exists()) {
-      const gaData = gaDoc.data();
+    if (gaDoc.exists) {
+      const gaData = gaDoc.data()!;
 
       // Try to revoke the access token (best effort)
       if (gaData.accessToken) {
@@ -38,7 +37,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Delete the integration document
-      await deleteDoc(userGARef);
+      await userGARef.delete();
     }
 
     return NextResponse.json({ success: true });

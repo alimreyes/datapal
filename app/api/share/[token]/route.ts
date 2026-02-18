@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { doc, getDoc, getDocs, collection, query, where, updateDoc, increment } from 'firebase/firestore';
-import { db } from '@/lib/firebase/config';
+import { getAdminDb } from '@/lib/firebase/admin';
+import { FieldValue } from 'firebase-admin/firestore';
 
 export async function GET(
   request: NextRequest,
@@ -13,12 +13,12 @@ export async function GET(
       return NextResponse.json({ error: 'Token requerido' }, { status: 400 });
     }
 
+    const adminDb = getAdminDb();
+
     // Find share link by token
-    const shareQuery = query(
-      collection(db, 'shared_links'),
-      where('token', '==', token)
-    );
-    const shareSnap = await getDocs(shareQuery);
+    const shareSnap = await adminDb.collection('shared_links')
+      .where('token', '==', token)
+      .get();
 
     if (shareSnap.empty) {
       return NextResponse.json({ error: 'Link no encontrado' }, { status: 404 });
@@ -41,17 +41,16 @@ export async function GET(
     }
 
     // Get the report data
-    const reportRef = doc(db, 'reports', shareData.reportId);
-    const reportSnap = await getDoc(reportRef);
+    const reportSnap = await adminDb.collection('reports').doc(shareData.reportId).get();
 
-    if (!reportSnap.exists()) {
+    if (!reportSnap.exists) {
       return NextResponse.json({ error: 'Reporte no encontrado' }, { status: 404 });
     }
 
-    const reportData = reportSnap.data();
+    const reportData = reportSnap.data()!;
 
     // Increment access count
-    await updateDoc(shareDoc.ref, { accessCount: increment(1) });
+    await shareDoc.ref.update({ accessCount: FieldValue.increment(1) });
 
     // Return report data without sensitive fields
     return NextResponse.json({
