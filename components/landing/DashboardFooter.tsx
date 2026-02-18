@@ -43,6 +43,11 @@ export default function DashboardFooter({ isAuthenticated = false }: DashboardFo
                   Precios
                 </Link>
               </li>
+              <li>
+                <Link href="/blog" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">
+                  Blog
+                </Link>
+              </li>
               {!isAuthenticated && (
                 <li>
                   <Link href="/register" className="text-sm text-[#B6B6B6] hover:text-[#019B77] transition-colors">

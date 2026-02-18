@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileText } from 'lucide-react';
+import { Play, Sparkles, Menu, X, HelpCircle, DollarSign, LayoutDashboard, FileText, BookOpen } from 'lucide-react';
 import UserMenu from '@/components/auth/UserMenu';
 import { useAuth } from '@/lib/hooks/useAuth';
 import DemoPopup from '@/components/demo/DemoPopup';
@@ -110,6 +110,12 @@ export default function DashboardLayout({
                   Precios
                 </span>
               </Link>
+              <Link href="/blog">
+                <span className="inline-flex items-center gap-1.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] px-3 py-1.5 rounded-lg hover:bg-[#1a1b16] transition-colors cursor-pointer">
+                  <BookOpen className="w-4 h-4" />
+                  Blog
+                </span>
+              </Link>
               <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#019B77]/20 text-[#019B77] border border-[#019B77]/30">
                 MVP Beta
               </span>
@@ -160,6 +166,14 @@ export default function DashboardLayout({
               >
                 <DollarSign className="w-4 h-4 text-[#019B77]" />
                 <span className="text-sm">Precios</span>
+              </Link>
+              <Link
+                href="/blog"
+                onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#1a1b16] transition-colors"
+              >
+                <BookOpen className="w-4 h-4 text-[#019B77]" />
+                <span className="text-sm">Blog</span>
               </Link>
               <Link
                 href="/faq"
