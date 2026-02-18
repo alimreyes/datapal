@@ -24,7 +24,7 @@ export default function ReportPage() {
   const params = useParams();
   const router = useRouter();
   const reportId = params?.id as string;
-  const { user, canUseAI, aiUsageRemaining, refreshUserData } = useAuth();
+  const { user, userData, canUseAI, aiUsageRemaining, refreshUserData } = useAuth();
 
   const [loading, setLoading] = useState(true);
   const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
@@ -775,6 +775,7 @@ export default function ReportPage() {
         2,
         {
           onProgress: (progress) => setExportProgress(progress),
+          branding: userData?.branding,
         },
       );
     } catch (error) {

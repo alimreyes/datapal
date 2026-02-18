@@ -5,6 +5,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 import { loginWithGoogle, logout as firebaseLogout } from '@/lib/firebase/auth';
+import type { BrandingConfig } from '@/lib/types';
 
 // Límite de consultas gratuitas de IA
 const FREE_AI_LIMIT = 10;
@@ -22,6 +23,8 @@ interface UserData {
   subscriptionStartDate?: Date | null;
   subscriptionPaymentId?: string | null;
   subscriptionStatus?: 'active' | 'cancelled' | 'expired' | null;
+  // White-label branding (optional)
+  branding?: BrandingConfig;
 }
 
 interface AuthContextType {
@@ -34,6 +37,7 @@ interface AuthContextType {
   aiUsageRemaining: number;
   incrementAIUsage: () => Promise<boolean>;
   refreshUserData: () => Promise<void>;
+  updateBranding: (branding: BrandingConfig) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -78,6 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           subscriptionStartDate: data.subscriptionStartDate?.toDate() || null,
           subscriptionPaymentId: data.subscriptionPaymentId || null,
           subscriptionStatus: data.subscriptionStatus || null,
+          branding: data.branding || undefined,
         });
       } else {
         // Crear nuevo documento de usuario
@@ -105,6 +110,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           subscriptionStartDate: null,
           subscriptionPaymentId: null,
           subscriptionStatus: null,
+          branding: undefined,
         });
       }
     } catch (error) {
@@ -193,6 +199,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Actualizar configuración de branding
+  const updateBranding = async (branding: BrandingConfig): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, { branding });
+      setUserData(prev => prev ? { ...prev, branding } : null);
+      return true;
+    } catch (error) {
+      console.error('Error updating branding:', error);
+      return false;
+    }
+  };
+
   // Refrescar datos del usuario
   const refreshUserData = async () => {
     if (user) {
@@ -210,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     aiUsageRemaining: aiUsageRemaining(),
     incrementAIUsage,
     refreshUserData,
+    updateBranding,
   };
 
   return (

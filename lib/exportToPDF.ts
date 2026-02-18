@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import type { Report } from './types';
+import type { Report, BrandingConfig } from './types';
+import { DEFAULT_BRANDING } from './types';
 
 /**
  * Convierte un color CSS moderno (lab, oklch, oklab) a rgb usando un canvas temporal.
@@ -125,25 +126,38 @@ async function captureElement(element: HTMLElement): Promise<HTMLCanvasElement> 
 }
 
 /**
- * Agrega un header profesional al PDF con branding DataPal
+ * Convierte un color hex (#RRGGBB) a un array [r, g, b]
  */
-function addPDFHeader(pdf: jsPDF, title: string, pageLabel: string) {
+function hexToRgb(hex: string): [number, number, number] {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return [isNaN(r) ? 0 : r, isNaN(g) ? 0 : g, isNaN(b) ? 0 : b];
+}
+
+/**
+ * Agrega un header profesional al PDF con branding personalizable
+ */
+function addPDFHeader(pdf: jsPDF, title: string, pageLabel: string, branding?: BrandingConfig) {
+  const brand = branding || DEFAULT_BRANDING;
+  const [acR, acG, acB] = hexToRgb(brand.brandColor);
   const pdfWidth = pdf.internal.pageSize.getWidth();
 
   // Fondo del header
   pdf.setFillColor(17, 18, 13); // #11120D
   pdf.rect(0, 0, pdfWidth, 20, 'F');
 
-  // Línea accent debajo del header
-  pdf.setDrawColor(1, 155, 119); // #019B77
+  // Línea accent debajo del header (usa brand color)
+  pdf.setDrawColor(acR, acG, acB);
   pdf.setLineWidth(0.6);
   pdf.line(10, 20, pdfWidth - 10, 20);
 
-  // DataPal branding (izquierda superior)
+  // Company branding (izquierda superior)
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(9);
-  pdf.setTextColor(1, 155, 119); // #019B77
-  pdf.text('DataPal', 10, 8);
+  pdf.setTextColor(acR, acG, acB);
+  pdf.text(brand.companyName || 'DataPal', 10, 8);
 
   // Título del reporte (izquierda inferior)
   pdf.setFont('helvetica', 'bold');
@@ -170,14 +184,16 @@ function addPDFHeader(pdf: jsPDF, title: string, pageLabel: string) {
 }
 
 /**
- * Agrega un footer al PDF
+ * Agrega un footer al PDF con branding personalizable
  */
-function addPDFFooter(pdf: jsPDF) {
+function addPDFFooter(pdf: jsPDF, branding?: BrandingConfig) {
+  const brand = branding || DEFAULT_BRANDING;
+  const [acR, acG, acB] = hexToRgb(brand.brandColor);
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = pdf.internal.pageSize.getHeight();
 
-  // Línea separadora
-  pdf.setDrawColor(1, 155, 119); // #019B77
+  // Línea separadora (usa brand color)
+  pdf.setDrawColor(acR, acG, acB);
   pdf.setLineWidth(0.3);
   pdf.line(10, pdfHeight - 12, pdfWidth - 10, pdfHeight - 12);
 
@@ -198,9 +214,12 @@ function addPDFFooter(pdf: jsPDF) {
   pdf.setTextColor(182, 182, 182);
   pdf.text(`Generado el ${dateStr} a las ${timeStr}`, 10, pdfHeight - 7);
 
-  // Branding
-  pdf.setTextColor(1, 155, 119);
-  pdf.text('Generado con DataPal | datapal.vercel.app', pdfWidth - 10, pdfHeight - 7, {
+  // Branding footer (usa company name)
+  const footerBrand = brand.companyName !== 'DataPal'
+    ? `Generado con ${brand.companyName} · Powered by DataPal`
+    : 'Generado con DataPal | datapal.vercel.app';
+  pdf.setTextColor(acR, acG, acB);
+  pdf.text(footerBrand, pdfWidth - 10, pdfHeight - 7, {
     align: 'right',
   });
 }
@@ -230,10 +249,12 @@ export async function exportReportToPDF(
   totalPages: number = 2,
   options?: {
     onProgress?: (progress: ExportProgress) => void;
+    branding?: BrandingConfig;
   },
 ): Promise<boolean> {
   const originalPage = currentPage;
   const onProgress = options?.onProgress;
+  const branding = options?.branding;
   const totalSteps = totalPages + 2; // init + pages + save
 
   try {
@@ -280,7 +301,7 @@ export async function exportReportToPDF(
       pdf.rect(0, 0, pdfWidth, pdfHeight, 'F');
 
       // Header
-      addPDFHeader(pdf, reportTitle, `Hoja ${page + 1} de ${totalPages}`);
+      addPDFHeader(pdf, reportTitle, `Hoja ${page + 1} de ${totalPages}`, branding);
 
       // Calcular dimensiones de la imagen para que quepa en el área de contenido
       const imgData = canvas.toDataURL('image/png');
@@ -303,7 +324,7 @@ export async function exportReportToPDF(
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth, imgHeight);
 
       // Footer
-      addPDFFooter(pdf);
+      addPDFFooter(pdf, branding);
     }
 
     onProgress?.({
@@ -313,12 +334,13 @@ export async function exportReportToPDF(
     });
 
     // Metadatos del PDF
+    const authorName = branding?.companyName || 'DataPal';
     pdf.setProperties({
       title: reportTitle,
       subject: 'Reporte de Analytics de Redes Sociales',
-      author: 'DataPal',
+      author: authorName,
       keywords: 'analytics, redes sociales, instagram, facebook, linkedin, tiktok, datapal',
-      creator: 'DataPal - Reportes Automatizados',
+      creator: `${authorName} - Reportes Automatizados (Powered by DataPal)`,
     });
 
     // Generar nombre de archivo seguro

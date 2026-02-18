@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import {
@@ -15,12 +15,20 @@ import {
   Calendar,
   CheckCircle2,
   AlertTriangle,
-  ExternalLink
+  ExternalLink,
+  Palette,
+  Upload,
+  X,
+  Save,
+  Building2,
 } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { uploadClientLogo } from '@/lib/cloudinary/upload';
+import { DEFAULT_BRANDING, type BrandingConfig } from '@/lib/types';
 
 export default function SettingsPage() {
-  const { user, userData, signOut } = useAuth();
+  const { user, userData, signOut, updateBranding } = useAuth();
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -28,6 +36,15 @@ export default function SettingsPage() {
     marketing: false,
     updates: true,
   });
+
+  // Branding state
+  const [brandingForm, setBrandingForm] = useState<BrandingConfig>(
+    userData?.branding || { ...DEFAULT_BRANDING }
+  );
+  const [isSavingBranding, setIsSavingBranding] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
+  const [brandingSaved, setBrandingSaved] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   if (!user) {
     router.push('/dashboard');
@@ -247,6 +264,220 @@ export default function SettingsPage() {
                 className="w-5 h-5 rounded bg-[#11120D] border-[#B6B6B6]/30 text-[#019B77] focus:ring-[#019B77] focus:ring-offset-0"
               />
             </label>
+          </div>
+        </div>
+      </section>
+
+      {/* Brand Customization Section */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-[#FBFEF2] mb-4 flex items-center gap-2">
+          <Palette className="w-5 h-5 text-[#019B77]" />
+          Personalización de Marca
+        </h2>
+        <div className="bg-[#1a1b16] border border-[#B6B6B6]/20 rounded-xl p-6">
+          <p className="text-sm text-[#B6B6B6] mb-6">
+            Personaliza los reportes PDF con tu propia marca. El logo, nombre y colores se aplicarán al exportar.
+          </p>
+
+          {/* Company Name */}
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-[#FBFEF2] mb-2">
+              <Building2 className="w-4 h-4 inline mr-1.5 text-[#019B77]" />
+              Nombre de la empresa
+            </label>
+            <input
+              type="text"
+              value={brandingForm.companyName}
+              onChange={(e) => setBrandingForm({ ...brandingForm, companyName: e.target.value })}
+              placeholder="DataPal"
+              className="w-full px-4 py-2.5 bg-[#11120D] border border-[#B6B6B6]/20 rounded-lg text-[#FBFEF2] placeholder-[#B6B6B6]/50 focus:outline-none focus:border-[#019B77] transition-colors"
+            />
+          </div>
+
+          {/* Colors */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+            <div>
+              <label className="block text-sm font-medium text-[#FBFEF2] mb-2">
+                Color principal
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={brandingForm.brandColor}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, brandColor: e.target.value })}
+                  className="w-10 h-10 rounded-lg border border-[#B6B6B6]/20 cursor-pointer bg-transparent"
+                />
+                <input
+                  type="text"
+                  value={brandingForm.brandColor}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                      setBrandingForm({ ...brandingForm, brandColor: val });
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 bg-[#11120D] border border-[#B6B6B6]/20 rounded-lg text-[#FBFEF2] font-mono text-sm focus:outline-none focus:border-[#019B77] transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-[#FBFEF2] mb-2">
+                Color secundario
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="color"
+                  value={brandingForm.brandColorSecondary}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, brandColorSecondary: e.target.value })}
+                  className="w-10 h-10 rounded-lg border border-[#B6B6B6]/20 cursor-pointer bg-transparent"
+                />
+                <input
+                  type="text"
+                  value={brandingForm.brandColorSecondary}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (/^#[0-9A-Fa-f]{0,6}$/.test(val)) {
+                      setBrandingForm({ ...brandingForm, brandColorSecondary: val });
+                    }
+                  }}
+                  className="flex-1 px-3 py-2 bg-[#11120D] border border-[#B6B6B6]/20 rounded-lg text-[#FBFEF2] font-mono text-sm focus:outline-none focus:border-[#019B77] transition-colors"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Company Logo */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-[#FBFEF2] mb-2">
+              Logo de la empresa
+            </label>
+            <div className="flex items-center gap-4">
+              {brandingForm.companyLogoUrl ? (
+                <div className="relative w-16 h-16 rounded-lg border border-[#B6B6B6]/20 overflow-hidden bg-[#11120D] flex items-center justify-center">
+                  <Image
+                    src={brandingForm.companyLogoUrl}
+                    alt="Logo"
+                    width={64}
+                    height={64}
+                    className="object-contain"
+                  />
+                  <button
+                    onClick={() => setBrandingForm({ ...brandingForm, companyLogoUrl: null })}
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-lg border-2 border-dashed border-[#B6B6B6]/30 flex items-center justify-center bg-[#11120D]">
+                  <Building2 className="w-6 h-6 text-[#B6B6B6]/50" />
+                </div>
+              )}
+              <div>
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={isUploadingLogo}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#11120D] border border-[#B6B6B6]/20 rounded-lg text-sm text-[#FBFEF2] hover:border-[#019B77] transition-colors disabled:opacity-50"
+                >
+                  {isUploadingLogo ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#019B77] border-t-transparent" />
+                      Subiendo...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      Subir logo
+                    </>
+                  )}
+                </button>
+                <p className="text-xs text-[#B6B6B6] mt-1">PNG, JPG o SVG. Máx 2MB.</p>
+              </div>
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    alert('El archivo es muy grande. Máximo 2MB.');
+                    return;
+                  }
+                  setIsUploadingLogo(true);
+                  const { url, error } = await uploadClientLogo(file, 'branding');
+                  if (url) {
+                    setBrandingForm({ ...brandingForm, companyLogoUrl: url });
+                  } else {
+                    alert(error || 'Error al subir logo');
+                  }
+                  setIsUploadingLogo(false);
+                  e.target.value = '';
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Preview */}
+          <div className="mb-6 p-4 rounded-lg border border-[#B6B6B6]/10 bg-[#11120D]">
+            <p className="text-xs text-[#B6B6B6] mb-3 uppercase tracking-wider">Vista previa del header del PDF</p>
+            <div className="rounded-lg overflow-hidden" style={{ backgroundColor: '#11120D', border: `2px solid ${brandingForm.brandColor}` }}>
+              <div className="px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {brandingForm.companyLogoUrl ? (
+                    <Image src={brandingForm.companyLogoUrl} alt="Logo" width={24} height={24} className="object-contain" />
+                  ) : (
+                    <div className="w-6 h-6 rounded" style={{ backgroundColor: brandingForm.brandColor + '33' }}>
+                      <Building2 className="w-6 h-6 p-0.5" style={{ color: brandingForm.brandColor }} />
+                    </div>
+                  )}
+                  <span className="text-sm font-bold" style={{ color: brandingForm.brandColor }}>
+                    {brandingForm.companyName || 'DataPal'}
+                  </span>
+                </div>
+                <span className="text-xs text-[#B6B6B6]">Hoja 1 de 2</span>
+              </div>
+              <div className="h-0.5" style={{ backgroundColor: brandingForm.brandColor }} />
+              <div className="px-4 py-2 flex items-center justify-between">
+                <span className="text-xs font-medium text-[#FBFEF2]">Mi Reporte de Ejemplo</span>
+                <span className="text-[10px] text-[#B6B6B6]">{new Date().toLocaleDateString('es-CL', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Save / Reset buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={async () => {
+                setIsSavingBranding(true);
+                const success = await updateBranding(brandingForm);
+                setIsSavingBranding(false);
+                if (success) {
+                  setBrandingSaved(true);
+                  setTimeout(() => setBrandingSaved(false), 2500);
+                } else {
+                  alert('Error al guardar la configuración de marca');
+                }
+              }}
+              disabled={isSavingBranding}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#019B77] hover:bg-[#02c494] text-[#11120D] font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isSavingBranding ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#11120D] border-t-transparent" />
+              ) : brandingSaved ? (
+                <CheckCircle2 className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {brandingSaved ? '¡Guardado!' : 'Guardar marca'}
+            </button>
+            <button
+              onClick={() => setBrandingForm({ ...DEFAULT_BRANDING })}
+              className="px-4 py-2.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] border border-[#B6B6B6]/20 rounded-lg transition-colors"
+            >
+              Restaurar valores predeterminados
+            </button>
           </div>
         </div>
       </section>

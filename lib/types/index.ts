@@ -207,6 +207,22 @@ export interface ChartDataset {
   borderWidth?: number;
 }
 
+// ==================== BRANDING / WHITE-LABEL TYPES ====================
+
+export interface BrandingConfig {
+  companyName: string;
+  brandColor: string;         // Hex color principal (e.g., '#FF6B6B')
+  brandColorSecondary: string; // Hex color secundario/accent
+  companyLogoUrl: string | null; // URL del logo de la empresa
+}
+
+export const DEFAULT_BRANDING: BrandingConfig = {
+  companyName: 'DataPal',
+  brandColor: '#019B77',
+  brandColorSecondary: '#02c494',
+  companyLogoUrl: null,
+};
+
 // ==================== EXPORT TYPES ====================
 
 export type ExportFormat = 'pdf' | 'slides' | 'looker';
