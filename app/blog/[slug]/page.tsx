@@ -3,8 +3,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getPostBySlug, getAllPosts, getPostSlugs } from '@/lib/blog/posts';
-import LandingNav from '@/components/landing/LandingNav';
-import LandingFooter from '@/components/landing/LandingFooter';
 import { Calendar, Clock, ArrowLeft, ArrowRight, User } from 'lucide-react';
 import { MDXContent } from '@/components/blog/MDXContent';
 
@@ -95,15 +93,13 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#11120D] text-[#FBFEF2]">
-      <LandingNav />
-
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
       {/* Article */}
-      <article className="pt-32 pb-16 px-4">
+      <article className="pt-12 pb-16 px-4">
         <div className="max-w-3xl mx-auto">
           {/* Back link */}
           <Link
@@ -247,7 +243,6 @@ export default async function BlogPostPage({ params }: PageProps) {
         </section>
       )}
 
-      <LandingFooter />
     </div>
   );
 }

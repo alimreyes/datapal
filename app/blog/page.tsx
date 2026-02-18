@@ -2,8 +2,6 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getAllPosts, getAllCategories } from '@/lib/blog/posts';
-import LandingNav from '@/components/landing/LandingNav';
-import LandingFooter from '@/components/landing/LandingFooter';
 import { Calendar, Clock, ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
@@ -23,10 +21,8 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-[#11120D] text-[#FBFEF2]">
-      <LandingNav />
-
       {/* Hero */}
-      <section className="pt-32 pb-16 px-4">
+      <section className="pt-12 pb-16 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#019B77]/10 border border-[#019B77]/30 text-[#019B77] text-sm mb-6">
             <BookOpen className="w-4 h-4" />
@@ -206,7 +202,6 @@ export default function BlogPage() {
         </div>
       </section>
 
-      <LandingFooter />
     </div>
   );
 }

@@ -26,7 +26,7 @@ function DashboardContent() {
   useEffect(() => {
     if (searchParams.get('deleted') === '1') {
       toast('Reporte movido a la papelera', {
-        description: 'Puedes recuperarlo en Configuración → Papelera durante 7 días.',
+        description: 'Recupéralo o elimínalo definitivamente en Configuración → Papelera.',
         duration: 7000,
         action: {
           label: 'Ver papelera',

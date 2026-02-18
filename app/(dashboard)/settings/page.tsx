@@ -133,7 +133,7 @@ function TrashSection({ userId }: { userId: string }) {
                       disabled={actionLoading === report.id + '-delete'}
                       className="text-xs px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50"
                     >
-                      {actionLoading === report.id + '-delete' ? 'Eliminando...' : 'Eliminar'}
+                      {actionLoading === report.id + '-delete' ? 'Eliminando...' : 'Eliminar definitivamente'}
                     </button>
                   </div>
                 </div>
