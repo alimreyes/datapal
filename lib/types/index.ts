@@ -223,6 +223,48 @@ export const DEFAULT_BRANDING: BrandingConfig = {
   companyLogoUrl: null,
 };
 
+// ==================== MONITORING / AGENTIC TYPES ====================
+
+export type AlertSeverity = 'info' | 'warning' | 'critical';
+export type AlertMetric = 'reach' | 'impressions' | 'interactions' | 'followers';
+
+export interface MetricAlert {
+  id: string;
+  reportId: string;
+  reportTitle: string;
+  platform: Platform;
+  metric: AlertMetric;
+  severity: AlertSeverity;
+  message: string;
+  currentValue: number;
+  previousValue: number;
+  changePercent: number;
+  detectedAt: string; // ISO date
+  dismissed: boolean;
+}
+
+export interface MonitoringPreferences {
+  enabled: boolean;
+  thresholds: {
+    reachDrop: number;       // % caída de alcance para alerta (default 20)
+    interactionsDrop: number; // % caída de interacciones (default 25)
+    followersDrop: number;    // % caída de seguidores (default 10)
+    impressionsDrop: number;  // % caída de impresiones (default 20)
+    significantGrowth: number; // % crecimiento notable (default 30)
+  };
+}
+
+export const DEFAULT_MONITORING: MonitoringPreferences = {
+  enabled: true,
+  thresholds: {
+    reachDrop: 20,
+    interactionsDrop: 25,
+    followersDrop: 10,
+    impressionsDrop: 20,
+    significantGrowth: 30,
+  },
+};
+
 // ==================== EXPORT TYPES ====================
 
 export type ExportFormat = 'pdf' | 'slides' | 'looker';

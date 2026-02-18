@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileText, Calendar, ArrowRight, Sparkles, UserPlus, X } from 'lucide-react';
 import Link from 'next/link';
@@ -8,8 +8,10 @@ import { useRouter } from 'next/navigation';
 import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/lib/hooks/useAuth';
-import type { Report } from '@/lib/types';
+import type { Report, MetricAlert } from '@/lib/types';
 import GlowCard from '@/components/ui/GlowCard';
+import AlertsWidget from '@/components/dashboard/AlertsWidget';
+import { detectAnomalies, compareReports } from '@/lib/monitoring/anomalyDetector';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -68,6 +70,36 @@ export default function DashboardPage() {
     await logout();
     router.push('/register');
   };
+
+  // Calcular alertas de monitoreo basadas en los reportes
+  const alerts = useMemo<MetricAlert[]>(() => {
+    if (reports.length === 0) return [];
+
+    const allAlerts: MetricAlert[] = [];
+
+    // Analizar anomalías en el reporte más reciente
+    const latestReport = reports[0];
+    if (latestReport?.status === 'ready' && latestReport.data) {
+      allAlerts.push(...detectAnomalies(latestReport));
+    }
+
+    // Comparar los 2 reportes más recientes si existen
+    if (reports.length >= 2) {
+      const current = reports[0];
+      const previous = reports[1];
+      if (current?.status === 'ready' && previous?.status === 'ready' && current.data && previous.data) {
+        allAlerts.push(...compareReports(current, previous));
+      }
+    }
+
+    // Deduplicar por id
+    const seen = new Set<string>();
+    return allAlerts.filter((alert) => {
+      if (seen.has(alert.id)) return false;
+      seen.add(alert.id);
+      return true;
+    });
+  }, [reports]);
 
   const formatDate = (date: any) => {
     if (!date) return 'Fecha desconocida';
@@ -160,6 +192,11 @@ export default function DashboardPage() {
           </div>
         </GlowCard>
       </div>
+
+      {/* Monitoring Alerts */}
+      {!loading && reports.length > 0 && (
+        <AlertsWidget alerts={alerts} />
+      )}
 
       {/* Lista de Reportes o Empty State */}
       {loading ? (

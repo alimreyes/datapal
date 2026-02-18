@@ -5,7 +5,7 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, increment, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase/config';
 import { loginWithGoogle, logout as firebaseLogout } from '@/lib/firebase/auth';
-import type { BrandingConfig } from '@/lib/types';
+import type { BrandingConfig, MonitoringPreferences } from '@/lib/types';
 
 // Límite de consultas gratuitas de IA
 const FREE_AI_LIMIT = 10;
@@ -25,6 +25,8 @@ interface UserData {
   subscriptionStatus?: 'active' | 'cancelled' | 'expired' | null;
   // White-label branding (optional)
   branding?: BrandingConfig;
+  // Monitoring preferences (optional)
+  monitoring?: MonitoringPreferences;
 }
 
 interface AuthContextType {
@@ -38,6 +40,7 @@ interface AuthContextType {
   incrementAIUsage: () => Promise<boolean>;
   refreshUserData: () => Promise<void>;
   updateBranding: (branding: BrandingConfig) => Promise<boolean>;
+  updateMonitoring: (monitoring: MonitoringPreferences) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -83,6 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           subscriptionPaymentId: data.subscriptionPaymentId || null,
           subscriptionStatus: data.subscriptionStatus || null,
           branding: data.branding || undefined,
+          monitoring: data.monitoring || undefined,
         });
       } else {
         // Crear nuevo documento de usuario
@@ -111,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           subscriptionPaymentId: null,
           subscriptionStatus: null,
           branding: undefined,
+          monitoring: undefined,
         });
       }
     } catch (error) {
@@ -213,6 +218,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Actualizar configuración de monitoreo
+  const updateMonitoring = async (monitoring: MonitoringPreferences): Promise<boolean> => {
+    if (!user) return false;
+    try {
+      const userDocRef = doc(db, 'users', user.uid);
+      await updateDoc(userDocRef, { monitoring });
+      setUserData(prev => prev ? { ...prev, monitoring } : null);
+      return true;
+    } catch (error) {
+      console.error('Error updating monitoring:', error);
+      return false;
+    }
+  };
+
   // Refrescar datos del usuario
   const refreshUserData = async () => {
     if (user) {
@@ -231,6 +250,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     incrementAIUsage,
     refreshUserData,
     updateBranding,
+    updateMonitoring,
   };
 
   return (

@@ -25,10 +25,10 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { uploadClientLogo } from '@/lib/cloudinary/upload';
-import { DEFAULT_BRANDING, type BrandingConfig } from '@/lib/types';
+import { DEFAULT_BRANDING, DEFAULT_MONITORING, type BrandingConfig, type MonitoringPreferences } from '@/lib/types';
 
 export default function SettingsPage() {
-  const { user, userData, signOut, updateBranding } = useAuth();
+  const { user, userData, signOut, updateBranding, updateMonitoring } = useAuth();
   const router = useRouter();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [notifications, setNotifications] = useState({
@@ -45,6 +45,13 @@ export default function SettingsPage() {
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [brandingSaved, setBrandingSaved] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  // Monitoring state
+  const [monitoringForm, setMonitoringForm] = useState<MonitoringPreferences>(
+    userData?.monitoring || { ...DEFAULT_MONITORING }
+  );
+  const [isSavingMonitoring, setIsSavingMonitoring] = useState(false);
+  const [monitoringSaved, setMonitoringSaved] = useState(false);
 
   if (!user) {
     router.push('/dashboard');
@@ -474,6 +481,114 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={() => setBrandingForm({ ...DEFAULT_BRANDING })}
+              className="px-4 py-2.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] border border-[#B6B6B6]/20 rounded-lg transition-colors"
+            >
+              Restaurar valores predeterminados
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* Monitoring Section */}
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold text-[#FBFEF2] mb-4 flex items-center gap-2">
+          <Bell className="w-5 h-5 text-[#019B77]" />
+          Monitoreo Inteligente
+        </h2>
+        <div className="bg-[#1a1b16] border border-[#B6B6B6]/20 rounded-xl p-6">
+          <p className="text-sm text-[#B6B6B6] mb-6">
+            DataPal analiza tus reportes y te avisa cuando detecta caídas o crecimientos significativos en tus métricas.
+          </p>
+
+          {/* Enable toggle */}
+          <label className="flex items-center justify-between p-4 bg-[#11120D] rounded-lg border border-[#B6B6B6]/10 mb-5 cursor-pointer">
+            <div>
+              <span className="text-sm font-medium text-[#FBFEF2]">Activar monitoreo</span>
+              <p className="text-xs text-[#B6B6B6] mt-0.5">Muestra alertas en el dashboard cuando hay cambios importantes</p>
+            </div>
+            <input
+              type="checkbox"
+              checked={monitoringForm.enabled}
+              onChange={(e) => setMonitoringForm({ ...monitoringForm, enabled: e.target.checked })}
+              className="w-5 h-5 rounded bg-[#11120D] border-[#B6B6B6]/30 text-[#019B77] focus:ring-[#019B77] focus:ring-offset-0"
+            />
+          </label>
+
+          {monitoringForm.enabled && (
+            <>
+              <h4 className="text-sm font-medium text-[#FBFEF2] mb-3">Umbrales de alerta (%)</h4>
+              <p className="text-xs text-[#B6B6B6] mb-4">
+                Define el porcentaje mínimo de cambio para recibir una alerta. Valores más bajos = más alertas.
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                {[
+                  { key: 'reachDrop' as const, label: 'Caída de alcance', icon: '📉' },
+                  { key: 'impressionsDrop' as const, label: 'Caída de impresiones', icon: '📉' },
+                  { key: 'interactionsDrop' as const, label: 'Caída de interacciones', icon: '📉' },
+                  { key: 'followersDrop' as const, label: 'Caída de seguidores', icon: '📉' },
+                  { key: 'significantGrowth' as const, label: 'Crecimiento notable', icon: '📈' },
+                ].map(({ key, label, icon }) => (
+                  <div key={key}>
+                    <label className="block text-xs text-[#B6B6B6] mb-1.5">
+                      {icon} {label}
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="range"
+                        min={5}
+                        max={50}
+                        step={5}
+                        value={monitoringForm.thresholds[key]}
+                        onChange={(e) =>
+                          setMonitoringForm({
+                            ...monitoringForm,
+                            thresholds: {
+                              ...monitoringForm.thresholds,
+                              [key]: parseInt(e.target.value),
+                            },
+                          })
+                        }
+                        className="flex-1 accent-[#019B77]"
+                      />
+                      <span className="text-sm font-mono text-[#FBFEF2] w-10 text-right">
+                        {monitoringForm.thresholds[key]}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {/* Save */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={async () => {
+                setIsSavingMonitoring(true);
+                const success = await updateMonitoring(monitoringForm);
+                setIsSavingMonitoring(false);
+                if (success) {
+                  setMonitoringSaved(true);
+                  setTimeout(() => setMonitoringSaved(false), 2500);
+                } else {
+                  alert('Error al guardar configuración de monitoreo');
+                }
+              }}
+              disabled={isSavingMonitoring}
+              className="flex items-center gap-2 px-5 py-2.5 bg-[#019B77] hover:bg-[#02c494] text-[#11120D] font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              {isSavingMonitoring ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#11120D] border-t-transparent" />
+              ) : monitoringSaved ? (
+                <CheckCircle2 className="w-4 h-4" />
+              ) : (
+                <Save className="w-4 h-4" />
+              )}
+              {monitoringSaved ? '¡Guardado!' : 'Guardar monitoreo'}
+            </button>
+            <button
+              onClick={() => setMonitoringForm({ ...DEFAULT_MONITORING })}
               className="px-4 py-2.5 text-sm text-[#B6B6B6] hover:text-[#FBFEF2] border border-[#B6B6B6]/20 rounded-lg transition-colors"
             >
               Restaurar valores predeterminados
