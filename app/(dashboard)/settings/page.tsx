@@ -25,7 +25,126 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 import { uploadClientLogo } from '@/lib/cloudinary/upload';
-import { DEFAULT_BRANDING, DEFAULT_MONITORING, type BrandingConfig, type MonitoringPreferences } from '@/lib/types';
+import { DEFAULT_BRANDING, DEFAULT_MONITORING, type BrandingConfig, type MonitoringPreferences, type Report } from '@/lib/types';
+import { getDeletedReports, restoreReport, permanentDeleteReport } from '@/lib/firebase/firestore';
+
+// ==================== COMPONENTE PAPELERA ====================
+function TrashSection({ userId }: { userId: string }) {
+  const [deletedReports, setDeletedReports] = useState<Report[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  const loadTrash = async () => {
+    if (!userId) return;
+    setIsLoading(true);
+    try {
+      const { data } = await getDeletedReports(userId);
+      if (data) {
+        const now = Date.now();
+        const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+        // Auto-eliminar permanentemente los que superan 7 días
+        const toDelete = (data as Report[]).filter(r => {
+          const deletedAt = (r.deletedAt as any)?.toDate?.()?.getTime?.() || 0;
+          return deletedAt && now - deletedAt > sevenDaysMs;
+        });
+        await Promise.all(toDelete.map(r => permanentDeleteReport(r.id)));
+
+        // Conservar solo los activos en papelera
+        const active = (data as Report[]).filter(r => {
+          const deletedAt = (r.deletedAt as any)?.toDate?.()?.getTime?.() || 0;
+          return deletedAt && now - deletedAt <= sevenDaysMs;
+        });
+        setDeletedReports(active);
+      }
+    } catch (e) {
+      console.error('Error cargando papelera:', e);
+    }
+    setIsLoading(false);
+    setIsLoaded(true);
+  };
+
+  const handleRestore = async (reportId: string) => {
+    setActionLoading(reportId + '-restore');
+    await restoreReport(reportId);
+    setDeletedReports(prev => prev.filter(r => r.id !== reportId));
+    setActionLoading(null);
+  };
+
+  const handlePermanentDelete = async (reportId: string, title: string) => {
+    if (!confirm(`¿Eliminar permanentemente "${title}"? Esta acción no se puede deshacer.`)) return;
+    setActionLoading(reportId + '-delete');
+    await permanentDeleteReport(reportId);
+    setDeletedReports(prev => prev.filter(r => r.id !== reportId));
+    setActionLoading(null);
+  };
+
+  return (
+    <section id="papelera" className="mb-8 scroll-mt-8">
+      <h2 className="text-lg font-semibold text-[#FBFEF2] mb-4 flex items-center gap-2">
+        <Trash2 className="w-5 h-5 text-[#019B77]" />
+        Papelera
+      </h2>
+      <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6">
+        <p className="text-sm text-[#B6B6B6] mb-4">
+          Los reportes eliminados se conservan aquí durante <strong className="text-[#FBFEF2]">7 días</strong> antes de ser borrados permanentemente. Puedes recuperarlos o eliminarlos antes de ese plazo.
+        </p>
+
+        {!isLoaded ? (
+          <button
+            onClick={loadTrash}
+            className="text-sm px-4 py-2 bg-[#019B77]/20 text-[#019B77] rounded-lg hover:bg-[#019B77]/30 transition-colors"
+          >
+            Ver reportes eliminados
+          </button>
+        ) : isLoading ? (
+          <div className="flex items-center gap-2 text-sm text-[#B6B6B6]">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#019B77] border-t-transparent" />
+            Cargando papelera...
+          </div>
+        ) : deletedReports.length === 0 ? (
+          <p className="text-sm text-[#B6B6B6] italic">La papelera está vacía.</p>
+        ) : (
+          <div className="space-y-3">
+            {deletedReports.map((report) => {
+              const deletedAtMs = (report.deletedAt as any)?.toDate?.()?.getTime?.() || 0;
+              const daysRemaining = Math.max(0, 7 - Math.floor((Date.now() - deletedAtMs) / (24 * 60 * 60 * 1000)));
+              const deletedAtDate = deletedAtMs ? new Date(deletedAtMs).toLocaleDateString('es-CL') : '—';
+
+              return (
+                <div key={report.id} className="flex items-center justify-between p-3 bg-[#11120D] rounded-lg border border-[rgba(251,254,242,0.1)]">
+                  <div className="min-w-0 flex-1 mr-3">
+                    <p className="text-sm font-medium text-[#FBFEF2] truncate">{report.title}</p>
+                    <p className="text-xs text-[#B6B6B6]">
+                      Eliminado el {deletedAtDate} · <span className={daysRemaining <= 1 ? 'text-red-400' : 'text-yellow-400'}>{daysRemaining} día(s) restante(s)</span>
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleRestore(report.id)}
+                      disabled={actionLoading === report.id + '-restore'}
+                      className="text-xs px-3 py-1.5 bg-[#019B77]/20 text-[#019B77] rounded-lg hover:bg-[#019B77]/30 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === report.id + '-restore' ? 'Recuperando...' : 'Recuperar'}
+                    </button>
+                    <button
+                      onClick={() => handlePermanentDelete(report.id, report.title)}
+                      disabled={actionLoading === report.id + '-delete'}
+                      className="text-xs px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                    >
+                      {actionLoading === report.id + '-delete' ? 'Eliminando...' : 'Eliminar'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
 
 export default function SettingsPage() {
   const { user, userData, signOut, updateBranding, updateMonitoring } = useAuth();
@@ -630,6 +749,9 @@ export default function SettingsPage() {
           </div>
         </div>
       </section>
+
+      {/* Papelera */}
+      <TrashSection userId={user?.uid || ''} />
 
       {/* Danger Zone */}
       <section className="mb-8">

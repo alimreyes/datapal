@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { Toaster } from "@/components/ui/sonner";
 import {
   SoftwareApplicationJsonLd,
   OrganizationJsonLd,
@@ -141,6 +142,7 @@ export default function RootLayout({
             {children}
           </ErrorBoundary>
         </AuthProvider>
+        <Toaster richColors position="bottom-right" />
         <Analytics />
       </body>
     </html>

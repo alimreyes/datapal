@@ -58,6 +58,9 @@ export interface Report {
   data: ReportData;
   aiInsights?: string | null;
   clientLogo?: string; // URL del logo del cliente en Firebase Storage
+  // Soft delete
+  isDeleted?: boolean;
+  deletedAt?: Timestamp | null;
 }
 
 // ==================== DATA TYPES ====================

@@ -1,13 +1,15 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { CSVCategory } from '@/lib/types';
 import { motion } from 'framer-motion';
+import { extractDateRangeFromCSV, validateDateRangeConsistency } from '@/lib/validators/csvCategoryValidator';
 
 const csvCategories: { id: CSVCategory; label: string; description: string }[] = [
   {
@@ -45,12 +47,33 @@ const csvCategories: { id: CSVCategory; label: string; description: string }[] =
 export default function Step4Page() {
   const router = useRouter();
   const { facebookFiles, setFacebookFile, platforms, isStep4Valid, getNextStep, getPreviousStep } = useNewReportStore();
+  const [dateRangeWarning, setDateRangeWarning] = useState<string | null>(null);
 
-  const handleNext = () => {
-    if (isStep4Valid()) {
-      const nextStep = getNextStep('facebook');
-      router.push(nextStep);
+  const handleNext = async () => {
+    if (!isStep4Valid()) return;
+
+    // Validate date range consistency across uploaded files
+    const uploadedFiles = Object.entries(facebookFiles)
+      .filter(([, file]) => file !== null)
+      .map(([categoryId, file]) => ({ file: file!, categoryId: categoryId as CSVCategory }));
+
+    if (uploadedFiles.length >= 2) {
+      const dateRanges = await Promise.all(
+        uploadedFiles.map(({ file, categoryId }) => extractDateRangeFromCSV(file, categoryId))
+      );
+      const rangesWithDates = dateRanges.filter((r) => r.startDate !== null);
+      if (rangesWithDates.length >= 2) {
+        const warning = validateDateRangeConsistency(rangesWithDates);
+        if (warning) {
+          setDateRangeWarning(warning);
+          return;
+        }
+      }
     }
+
+    setDateRangeWarning(null);
+    const nextStep = getNextStep('facebook');
+    router.push(nextStep);
   };
 
   const handleBack = () => {
@@ -126,6 +149,7 @@ export default function Step4Page() {
                     onFileChange={(file) => setFacebookFile(category.id, file)}
                     accept=".csv"
                     maxSize={5}
+                    csvCategory={category.id}
                   />
                 </CardContent>
               </Card>
@@ -139,6 +163,27 @@ export default function Step4Page() {
             <strong>Importante:</strong> No es necesario subir todos los archivos. Puedes continuar con al menos uno para generar tu reporte.
           </p>
         </div>
+
+        {/* Date Range Warning */}
+        {dateRangeWarning && (
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-400 mb-1">Inconsistencia en fechas</p>
+              <p className="text-sm text-[#B6B6B6]">{dateRangeWarning}</p>
+              <button
+                onClick={() => {
+                  setDateRangeWarning(null);
+                  const nextStep = getNextStep('facebook');
+                  router.push(nextStep);
+                }}
+                className="mt-2 text-sm text-yellow-400 hover:text-yellow-300 underline"
+              >
+                Continuar de todas formas →
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between items-center">

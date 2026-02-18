@@ -1,14 +1,16 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useNewReportStore } from '@/lib/stores/newReportStore';
 import { FileUpload } from '@/components/upload/FileUpload';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowRight, ArrowLeft } from 'lucide-react';
+import { ArrowRight, ArrowLeft, AlertTriangle } from 'lucide-react';
 import { CSVCategory } from '@/lib/types';
 import { motion } from 'framer-motion';
 import GlowCard from '@/components/ui/GlowCard';
+import { extractDateRangeFromCSV, validateDateRangeConsistency } from '@/lib/validators/csvCategoryValidator';
 
 const csvCategories: { id: CSVCategory; label: string; description: string }[] = [
   {
@@ -46,12 +48,26 @@ const csvCategories: { id: CSVCategory; label: string; description: string }[] =
 export default function Step3Page() {
   const router = useRouter();
   const { instagramFiles, setInstagramFile, platforms, isStep3Valid, getNextStep, getPreviousStep } = useNewReportStore();
+  const [dateRangeWarning, setDateRangeWarning] = useState<string | null>(null);
 
-  const handleNext = () => {
-    if (isStep3Valid()) {
-      const nextStep = getNextStep('instagram');
-      router.push(nextStep);
+  const handleNext = async () => {
+    if (!isStep3Valid()) return;
+
+    // Validar consistencia de fechas entre archivos subidos
+    const uploadedEntries = Object.entries(instagramFiles).filter(([, f]) => f !== null) as [CSVCategory, File][];
+    if (uploadedEntries.length >= 2) {
+      const dateRanges = await Promise.all(
+        uploadedEntries.map(([cat, file]) => extractDateRangeFromCSV(file, cat))
+      );
+      const warning = validateDateRangeConsistency(dateRanges);
+      setDateRangeWarning(warning);
+      if (warning) return; // Mostrar warning, el usuario debe confirmar antes de continuar
+    } else {
+      setDateRangeWarning(null);
     }
+
+    const nextStep = getNextStep('instagram');
+    router.push(nextStep);
   };
 
   const handleBack = () => {
@@ -124,9 +140,14 @@ export default function Step3Page() {
                     label={category.label}
                     description={category.description}
                     file={instagramFiles[category.id]}
-                    onFileChange={(file) => setInstagramFile(category.id, file)}
+                    onFileChange={(file) => {
+                      setInstagramFile(category.id, file);
+                      // Limpiar warning de fechas al cambiar archivos
+                      if (!file) setDateRangeWarning(null);
+                    }}
                     accept=".csv"
                     maxSize={5}
+                    csvCategory={category.id}
                   />
                 </CardContent>
               </GlowCard>
@@ -135,11 +156,35 @@ export default function Step3Page() {
         </div>
 
         {/* Helper Text */}
-        <div className="bg-[#1a1b16] border border-yellow-500/30 rounded-lg p-4 mb-8">
+        <div className="bg-[#1a1b16] border border-yellow-500/30 rounded-lg p-4 mb-4">
           <p className="text-sm text-yellow-400">
             <strong>Importante:</strong> No es necesario subir todos los archivos. Puedes continuar con al menos uno para generar tu reporte.
           </p>
         </div>
+
+        {/* Advertencia de rango de fechas inconsistente */}
+        {dateRangeWarning && (
+          <div className="bg-yellow-500/10 border border-yellow-500/40 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-yellow-400 mb-1">Los archivos tienen rangos de fechas distintos</p>
+                <p className="text-xs text-[#B6B6B6] whitespace-pre-line">{dateRangeWarning}</p>
+                <p className="text-xs text-[#B6B6B6] mt-2">Puedes continuar igual, pero el reporte podría tener datos incompletos.</p>
+                <button
+                  onClick={() => {
+                    setDateRangeWarning(null);
+                    const nextStep = getNextStep('instagram');
+                    router.push(nextStep);
+                  }}
+                  className="mt-3 text-xs px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-colors"
+                >
+                  Continuar de todas formas →
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between items-center">

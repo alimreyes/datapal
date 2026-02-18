@@ -11,7 +11,7 @@ import PersonalNotes from '@/components/dashboard/PersonalNotes';
 import DateRangeModal from '@/components/dashboard/DateRangeModal';
 import LoginModal from '@/components/auth/LoginModal';
 import { Eye, Users, Heart, UserPlus } from 'lucide-react';
-import { getDocument, updateDocument, deleteDocument } from '@/lib/firebase/firestore';
+import { getDocument, updateDocument, deleteDocument, softDeleteReport } from '@/lib/firebase/firestore';
 import { uploadClientLogo } from '@/lib/cloudinary/upload';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Report, PlatformData, ReportObjective } from '@/lib/types';
@@ -787,14 +787,14 @@ export default function ReportPage() {
     }
   };
 
-  // HANDLER: Confirmar descarte del reporte
+  // HANDLER: Confirmar descarte del reporte (soft delete → papelera)
   const handleConfirmDiscard = async () => {
     try {
-      // Eliminar el reporte de Firestore
-      await deleteDocument('reports', reportId);
+      // Mover a papelera (soft delete)
+      await softDeleteReport(reportId);
 
-      // Redirigir al dashboard
-      router.push('/dashboard');
+      // Redirigir al dashboard con indicador de eliminación para mostrar toast
+      router.push('/dashboard?deleted=1');
     } catch (error) {
       console.error('Error al descartar reporte:', error);
       alert('Error al descartar el reporte');

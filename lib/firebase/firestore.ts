@@ -148,3 +148,49 @@ export const updateReportStatus = async (
 export const updateReportData = async (reportId: string, data: any) => {
   return updateDocument('reports', reportId, { data });
 };
+
+// ==================== PAPELERA (SOFT DELETE) ====================
+
+/**
+ * Mover un reporte a la papelera (soft delete)
+ */
+export const softDeleteReport = async (reportId: string) => {
+  return updateDocument('reports', reportId, {
+    isDeleted: true,
+    deletedAt: serverTimestamp(),
+  });
+};
+
+/**
+ * Restaurar un reporte desde la papelera
+ */
+export const restoreReport = async (reportId: string) => {
+  return updateDocument('reports', reportId, {
+    isDeleted: false,
+    deletedAt: null,
+  });
+};
+
+/**
+ * Eliminar un reporte de forma permanente
+ */
+export const permanentDeleteReport = async (reportId: string) => {
+  return deleteDocument('reports', reportId);
+};
+
+/**
+ * Obtener los reportes en la papelera de un usuario
+ * Filtra client-side para evitar índice compuesto en Firestore
+ */
+export const getDeletedReports = async (userId: string) => {
+  const result = await queryDocuments('reports', [
+    where('userId', '==', userId),
+  ]);
+  if (result.data) {
+    return {
+      ...result,
+      data: result.data.filter((r: any) => r.isDeleted === true),
+    };
+  }
+  return result;
+};

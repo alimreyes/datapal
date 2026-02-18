@@ -1,9 +1,11 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { Upload, FileText, X, CheckCircle2 } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { CSVCategory } from '@/lib/types';
+import { validateCSVCategory } from '@/lib/validators/csvCategoryValidator';
 
 interface FileUploadProps {
   label: string;
@@ -12,6 +14,9 @@ interface FileUploadProps {
   onFileChange: (file: File | null) => void;
   accept?: string;
   maxSize?: number; // in MB
+  // Validación de categoría CSV (opcional)
+  csvCategory?: CSVCategory;
+  onCategoryWarning?: (warning: string | null) => void;
 }
 
 export function FileUpload({
@@ -21,9 +26,12 @@ export function FileUpload({
   onFileChange,
   accept = '.csv',
   maxSize = 5,
+  csvCategory,
+  onCategoryWarning,
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [categoryWarning, setCategoryWarning] = useState<string | null>(null);
 
   // Helper function to check if file extension is allowed
   const isValidExtension = (fileName: string, acceptTypes: string): boolean => {
@@ -60,9 +68,17 @@ export function FileUpload({
     return true;
   };
 
-  const handleFile = (selectedFile: File) => {
+  const handleFile = async (selectedFile: File) => {
     if (validateFile(selectedFile)) {
       onFileChange(selectedFile);
+
+      // Validación de categoría CSV (async, no bloquea la subida)
+      if (csvCategory) {
+        const result = await validateCSVCategory(selectedFile, csvCategory);
+        const warning = result.warningMessage;
+        setCategoryWarning(warning);
+        onCategoryWarning?.(warning);
+      }
     }
   };
 
@@ -96,6 +112,8 @@ export function FileUpload({
   const handleRemove = () => {
     onFileChange(null);
     setError(null);
+    setCategoryWarning(null);
+    onCategoryWarning?.(null);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -152,10 +170,18 @@ export function FileUpload({
           </div>
         </div>
       ) : (
-        <div className="border border-[#019B77] bg-[#019B77]/10 rounded-lg p-4">
+        <div className={cn(
+          'border rounded-lg p-4',
+          categoryWarning
+            ? 'border-yellow-500/50 bg-yellow-500/5'
+            : 'border-[#019B77] bg-[#019B77]/10'
+        )}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <CheckCircle2 className="h-5 w-5 text-[#019B77] flex-shrink-0" />
+              {categoryWarning
+                ? <AlertTriangle className="h-5 w-5 text-yellow-400 flex-shrink-0" />
+                : <CheckCircle2 className="h-5 w-5 text-[#019B77] flex-shrink-0" />
+              }
               <FileText className="h-5 w-5 text-[#B6B6B6] flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate text-[#FBFEF2]">{file.name}</p>
@@ -178,6 +204,14 @@ export function FileUpload({
 
       {error && (
         <p className="text-xs text-red-400">{error}</p>
+      )}
+
+      {/* Advertencia de categoría incorrecta */}
+      {categoryWarning && (
+        <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+          <AlertTriangle className="h-4 w-4 text-yellow-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-yellow-300">{categoryWarning}</p>
+        </div>
       )}
     </div>
   );

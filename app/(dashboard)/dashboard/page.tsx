@@ -1,24 +1,42 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, FileText, Calendar, ArrowRight, Sparkles, UserPlus, X } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { collection, query, getDocs, orderBy, limit, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { toast } from 'sonner';
 import type { Report, MetricAlert } from '@/lib/types';
 import GlowCard from '@/components/ui/GlowCard';
 import AlertsWidget from '@/components/dashboard/AlertsWidget';
 import { detectAnomalies, compareReports } from '@/lib/monitoring/anomalyDetector';
 
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isDemo, logout } = useAuth();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [showDemoBanner, setShowDemoBanner] = useState(true);
+
+  // Mostrar toast si viene de eliminar un reporte
+  useEffect(() => {
+    if (searchParams.get('deleted') === '1') {
+      toast('Reporte movido a la papelera', {
+        description: 'Puedes recuperarlo en Configuración → Papelera durante 7 días.',
+        duration: 7000,
+        action: {
+          label: 'Ver papelera',
+          onClick: () => router.push('/settings#papelera'),
+        },
+      });
+      // Limpiar el query param de la URL sin recargar
+      router.replace('/dashboard');
+    }
+  }, [searchParams, router]);
 
   useEffect(() => {
     async function loadReports() {
@@ -44,8 +62,11 @@ export default function DashboardPage() {
           ...doc.data(),
         })) as Report[];
 
+        // Filtrar reportes en papelera (soft delete)
+        const activeReports = reportsData.filter(r => !r.isDeleted);
+
         // Ordenar en el cliente por fecha descendente
-        reportsData.sort((a, b) => {
+        activeReports.sort((a, b) => {
           const dateA = a.createdAt && typeof a.createdAt === 'object' && 'toDate' in a.createdAt
             ? a.createdAt.toDate()
             : new Date(a.createdAt as string);
@@ -55,7 +76,7 @@ export default function DashboardPage() {
           return dateB.getTime() - dateA.getTime();
         });
 
-        setReports(reportsData.slice(0, 20));
+        setReports(activeReports.slice(0, 20));
         setLoading(false);
       } catch (error) {
         console.error('Error loading reports:', error);
@@ -354,5 +375,13 @@ export default function DashboardPage() {
         </GlowCard>
       )}
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={null}>
+      <DashboardContent />
+    </Suspense>
   );
 }
