@@ -1,0 +1,74 @@
+rules_version = '2';
+
+// DataPal Firestore Security Rules
+// ================================
+// El Admin SDK (server-side API routes) bypasea estas reglas.
+// Estas reglas protegen el acceso directo desde el cliente (browser).
+//
+// Para aplicar: copia este contenido en Firebase Console > Firestore > Rules
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ==================== USERS ====================
+    // Cada usuario solo puede leer/escribir su propio documento
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId
+        // No permitir que el usuario cambie su suscripción desde el cliente
+        && !('subscription' in request.resource.data &&
+             request.resource.data.subscription != resource.data.subscription);
+      allow delete: if false; // Solo admin puede eliminar usuarios
+
+      // Sub-colección: integraciones (GA, etc.)
+      match /integrations/{integrationId} {
+        allow read: if request.auth != null && request.auth.uid == userId;
+        // Las escrituras de integraciones las hace el Admin SDK (API routes)
+        allow write: if false;
+      }
+    }
+
+    // ==================== REPORTS ====================
+    // Los reportes pertenecen a un usuario
+    match /reports/{reportId} {
+      allow read: if request.auth != null && (
+        // El dueño puede leer
+        resource.data.userId == request.auth.uid
+      );
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ==================== SHARED REPORTS ====================
+    // Los reportes compartidos son de lectura pública por token
+    match /sharedReports/{token} {
+      allow read: if true; // Cualquiera con el token puede ver
+      // Las escrituras las hace el Admin SDK (API route /api/share)
+      allow write: if false;
+    }
+
+    // ==================== NOTES ====================
+    // Notas personales del usuario en reportes
+    match /notes/{noteId} {
+      allow read: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null
+        && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null
+        && resource.data.userId == request.auth.uid;
+    }
+
+    // ==================== DEFAULT: DENY ALL ====================
+    // Cualquier otra colección no definida arriba es inaccesible
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
