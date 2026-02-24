@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { User, LogOut, Sparkles, CreditCard, Settings, ChevronDown } from 'lucide-react';
+import { User, LogOut, Sparkles, CreditCard, Settings, ChevronDown, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import LoginModal from './LoginModal';
 
 export default function UserMenu() {
-  const { user, userData, loading, signOut, aiUsageRemaining, canUseAI } = useAuth();
+  const { user, userData, loading, signOut, aiUsageRemaining, canUseAI, trialDaysRemaining } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,7 @@ export default function UserMenu() {
             {user.displayName || 'Usuario'}
           </p>
           <p className="text-xs text-[#B6B6B6]">
-            Plan {userData?.subscription === 'free' ? 'Gratis' : 'Pro'}
+            Plan {userData?.subscription === 'free' ? 'Gratis' : (userData?.trialCode ? 'Pro (Prueba)' : 'Pro')}
           </p>
         </div>
 
@@ -107,6 +107,12 @@ export default function UserMenu() {
           <div className="p-4 border-b border-[#B6B6B6]/10">
             <p className="font-medium text-[#FBFEF2]">{user.displayName}</p>
             <p className="text-sm text-[#B6B6B6]">{user.email}</p>
+            {userData?.trialCode && userData.subscription !== 'free' && trialDaysRemaining !== null && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-[#019B77]">
+                <Clock className="w-3 h-3" />
+                <span>Prueba Pro · {trialDaysRemaining} día{trialDaysRemaining !== 1 ? 's' : ''} restante{trialDaysRemaining !== 1 ? 's' : ''}</span>
+              </div>
+            )}
           </div>
 
           {/* AI Usage Status */}

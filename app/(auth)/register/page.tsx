@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { auth as firebaseAuth } from '@/lib/firebase/config';
 import { Loader2, Sparkles, FileText, BarChart3, CheckCircle2 } from 'lucide-react';
+import AccessCodeInput from '@/components/auth/AccessCodeInput';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -18,6 +20,22 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redimir código de acceso pendiente después del registro
+  const redeemPendingCode = async (userId: string) => {
+    const pendingCode = sessionStorage.getItem('pendingAccessCode');
+    if (!pendingCode) return;
+    sessionStorage.removeItem('pendingAccessCode');
+    try {
+      await fetch('/api/access-code/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: pendingCode, userId }),
+      });
+    } catch {
+      // No bloquear el registro si falla la redención
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,6 +65,9 @@ export default function RegisterPage() {
       return;
     }
 
+    if (firebaseAuth.currentUser) {
+      await redeemPendingCode(firebaseAuth.currentUser.uid);
+    }
     router.push('/dashboard');
   };
 
@@ -62,6 +83,9 @@ export default function RegisterPage() {
       return;
     }
 
+    if (firebaseAuth.currentUser) {
+      await redeemPendingCode(firebaseAuth.currentUser.uid);
+    }
     router.push('/dashboard');
   };
 
@@ -218,6 +242,11 @@ export default function RegisterPage() {
             )}
           </button>
         </form>
+
+        {/* Access Code */}
+        <div className="mt-6 pt-6 border-t border-[rgba(251,254,242,0.05)]">
+          <AccessCodeInput />
+        </div>
 
         {/* Terms */}
         <p className="mt-4 text-xs text-center text-[#B6B6B6]/60">

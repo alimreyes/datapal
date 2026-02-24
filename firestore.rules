@@ -65,6 +65,12 @@ service cloud.firestore {
         && resource.data.userId == request.auth.uid;
     }
 
+    // ==================== ACCESS CODES ====================
+    // Solo accesible desde Admin SDK (API routes)
+    match /accessCodes/{code} {
+      allow read, write: if false;
+    }
+
     // ==================== DEFAULT: DENY ALL ====================
     // Cualquier otra colección no definida arriba es inaccesible
     match /{document=**} {

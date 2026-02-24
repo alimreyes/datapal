@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/hooks/useAuth';
+import { auth as firebaseAuth } from '@/lib/firebase/config';
 import { Loader2, Sparkles, FileText, BarChart3, CheckCircle2, Play } from 'lucide-react';
+import AccessCodeInput from '@/components/auth/AccessCodeInput';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,6 +18,22 @@ export default function LoginPage() {
   });
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redimir código de acceso pendiente después del login
+  const redeemPendingCode = async (userId: string) => {
+    const pendingCode = sessionStorage.getItem('pendingAccessCode');
+    if (!pendingCode) return;
+    sessionStorage.removeItem('pendingAccessCode');
+    try {
+      await fetch('/api/access-code/redeem', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: pendingCode, userId }),
+      });
+    } catch {
+      // No bloquear el login si falla la redención
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +48,9 @@ export default function LoginPage() {
       return;
     }
 
+    if (firebaseAuth.currentUser) {
+      await redeemPendingCode(firebaseAuth.currentUser.uid);
+    }
     router.push('/dashboard');
   };
 
@@ -45,6 +66,9 @@ export default function LoginPage() {
       return;
     }
 
+    if (firebaseAuth.currentUser) {
+      await redeemPendingCode(firebaseAuth.currentUser.uid);
+    }
     router.push('/dashboard');
   };
 
@@ -176,8 +200,13 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Demo link */}
+        {/* Access Code */}
         <div className="mt-6 pt-6 border-t border-[rgba(251,254,242,0.05)]">
+          <AccessCodeInput />
+        </div>
+
+        {/* Demo link */}
+        <div className="mt-4 pt-4 border-t border-[rgba(251,254,242,0.05)]">
           <Link href="/demo" className="w-full flex items-center justify-center gap-2 py-3 px-6 border border-[#019B77]/30 text-[#019B77] hover:bg-[#019B77]/10 font-medium rounded-xl transition-colors text-sm">
             <Play className="w-4 h-4" />
             Ver Dashboard Demo

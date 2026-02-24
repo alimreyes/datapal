@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import type { Report, MetricAlert } from '@/lib/types';
 import GlowCard from '@/components/ui/GlowCard';
 import AlertsWidget from '@/components/dashboard/AlertsWidget';
+import TrialBanner from '@/components/dashboard/TrialBanner';
 import { detectAnomalies, compareReports } from '@/lib/monitoring/anomalyDetector';
 
 function DashboardContent() {
@@ -134,6 +135,9 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8">
+      {/* Trial Banner */}
+      <TrialBanner />
+
       {/* Demo Banner */}
       {isDemo && showDemoBanner && (
         <div className="relative bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl p-4">

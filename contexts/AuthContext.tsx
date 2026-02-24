@@ -23,6 +23,9 @@ interface UserData {
   subscriptionStartDate?: Date | null;
   subscriptionPaymentId?: string | null;
   subscriptionStatus?: 'active' | 'cancelled' | 'expired' | null;
+  // Trial fields (optional, set after access code redemption)
+  trialCode?: string | null;
+  trialExpiresAt?: Date | null;
   // White-label branding (optional)
   branding?: BrandingConfig;
   // Monitoring preferences (optional)
@@ -38,6 +41,7 @@ interface AuthContextType {
   canUseAI: boolean;
   aiUsageRemaining: number;
   incrementAIUsage: () => Promise<boolean>;
+  trialDaysRemaining: number | null;
   refreshUserData: () => Promise<void>;
   updateBranding: (branding: BrandingConfig) => Promise<boolean>;
   updateMonitoring: (monitoring: MonitoringPreferences) => Promise<boolean>;
@@ -73,18 +77,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           });
         }
 
+        // Verificar expiración de trial
+        const trialExpiresAt = data.trialExpiresAt?.toDate() || null;
+        let subscription = data.subscription || 'free';
+
+        if (subscription === 'pro' && data.trialCode && trialExpiresAt && trialExpiresAt < new Date()) {
+          // Trial expirado: revertir a free silenciosamente
+          await updateDoc(userDocRef, {
+            subscription: 'free',
+            subscriptionStatus: 'expired',
+          });
+          subscription = 'free';
+        }
+
         setUserData({
           uid: firebaseUser.uid,
           email: firebaseUser.email,
           displayName: firebaseUser.displayName,
           photoURL: firebaseUser.photoURL,
-          subscription: data.subscription || 'free',
+          subscription: subscription as 'free' | 'pro' | 'enterprise',
           aiUsageCount: aiUsageCount,
           aiUsageResetDate: resetDate || null,
           createdAt: data.createdAt?.toDate() || new Date(),
           subscriptionStartDate: data.subscriptionStartDate?.toDate() || null,
           subscriptionPaymentId: data.subscriptionPaymentId || null,
-          subscriptionStatus: data.subscriptionStatus || null,
+          subscriptionStatus: subscription === 'free' && data.trialCode ? 'expired' : (data.subscriptionStatus || null),
+          trialCode: data.trialCode || null,
+          trialExpiresAt: trialExpiresAt,
           branding: data.branding || undefined,
           monitoring: data.monitoring || undefined,
         });
@@ -114,6 +133,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           subscriptionStartDate: null,
           subscriptionPaymentId: null,
           subscriptionStatus: null,
+          trialCode: null,
+          trialExpiresAt: null,
           branding: undefined,
           monitoring: undefined,
         });
@@ -232,6 +253,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Calcular días restantes de trial
+  const trialDaysRemaining = (): number | null => {
+    if (!userData?.trialCode || !userData?.trialExpiresAt) return null;
+    if (userData.subscription === 'free') return null; // ya expiró
+    const now = new Date();
+    const diff = userData.trialExpiresAt.getTime() - now.getTime();
+    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return Math.max(0, days);
+  };
+
   // Refrescar datos del usuario
   const refreshUserData = async () => {
     if (user) {
@@ -248,6 +279,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     canUseAI: canUseAI(),
     aiUsageRemaining: aiUsageRemaining(),
     incrementAIUsage,
+    trialDaysRemaining: trialDaysRemaining(),
     refreshUserData,
     updateBranding,
     updateMonitoring,
