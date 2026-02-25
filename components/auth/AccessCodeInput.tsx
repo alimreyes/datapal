@@ -94,7 +94,7 @@ export default function AccessCodeInput({ userId, onSuccess }: AccessCodeInputPr
           <div className="flex gap-2">
             <input
               type="text"
-              placeholder="amigos-01"
+              placeholder="Ingresa tu código"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               onKeyDown={(e) => {

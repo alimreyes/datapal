@@ -13,6 +13,7 @@ import type { Report, MetricAlert } from '@/lib/types';
 import GlowCard from '@/components/ui/GlowCard';
 import AlertsWidget from '@/components/dashboard/AlertsWidget';
 import TrialBanner from '@/components/dashboard/TrialBanner';
+import TrialWelcomeModal from '@/components/dashboard/TrialWelcomeModal';
 import { detectAnomalies, compareReports } from '@/lib/monitoring/anomalyDetector';
 
 function DashboardContent() {
@@ -135,6 +136,9 @@ function DashboardContent() {
 
   return (
     <div className="space-y-8">
+      {/* Trial Welcome Modal (cada 24h) */}
+      <TrialWelcomeModal />
+
       {/* Trial Banner */}
       <TrialBanner />
 

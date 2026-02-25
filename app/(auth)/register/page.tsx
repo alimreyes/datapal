@@ -22,9 +22,9 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   // Redimir código de acceso pendiente después del registro
-  const redeemPendingCode = async (userId: string) => {
+  const redeemPendingCode = async (userId: string): Promise<boolean> => {
     const pendingCode = sessionStorage.getItem('pendingAccessCode');
-    if (!pendingCode) return;
+    if (!pendingCode) return false;
     sessionStorage.removeItem('pendingAccessCode');
     try {
       await fetch('/api/access-code/redeem', {
@@ -32,8 +32,10 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: pendingCode, userId }),
       });
+      return true;
     } catch {
       // No bloquear el registro si falla la redención
+      return false;
     }
   };
 
@@ -65,10 +67,15 @@ export default function RegisterPage() {
       return;
     }
 
+    let codeRedeemed = false;
     if (firebaseAuth.currentUser) {
-      await redeemPendingCode(firebaseAuth.currentUser.uid);
+      codeRedeemed = await redeemPendingCode(firebaseAuth.currentUser.uid);
     }
-    router.push('/dashboard');
+    if (codeRedeemed) {
+      window.location.href = '/dashboard';
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const handleGoogleLogin = async () => {
@@ -83,10 +90,15 @@ export default function RegisterPage() {
       return;
     }
 
+    let codeRedeemed = false;
     if (firebaseAuth.currentUser) {
-      await redeemPendingCode(firebaseAuth.currentUser.uid);
+      codeRedeemed = await redeemPendingCode(firebaseAuth.currentUser.uid);
     }
-    router.push('/dashboard');
+    if (codeRedeemed) {
+      window.location.href = '/dashboard';
+    } else {
+      router.push('/dashboard');
+    }
   };
 
   const benefits = [
