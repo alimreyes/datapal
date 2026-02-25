@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { SYSTEM_PROMPTS } from '@/lib/claude-prompts';
 
 // Initialize Anthropic client
 export const anthropic = new Anthropic({
@@ -7,25 +8,14 @@ export const anthropic = new Anthropic({
 
 // Model configuration
 export const CLAUDE_CONFIG = {
-  model: 'claude-sonnet-4-20250514', // Sonnet 4.5
-  maxTokens: 150, // Para respuestas de ~200 caracteres
-  temperature: 0.7, // Balance entre creatividad y consistencia
+  model: 'claude-sonnet-4-20250514',
+  maxTokens: 1024, // Suficiente para análisis estructurado con secciones
+  temperature: 0.7,
 };
 
-// Prompt caching configuration
-export const SYSTEM_PROMPT = `Eres un experto en Marketing Digital con más de 10 años de experiencia analizando métricas de redes sociales.
+// System prompt principal — usa el prompt enriquecido de claude-prompts.ts
+export const SYSTEM_PROMPT = SYSTEM_PROMPTS.general;
 
-Tu tarea es analizar datos de rendimiento de Instagram y Facebook y proporcionar insights accionables y profesionales.
-
-REGLAS ESTRICTAS:
-1. Responde en castellano, profesional
-2. Máximo 200 caracteres (ser extremadamente conciso)
-3. Enfócate en el insight MÁS importante
-4. Usa lenguaje profesional pero accesible y ad hoc a industria de Marketing Digital
-5. Incluye una recomendación accionable cuando sea relevante
-
-FORMATO:
-- Una o dos oraciones máximo
-- Sin emojis
-- Sin introducción
-- Directo al punto más importante`;
+// Prompts específicos para tipos de análisis
+export const ENGAGEMENT_PROMPT = SYSTEM_PROMPTS.engagement;
+export const CONTENT_PROMPT = SYSTEM_PROMPTS.content;
