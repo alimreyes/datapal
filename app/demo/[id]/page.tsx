@@ -28,54 +28,55 @@ import {
 import { Button } from '@/components/ui/button';
 import GlowCard from '@/components/ui/GlowCard';
 
-// Datos reales extraídos del CSV de Instagram Noviembre 2025
-const REAL_CHART_DATA = [
-  { date: '1 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 156 },
-  { date: '2 Nov', reach: 1, interactions: 0, visualizations: 1, followers: 156 },
-  { date: '3 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 156 },
-  { date: '4 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 156 },
-  { date: '5 Nov', reach: 0, interactions: 0, visualizations: 34, followers: 156 },
-  { date: '6 Nov', reach: 1, interactions: 0, visualizations: 60, followers: 156 },
-  { date: '7 Nov', reach: 50, interactions: 2, visualizations: 78, followers: 157 },
-  { date: '8 Nov', reach: 25, interactions: 0, visualizations: 28, followers: 157 },
-  { date: '9 Nov', reach: 35, interactions: 1, visualizations: 45, followers: 157 },
-  { date: '10 Nov', reach: 65, interactions: 1, visualizations: 78, followers: 158 },
-  { date: '11 Nov', reach: 27, interactions: 0, visualizations: 34, followers: 158 },
-  { date: '12 Nov', reach: 9, interactions: 1, visualizations: 73, followers: 158 },
-  { date: '13 Nov', reach: 24, interactions: 1, visualizations: 31, followers: 158 },
-  { date: '14 Nov', reach: 69, interactions: 0, visualizations: 78, followers: 159 },
-  { date: '15 Nov', reach: 31, interactions: 2, visualizations: 36, followers: 159 },
-  { date: '16 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '17 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '18 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '19 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '20 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '21 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '22 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '23 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '24 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '25 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '26 Nov', reach: 1, interactions: 0, visualizations: 1, followers: 159 },
-  { date: '27 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '28 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '29 Nov', reach: 0, interactions: 0, visualizations: 0, followers: 159 },
-  { date: '30 Nov', reach: 67, interactions: 4, visualizations: 136, followers: 160 },
+// Datos demo: cuenta de Instagram activa - Enero 2026
+const DEMO_CHART_DATA = [
+  { date: '1 Ene', reach: 1250, interactions: 85, visualizations: 2100, followers: 8420 },
+  { date: '2 Ene', reach: 980, interactions: 62, visualizations: 1650, followers: 8425 },
+  { date: '3 Ene', reach: 3200, interactions: 245, visualizations: 5400, followers: 8438 },
+  { date: '4 Ene', reach: 2100, interactions: 156, visualizations: 3500, followers: 8445 },
+  { date: '5 Ene', reach: 1450, interactions: 98, visualizations: 2300, followers: 8450 },
+  { date: '6 Ene', reach: 1100, interactions: 72, visualizations: 1800, followers: 8452 },
+  { date: '7 Ene', reach: 2800, interactions: 210, visualizations: 4700, followers: 8462 },
+  { date: '8 Ene', reach: 1900, interactions: 134, visualizations: 3100, followers: 8468 },
+  { date: '9 Ene', reach: 1350, interactions: 89, visualizations: 2200, followers: 8472 },
+  { date: '10 Ene', reach: 4500, interactions: 380, visualizations: 7800, followers: 8490 },
+  { date: '11 Ene', reach: 3200, interactions: 265, visualizations: 5500, followers: 8502 },
+  { date: '12 Ene', reach: 1800, interactions: 120, visualizations: 2900, followers: 8508 },
+  { date: '13 Ene', reach: 1600, interactions: 105, visualizations: 2600, followers: 8512 },
+  { date: '14 Ene', reach: 2400, interactions: 178, visualizations: 4000, followers: 8520 },
+  { date: '15 Ene', reach: 1700, interactions: 115, visualizations: 2800, followers: 8525 },
+  { date: '16 Ene', reach: 1200, interactions: 78, visualizations: 1950, followers: 8528 },
+  { date: '17 Ene', reach: 5200, interactions: 420, visualizations: 9100, followers: 8550 },
+  { date: '18 Ene', reach: 3800, interactions: 310, visualizations: 6400, followers: 8565 },
+  { date: '19 Ene', reach: 2200, interactions: 165, visualizations: 3600, followers: 8572 },
+  { date: '20 Ene', reach: 1500, interactions: 95, visualizations: 2400, followers: 8578 },
+  { date: '21 Ene', reach: 2600, interactions: 195, visualizations: 4300, followers: 8588 },
+  { date: '22 Ene', reach: 1800, interactions: 128, visualizations: 2950, followers: 8594 },
+  { date: '23 Ene', reach: 1400, interactions: 92, visualizations: 2250, followers: 8598 },
+  { date: '24 Ene', reach: 3600, interactions: 290, visualizations: 6100, followers: 8612 },
+  { date: '25 Ene', reach: 2500, interactions: 185, visualizations: 4200, followers: 8622 },
+  { date: '26 Ene', reach: 1600, interactions: 108, visualizations: 2650, followers: 8628 },
+  { date: '27 Ene', reach: 1300, interactions: 82, visualizations: 2100, followers: 8632 },
+  { date: '28 Ene', reach: 2900, interactions: 225, visualizations: 4800, followers: 8645 },
+  { date: '29 Ene', reach: 2100, interactions: 155, visualizations: 3400, followers: 8652 },
+  { date: '30 Ene', reach: 1500, interactions: 96, visualizations: 2450, followers: 8658 },
+  { date: '31 Ene', reach: 3400, interactions: 275, visualizations: 5700, followers: 8675 },
 ];
 
-// Calcular métricas totales
-const TOTAL_REACH = REAL_CHART_DATA.reduce((sum, d) => sum + d.reach, 0);
-const TOTAL_INTERACTIONS = REAL_CHART_DATA.reduce((sum, d) => sum + d.interactions, 0);
-const TOTAL_VISUALIZATIONS = REAL_CHART_DATA.reduce((sum, d) => sum + d.visualizations, 0);
-const FOLLOWERS_START = 156;
-const FOLLOWERS_END = 160;
-const FOLLOWERS_GROWTH = FOLLOWERS_END - FOLLOWERS_START;
+// Métricas totales calculadas
+const TOTAL_REACH = 69930;
+const TOTAL_INTERACTIONS = 5259;
+const TOTAL_VISUALIZATIONS = 116950;
+const FOLLOWERS_START = 8420;
+const FOLLOWERS_END = 8675;
+const FOLLOWERS_GROWTH = 255;
 
 // Datos específicos para cada tipo de reporte
 const DEMO_REPORTS_DATA: Record<string, any> = {
   'analisis-resultados': {
     title: 'Análisis de Resultados',
-    subtitle: 'Instagram - Noviembre 2025',
-    dateRange: '1 Nov - 30 Nov 2025',
+    subtitle: 'Instagram - Enero 2026',
+    dateRange: '1 Ene - 31 Ene 2026',
     platforms: ['instagram'],
     objective: 'analysis',
     metrics: {
@@ -85,81 +86,80 @@ const DEMO_REPORTS_DATA: Record<string, any> = {
       followers: FOLLOWERS_END,
     },
     trends: {
-      visualizations: 45.2,
-      reach: 38.5,
-      interactions: 25.0,
-      followers: ((FOLLOWERS_GROWTH / FOLLOWERS_START) * 100).toFixed(1),
+      visualizations: 32.4,
+      reach: 28.7,
+      interactions: 41.3,
+      followers: 3.0,
     },
-    chartData: REAL_CHART_DATA,
-    // Métricas de análisis específicas
-    engagementRate: ((TOTAL_INTERACTIONS / TOTAL_REACH) * 100).toFixed(2),
-    vizToReach: ((TOTAL_REACH / TOTAL_VISUALIZATIONS) * 100).toFixed(1),
-    reachToInteractions: ((TOTAL_INTERACTIONS / TOTAL_REACH) * 100).toFixed(1),
-    topDays: ['14 Nov', '30 Nov', '10 Nov'],
+    chartData: DEMO_CHART_DATA,
+    engagementRate: '7.52',
+    vizToReach: '59.8',
+    reachToInteractions: '7.5',
+    topDays: ['17 Ene', '10 Ene', '24 Ene'],
     insights: `## Análisis de Rendimiento
 
-El análisis del período muestra un patrón de engagement concentrado en días específicos, con picos notables el 14 y 30 de noviembre.
+El análisis de enero muestra un engagement consistente con picos claros los viernes (días 10, 17 y 24), indicando un patrón de consumo semanal predecible.
 
 ### Métricas Clave:
-- **Tasa de Engagement**: ${((TOTAL_INTERACTIONS / TOTAL_REACH) * 100).toFixed(2)}%
-- **Conversión Visualizaciones → Alcance**: ${((TOTAL_REACH / TOTAL_VISUALIZATIONS) * 100).toFixed(1)}%
-- **Días con mayor actividad**: 14 Nov, 30 Nov, 10 Nov
+- **Tasa de Engagement**: 7.52% — por encima del promedio de la industria (3-5%)
+- **Conversión Visualizaciones → Alcance**: 59.8% — alto ratio de alcance único
+- **Días con mayor actividad**: Viernes 10, 17 y 24 de enero
 
 ### Oportunidades:
-1. Aumentar frecuencia de publicación en días de semana
-2. Replicar tipo de contenido de los días con mejores métricas
-3. Optimizar horarios de publicación basado en el engagement`,
+1. Concentrar publicaciones clave los jueves y viernes para maximizar alcance
+2. El contenido tipo Reel genera 3.2x más interacciones que imágenes estáticas
+3. Las publicaciones entre 12:00-14:00 obtienen 45% más engagement`,
   },
   'mejoras-realizadas': {
     title: 'Evidenciar Mejoras',
-    subtitle: 'Instagram + Facebook - Noviembre 2025',
-    dateRange: '1 Nov - 30 Nov 2025',
+    subtitle: 'Instagram + Facebook - Enero 2026',
+    dateRange: '1 Ene - 31 Ene 2026',
     platforms: ['instagram', 'facebook'],
     objective: 'improvements',
     metrics: {
-      visualizations: TOTAL_VISUALIZATIONS + 420, // Simulamos FB
-      reach: TOTAL_REACH + 180,
-      interactions: TOTAL_INTERACTIONS + 8,
-      followers: FOLLOWERS_END + 85,
+      visualizations: 161700,
+      reach: 97930,
+      interactions: 7013,
+      followers: 11015,
     },
     trends: {
-      visualizations: 45.2,
-      reach: 38.5,
-      interactions: 25.0,
-      followers: 2.5,
+      visualizations: 38.9,
+      reach: 28.2,
+      interactions: 53.8,
+      followers: 4.6,
     },
-    chartData: REAL_CHART_DATA,
-    // Datos de comparación antes/después
+    chartData: DEMO_CHART_DATA,
     previousPeriod: {
-      visualizations: Math.round((TOTAL_VISUALIZATIONS + 420) * 0.7),
-      reach: Math.round((TOTAL_REACH + 180) * 0.75),
-      interactions: Math.round((TOTAL_INTERACTIONS + 8) * 0.6),
-      followers: FOLLOWERS_START + 85 - 12,
+      visualizations: 116400,
+      reach: 76400,
+      interactions: 4560,
+      followers: 10530,
     },
     improvements: [
-      { metric: 'Visualizaciones', before: Math.round((TOTAL_VISUALIZATIONS + 420) * 0.7), after: TOTAL_VISUALIZATIONS + 420, change: '+42.8%', positive: true },
-      { metric: 'Alcance', before: Math.round((TOTAL_REACH + 180) * 0.75), after: TOTAL_REACH + 180, change: '+33.3%', positive: true },
-      { metric: 'Interacciones', before: Math.round((TOTAL_INTERACTIONS + 8) * 0.6), after: TOTAL_INTERACTIONS + 8, change: '+66.7%', positive: true },
-      { metric: 'Seguidores', before: FOLLOWERS_START + 85 - 12, after: FOLLOWERS_END + 85, change: '+5.2%', positive: true },
+      { metric: 'Visualizaciones', before: 116400, after: 161700, change: '+38.9%', positive: true },
+      { metric: 'Alcance', before: 76400, after: 97930, change: '+28.2%', positive: true },
+      { metric: 'Interacciones', before: 4560, after: 7013, change: '+53.8%', positive: true },
+      { metric: 'Seguidores', before: 10530, after: 11015, change: '+4.6%', positive: true },
     ],
     insights: `## Evidencia de Mejoras
 
-Comparando con el período anterior, se observa un crecimiento significativo en todas las métricas principales.
+Comparando enero con diciembre, se observa crecimiento en todas las métricas. El mayor avance fue en interacciones (+53.8%), directamente atribuible al cambio de estrategia de contenido.
 
 ### Logros Destacados:
-- **Visualizaciones**: +42.8% respecto al período anterior
-- **Alcance**: Incremento del 33.3%
-- **Interacciones**: Mejora del 66.7%
+- **Interacciones**: +53.8% — el mayor crecimiento del período
+- **Visualizaciones**: +38.9% gracias al aumento de Reels
+- **Alcance**: +28.2% con mejor distribución algorítmica
 
 ### Acciones que Generaron Resultados:
-1. Implementación de calendario de contenido consistente
-2. Optimización de hashtags basada en análisis de competencia
-3. Aumento de contenido en formato video/Reels`,
+1. Migración de 60% del contenido a formato Reels (antes: 30%)
+2. Implementación de calendario editorial con 4 publicaciones semanales
+3. Uso estratégico de hashtags de nicho (10-15 por publicación)
+4. Publicación en horarios optimizados según datos de audiencia`,
   },
   'reporte-mensual': {
     title: 'Reporte del Mes',
-    subtitle: 'Instagram - Noviembre 2025',
-    dateRange: '1 Nov - 30 Nov 2025',
+    subtitle: 'Instagram - Enero 2026',
+    dateRange: '1 Ene - 31 Ene 2026',
     platforms: ['instagram'],
     objective: 'monthly_report',
     metrics: {
@@ -169,50 +169,54 @@ Comparando con el período anterior, se observa un crecimiento significativo en 
       followers: FOLLOWERS_END,
     },
     trends: {
-      visualizations: 45.2,
-      reach: 38.5,
-      interactions: 25.0,
-      followers: ((FOLLOWERS_GROWTH / FOLLOWERS_START) * 100).toFixed(1),
+      visualizations: 32.4,
+      reach: 28.7,
+      interactions: 41.3,
+      followers: 3.0,
     },
-    chartData: REAL_CHART_DATA,
-    // Datos de contenido para Hoja 2
+    chartData: DEMO_CHART_DATA,
     contentData: {
-      totalPosts: 8,
+      totalPosts: 18,
       totalInteractions: TOTAL_INTERACTIONS,
-      frequency: '0.27 posts/día',
+      frequency: '0.58 posts/día',
       posts: [
-        { id: '1', type: 'Reel', title: 'Contenido destacado #1', date: '30 Nov', impressions: 136, reach: 67, likes: 3, comments: 1, shares: 0, saves: 0, engagement: '2.9%' },
-        { id: '2', type: 'Image', title: 'Publicación #2', date: '14 Nov', impressions: 78, reach: 69, likes: 0, comments: 0, shares: 0, saves: 0, engagement: '0%' },
-        { id: '3', type: 'Reel', title: 'Contenido destacado #3', date: '10 Nov', impressions: 78, reach: 65, likes: 1, comments: 0, shares: 0, saves: 0, engagement: '1.5%' },
-        { id: '4', type: 'Image', title: 'Publicación #4', date: '7 Nov', impressions: 78, reach: 50, likes: 2, comments: 0, shares: 0, saves: 0, engagement: '4.0%' },
-        { id: '5', type: 'Carousel', title: 'Publicación #5', date: '9 Nov', impressions: 45, reach: 35, likes: 1, comments: 0, shares: 0, saves: 0, engagement: '2.9%' },
+        { id: '1', type: 'Reel', title: '5 errores comunes en marketing digital', date: '17 Ene', impressions: 9100, reach: 5200, likes: 312, comments: 47, shares: 38, saves: 23, engagement: '8.1%' },
+        { id: '2', type: 'Reel', title: 'Tendencias de redes sociales 2026', date: '10 Ene', impressions: 7800, reach: 4500, likes: 285, comments: 42, shares: 31, saves: 22, engagement: '8.4%' },
+        { id: '3', type: 'Carousel', title: 'Guía: Métricas que importan en IG', date: '24 Ene', impressions: 6100, reach: 3600, likes: 198, comments: 35, shares: 42, saves: 15, engagement: '8.1%' },
+        { id: '4', type: 'Reel', title: 'Antes vs después de usar DataPal', date: '28 Ene', impressions: 4800, reach: 2900, likes: 165, comments: 28, shares: 18, saves: 14, engagement: '7.8%' },
+        { id: '5', type: 'Image', title: 'Infografía: ROI en redes sociales', date: '3 Ene', impressions: 5400, reach: 3200, likes: 180, comments: 32, shares: 21, saves: 12, engagement: '7.7%' },
       ],
     },
     insights: `## Resumen Ejecutivo
 
-Noviembre 2025 mostró actividad concentrada en la primera quincena, con oportunidades claras de mejora en frecuencia de publicación.
+Enero 2026 fue un mes sólido con crecimiento consistente en todas las métricas. La estrategia de contenido basada en Reels educativos demostró ser la más efectiva.
 
 ### Highlights del Mes:
-- **Alcance total**: ${TOTAL_REACH} usuarios únicos
-- **Interacciones totales**: ${TOTAL_INTERACTIONS}
-- **Nuevos seguidores**: +${FOLLOWERS_GROWTH}
+- **Alcance total**: 69,930 usuarios únicos alcanzados
+- **Interacciones totales**: 5,259 (promedio 293/publicación)
+- **Nuevos seguidores**: +255 (crecimiento del 3.0%)
 
 ### Recomendaciones:
-1. Aumentar frecuencia de publicación a mínimo 3 posts/semana
-2. El contenido de los días 7, 10, 14 y 30 generó el mayor engagement
-3. Explorar formatos de Reels para aumentar visualizaciones`,
+1. Mantener frecuencia de 4+ publicaciones semanales
+2. Priorizar Reels educativos — generan 3.2x más engagement que imágenes
+3. Los viernes son el mejor día para contenido nuevo (picos en alcance)`,
     contentInsights: `## Análisis de Contenido
 
-La frecuencia de publicación fue baja (8 posts en el mes), concentrada principalmente en la primera quincena.
+Se publicaron 18 piezas de contenido con un engagement promedio de 7.9%, significativamente por encima del benchmark de la industria (3-5%).
 
 ### Formatos con Mejor Rendimiento:
-- **Reels**: 2.9% engagement promedio
-- **Images**: 2.0% engagement promedio
+- **Reels**: 8.1% engagement promedio (10 publicaciones)
+- **Carousels**: 7.8% engagement promedio (4 publicaciones)
+- **Imágenes**: 6.5% engagement promedio (4 publicaciones)
+
+### Top Contenido:
+- **"Tendencias de redes sociales 2026"** obtuvo 8.4% engagement y fue el contenido con mayor alcance del mes (4,500 usuarios)
+- Los Reels educativos superan consistentemente a los promocionales
 
 ### Recomendaciones:
-1. Aumentar frecuencia a 12-15 posts mensuales
-2. Priorizar formato Reels
-3. Mantener consistencia en horarios de publicación`,
+1. Aumentar proporción de Reels a 65-70% del contenido total
+2. Incorporar Carousels educativos como segundo formato prioritario
+3. Publicar contenido clave entre 12:00-14:00 (hora de mayor engagement)`,
   },
 };
 
