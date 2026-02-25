@@ -9,7 +9,7 @@ export const anthropic = new Anthropic({
 // Model configuration
 export const CLAUDE_CONFIG = {
   model: 'claude-sonnet-4-20250514',
-  maxTokens: 1024, // Suficiente para análisis estructurado con secciones
+  maxTokens: 512, // Conciso: ~500 chars de respuesta directa sin emojis
   temperature: 0.7,
 };
 

@@ -249,7 +249,7 @@ export default function AIInsightsPanel({
                             {insight.title}
                           </h4>
                         )}
-                        <p className={`text-sm ${config.textColor} opacity-90`}>{insight.content}</p>
+                        <p className={`text-sm ${config.textColor} opacity-90 whitespace-pre-line`}>{insight.content}</p>
                       </div>
                     </div>
                   </div>

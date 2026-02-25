@@ -166,7 +166,7 @@ function formatReportData(metrics: any, report: Report): string {
     prompt += `\n\nTop contenido:\n${topContent}`;
   }
 
-  prompt += '\n\nResponde en castellano. Usa el formato con emojis de sección (📊, 🎯, 💡) del system prompt.';
+  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Máximo 500 caracteres.';
 
   return prompt;
 }

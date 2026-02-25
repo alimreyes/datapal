@@ -363,7 +363,7 @@ export default function ReportSheet1({
                   className="bg-[#2a2b25] rounded-lg p-4 border border-[rgba(251,254,242,0.1)]"
                 >
                   <h4 className="font-bold text-[#FBFEF2] mb-1">{insight.title}</h4>
-                  <p className="text-sm text-[#B6B6B6]">{insight.content}</p>
+                  <p className="text-sm text-[#B6B6B6] whitespace-pre-line">{insight.content}</p>
                 </div>
               ))}
             </div>

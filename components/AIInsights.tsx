@@ -74,7 +74,7 @@ export default function AIInsights({ report, reportId, onInsightsGenerated }: AI
         {report.aiInsights ? (
           <div className="space-y-4">
             <div className="p-5 bg-white rounded-xl border-2 border-indigo-200 shadow-sm">
-              <p className="text-gray-800 leading-relaxed text-base">{report.aiInsights}</p>
+              <p className="text-gray-800 leading-relaxed text-base whitespace-pre-line">{report.aiInsights}</p>
             </div>
 
             {/* Success indicator */}
