@@ -220,7 +220,7 @@ function formatReportData(metrics: any, report: Report, insightType: string, cli
 
     prompt += `\n\nTotal interacciones: ${metrics.instagram?.interactions || 0}${metrics.facebook ? ` + ${metrics.facebook.interactions}` : ''}`;
     prompt += `\nTotal publicaciones: ${metrics.instagram?.contentCount || 0}${metrics.facebook ? ` + ${metrics.facebook.contentCount}` : ''}`;
-    prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown. Maximo 500 caracteres.';
+    prompt += '\n\nResponde en castellano. Sigue la estructura obligatoria del system prompt: que ocurrio + por que + accion. Termina con ACCIONES PRIORITARIAS. Sin emojis. Sin asteriscos dobles ni almohadillas. Usa MAYUSCULAS para secciones. Cero frases de relleno.';
     return prompt;
   }
 
@@ -238,7 +238,7 @@ function formatReportData(metrics: any, report: Report, insightType: string, cli
   };
 
   prompt += `\n\nObjetivo del reporte: ${objectiveLabels[report.objective] || report.objective}`;
-  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown. Maximo 500 caracteres.';
+  prompt += '\n\nResponde en castellano. Sigue la estructura obligatoria del system prompt: que ocurrio + por que + implicacion + accion. Termina con ACCIONES PRIORITARIAS (max 5, ejecutables en 30 dias, por impacto). Sin emojis. Sin asteriscos dobles ni almohadillas. Usa MAYUSCULAS para secciones. Cero frases de relleno.';
 
   return prompt;
 }
@@ -263,5 +263,5 @@ function formatQuestionPrompt(metrics: any, report: Report, question: string, cl
     context += `\n\nTop contenido:\n${topContent}`;
   }
 
-  return `${context}\n\nPregunta del usuario: ${question}\n\nResponde en castellano. Sin emojis. Sin markdown. Maximo 500 caracteres.`;
+  return `${context}\n\nPregunta del usuario: ${question}\n\nResponde en castellano. Sin emojis. Sin asteriscos dobles ni almohadillas. Usa MAYUSCULAS para enfatizar. Cero frases de relleno. Cierra con una ACCION CONCRETA.`;
 }
