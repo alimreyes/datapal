@@ -161,7 +161,9 @@ export default function SharedReportPage() {
       platforms,
       metrics: combinedMetrics,
       chartData,
-      insights: report.aiInsights || [],
+      insights: typeof report.aiInsights === 'string'
+        ? { metrics: [{ id: '1', title: 'Analisis de IA', content: report.aiInsights, type: 'info' }], content: [] }
+        : report.aiInsights || { metrics: [], content: [] },
     };
   }
 
@@ -313,7 +315,7 @@ export default function SharedReportPage() {
             <ReportSheetAnalysis
               metrics={reportData.metrics}
               chartData={reportData.chartData}
-              insights={reportData.insights}
+              insights={reportData.insights?.metrics || []}
               onGenerateInsights={noOp}
               onRegenerateInsights={noOp}
               isGenerating={false}
@@ -327,7 +329,7 @@ export default function SharedReportPage() {
             <ReportSheetImprovements
               metrics={reportData.metrics}
               chartData={reportData.chartData}
-              insights={reportData.insights}
+              insights={reportData.insights?.metrics || []}
               onGenerateInsights={noOp}
               onRegenerateInsights={noOp}
               isGenerating={false}
@@ -344,7 +346,7 @@ export default function SharedReportPage() {
                   metrics={reportData.metrics}
                   chartData={reportData.chartData}
                   selectedMetric={selectedMetric}
-                  insights={reportData.insights}
+                  insights={reportData.insights?.metrics || []}
                   onGenerateInsights={noOp}
                   onRegenerateInsights={noOp}
                   isGenerating={false}
@@ -358,7 +360,7 @@ export default function SharedReportPage() {
                   totalInteractions={sheet2Data.totalInteractions}
                   frequency={sheet2Data.frequency}
                   chartData={sheet2Data.chartData}
-                  contentInsights={reportData.insights}
+                  contentInsights={reportData.insights?.content || []}
                   onGenerateInsights={noOp}
                   onRegenerateInsights={noOp}
                   isGenerating={false}

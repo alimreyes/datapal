@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const userId = request.headers.get('x-user-id');
     const body = await request.json();
-    const { reportData } = body;
+    const { reportData, insightType, question } = body;
 
     if (!reportData) {
       return NextResponse.json(
@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate insights using Claude API
-    const result = await generateInsights(reportData);
+    const result = await generateInsights(reportData, insightType || 'metrics', question);
 
     if (!result.success) {
       return NextResponse.json(

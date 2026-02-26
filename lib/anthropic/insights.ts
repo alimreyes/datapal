@@ -1,5 +1,5 @@
 import { anthropic, CLAUDE_CONFIG, SYSTEM_PROMPT, CONTENT_PROMPT } from './config';
-import { ANALYSIS_TEMPLATES } from '@/lib/claude-prompts';
+import { SYSTEM_PROMPTS, ANALYSIS_TEMPLATES } from '@/lib/claude-prompts';
 import { Report } from '@/lib/types';
 
 export interface InsightGenerationResult {
@@ -17,7 +17,11 @@ export interface InsightGenerationResult {
 /**
  * Generate AI insights for a report using Claude API with prompt caching
  */
-export async function generateInsights(report: Report): Promise<InsightGenerationResult> {
+export async function generateInsights(
+  report: Report,
+  insightType: 'metrics' | 'content' | 'question' = 'metrics',
+  question?: string
+): Promise<InsightGenerationResult> {
   try {
     // Validate API key
     if (!process.env.ANTHROPIC_API_KEY) {
@@ -27,11 +31,13 @@ export async function generateInsights(report: Report): Promise<InsightGeneratio
     // Extract key metrics from report
     const metrics = extractKeyMetrics(report);
 
-    // Select system prompt based on context
-    const systemPrompt = selectSystemPrompt(report);
+    // Select system prompt based on insight type
+    const systemPrompt = selectSystemPrompt(insightType);
 
-    // Create user prompt with report data using templates
-    const userPrompt = formatReportData(metrics, report);
+    // Create user prompt based on type
+    const userPrompt = insightType === 'question' && question
+      ? formatQuestionPrompt(metrics, report, question)
+      : formatReportData(metrics, report, insightType);
 
     // Call Claude API with prompt caching
     const message = await anthropic.messages.create({
@@ -42,7 +48,7 @@ export async function generateInsights(report: Report): Promise<InsightGeneratio
         {
           type: 'text',
           text: systemPrompt,
-          cache_control: { type: 'ephemeral' }, // Enable prompt caching
+          cache_control: { type: 'ephemeral' },
         },
       ],
       messages: [
@@ -66,7 +72,7 @@ export async function generateInsights(report: Report): Promise<InsightGeneratio
       cacheReadTokens: message.usage.cache_read_input_tokens ?? undefined,
     };
 
-    console.log('Claude API Usage:', usage);
+    console.log(`Claude API Usage (${insightType}):`, usage);
 
     return {
       success: true,
@@ -83,15 +89,17 @@ export async function generateInsights(report: Report): Promise<InsightGeneratio
 }
 
 /**
- * Select the appropriate system prompt based on report context
+ * Select the appropriate system prompt based on insight type
  */
-function selectSystemPrompt(report: Report): string {
-  // Use content-specific prompt when analyzing content data
-  if (report.objective === 'monthly_report' && report.data?.instagram?.content?.length) {
-    return CONTENT_PROMPT;
+function selectSystemPrompt(insightType: string): string {
+  switch (insightType) {
+    case 'content':
+      return CONTENT_PROMPT;
+    case 'question':
+      return SYSTEM_PROMPTS.question;
+    default:
+      return SYSTEM_PROMPT;
   }
-  // Default: general analysis prompt
-  return SYSTEM_PROMPT;
 }
 
 /**
@@ -134,39 +142,70 @@ function extractKeyMetrics(report: Report) {
 }
 
 /**
- * Format report data for Claude using analysis templates
+ * Format report data for metrics-focused or content-focused insights
  */
-function formatReportData(metrics: any, report: Report): string {
-  // Determine platforms string for templates
+function formatReportData(metrics: any, report: Report, insightType: string): string {
   const platformNames = metrics.platforms
     ?.map((p: string) => p === 'instagram' ? 'Instagram' : p === 'facebook' ? 'Facebook' : p)
     .join(' + ') || 'redes sociales';
 
-  // Use the detailed analysis template with actual metrics
+  if (insightType === 'content') {
+    // Content-focused prompt
+    let prompt = `Analiza el contenido publicado en ${platformNames}.\n`;
+
+    const igContent = report.data?.instagram?.content;
+    if (igContent && igContent.length > 0) {
+      const contentData = igContent.slice(0, 10).map((c: any) =>
+        `- ${c.postType}: alcance ${c.reach}, likes ${c.likes}, comentarios ${c.comments}, compartidos ${c.shares}`
+      ).join('\n');
+      prompt += `\nDatos de contenido:\n${contentData}`;
+    }
+
+    const fbContent = report.data?.facebook?.content;
+    if (fbContent && fbContent.length > 0) {
+      const contentData = fbContent.slice(0, 10).map((c: any) =>
+        `- ${c.postType}: alcance ${c.reach}, likes ${c.likes}, comentarios ${c.comments}, compartidos ${c.shares}`
+      ).join('\n');
+      prompt += `\nContenido Facebook:\n${contentData}`;
+    }
+
+    prompt += `\n\nTotal interacciones: ${metrics.instagram?.interactions || 0}${metrics.facebook ? ` + ${metrics.facebook.interactions}` : ''}`;
+    prompt += `\nTotal publicaciones: ${metrics.instagram?.contentCount || 0}${metrics.facebook ? ` + ${metrics.facebook.contentCount}` : ''}`;
+    prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.';
+    return prompt;
+  }
+
+  // Metrics-focused prompt (default)
   let prompt = ANALYSIS_TEMPLATES.detailed(platformNames, {
     ...(metrics.instagram ? { instagram: metrics.instagram } : {}),
     ...(metrics.facebook ? { facebook: metrics.facebook } : {}),
   });
 
-  // Add objective context
   const objectiveLabels: Record<string, string> = {
-    analysis: 'Análisis de resultados — enfócate en patrones y oportunidades',
-    improvements: 'Evidenciar mejoras — destaca crecimiento y logros vs período anterior',
-    monthly_report: 'Reporte mensual — da un resumen ejecutivo completo del período',
+    analysis: 'Analisis de resultados — enfocate en patrones y oportunidades',
+    improvements: 'Evidenciar mejoras — destaca crecimiento y logros vs periodo anterior',
+    monthly_report: 'Reporte mensual — da un resumen ejecutivo completo del periodo',
   };
 
   prompt += `\n\nObjetivo del reporte: ${objectiveLabels[report.objective] || report.objective}`;
+  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.';
 
-  // Add content data context if available
+  return prompt;
+}
+
+/**
+ * Format a user question prompt with report context
+ */
+function formatQuestionPrompt(metrics: any, report: Report, question: string): string {
+  let context = `Datos del reporte:\n${JSON.stringify(metrics, null, 2)}`;
+
   const igContent = report.data?.instagram?.content;
   if (igContent && igContent.length > 0) {
     const topContent = igContent.slice(0, 5).map((c: any) =>
       `- ${c.postType}: ${c.reach} alcance, ${c.likes + c.comments + c.shares} interacciones`
     ).join('\n');
-    prompt += `\n\nTop contenido:\n${topContent}`;
+    context += `\n\nTop contenido:\n${topContent}`;
   }
 
-  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Máximo 500 caracteres.';
-
-  return prompt;
+  return `${context}\n\nPregunta del usuario: ${question}\n\nResponde en castellano. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.`;
 }

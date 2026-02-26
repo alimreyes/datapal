@@ -45,6 +45,18 @@ export interface ReportCustomization {
   colorPaletteImageUrl: string | null;
 }
 
+export interface InsightItem {
+  id: string;
+  title: string;
+  content: string;
+  type: string;
+}
+
+export interface AIInsightsStructured {
+  metrics?: InsightItem[];
+  content?: InsightItem[];
+}
+
 export interface Report {
   id: string;
   userId: string;
@@ -56,7 +68,7 @@ export interface Report {
   updatedAt: Timestamp | Date | string;
   customization?: ReportCustomization;
   data: ReportData;
-  aiInsights?: string | null;
+  aiInsights?: string | AIInsightsStructured | null;
   clientLogo?: string; // URL del logo del cliente en Firebase Storage
   // Soft delete
   isDeleted?: boolean;

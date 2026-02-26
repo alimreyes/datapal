@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, FileText, MessageCircle, BarChart3 } from 'lucide-react';
+import { Sparkles, FileText, MessageCircle, BarChart3, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   ComposedChart,
@@ -17,7 +17,7 @@ import {
 interface ReportSheet2Props {
   totalPosts: number;
   totalInteractions: number;
-  frequency: string; // Ej: "3.5 posts/día"
+  frequency: string;
   chartData: Array<{
     date: string;
     posts: number;
@@ -34,7 +34,16 @@ interface ReportSheet2Props {
   isGenerating?: boolean;
   tokensRemaining?: number;
   onPurchaseTokens?: () => void;
+  onAskQuestion?: (question: string) => void;
+  isAskingQuestion?: boolean;
+  questionAnswer?: { question: string; answer: string } | null;
 }
+
+const SUGGESTED_QUESTIONS = [
+  'Que tipo de contenido genera mas interacciones?',
+  'Cual es el mejor horario para publicar?',
+  'Que temas debo explorar mas?',
+];
 
 export default function ReportSheet2({
   totalPosts,
@@ -47,11 +56,15 @@ export default function ReportSheet2({
   isGenerating = false,
   tokensRemaining = 0,
   onPurchaseTokens,
+  onAskQuestion,
+  isAskingQuestion = false,
+  questionAnswer = null,
 }: ReportSheet2Props) {
   const [visibleMetrics, setVisibleMetrics] = useState({
     posts: true,
     interactions: true,
   });
+  const [customQuestion, setCustomQuestion] = useState('');
 
   const toggleMetric = (metric: keyof typeof visibleMetrics) => {
     setVisibleMetrics(prev => ({
@@ -62,6 +75,12 @@ export default function ReportSheet2({
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('es-CL').format(num);
+  };
+
+  const handleSubmitQuestion = () => {
+    if (customQuestion.trim() && onAskQuestion) {
+      onAskQuestion(customQuestion.trim());
+    }
   };
 
   // Custom tooltip for dark theme
@@ -86,7 +105,6 @@ export default function ReportSheet2({
       {/* 3 Cards Horizontales */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6 text-center relative overflow-hidden">
-          {/* Glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#019B77]/10 to-transparent" />
           <div className="relative">
             <div className="flex justify-center mb-3">
@@ -104,7 +122,6 @@ export default function ReportSheet2({
         </div>
 
         <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6 text-center relative overflow-hidden">
-          {/* Glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#02c494]/10 to-transparent" />
           <div className="relative">
             <div className="flex justify-center mb-3">
@@ -122,7 +139,6 @@ export default function ReportSheet2({
         </div>
 
         <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6 text-center relative overflow-hidden">
-          {/* Glow effect */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#017a5e]/10 to-transparent" />
           <div className="relative">
             <div className="flex justify-center mb-3">
@@ -138,14 +154,13 @@ export default function ReportSheet2({
         </div>
       </div>
 
-      {/* Gráfico Combinado: Barras + Líneas */}
+      {/* Grafico Combinado: Barras + Lineas */}
       <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-bold text-[#FBFEF2]">
             Publicaciones vs Interacciones en el Tiempo
           </h3>
 
-          {/* Botones de toggle para métricas */}
           <div className="flex gap-2 flex-wrap items-center">
             <span className="text-xs text-[#B6B6B6] font-medium mr-1">Mostrar:</span>
             <button
@@ -228,32 +243,31 @@ export default function ReportSheet2({
         </ResponsiveContainer>
       </div>
 
-      {/* Sección de IA - Enfocada en Contenido */}
+      {/* Seccion de IA - Enfocada en Contenido */}
       <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6">
         <h2 className="text-xl font-bold text-[#FBFEF2] mb-2">
-          SECCIÓN DE IA:{' '}
+          SECCION DE IA:{' '}
           <span className="font-normal text-[#B6B6B6]">
-            Enfocado en analizar y dar resultados enfocados en el Contenido.
+            Analisis enfocado en el Contenido
           </span>
         </h2>
         <p className="text-sm text-[#B6B6B6] mb-4">
-          Podemos dar algunas sugerencias de preguntas para hacer, y preguntar si
-          quiere sugerencias de contenido.
+          Genera insights sobre tu contenido o hazle preguntas a la IA sobre tus metricas.
         </p>
 
         {contentInsights.length > 0 ? (
           <div className="space-y-4">
-            {/* Botón Regenerar Insights */}
+            {/* Boton Regenerar Insights */}
             {onRegenerateInsights && (
               <div className="mb-4">
                 <Button
                   onClick={async () => {
                     if (tokensRemaining <= 0) {
-                      alert('No tienes tokens disponibles. Compra más tokens para regenerar insights.');
+                      alert('No tienes consultas disponibles.');
                       if (onPurchaseTokens) onPurchaseTokens();
                       return;
                     }
-                    if (confirm('Regenerar insights consumirá 1 token. ¿Deseas continuar?')) {
+                    if (confirm('Regenerar insights consumira 1 consulta. Deseas continuar?')) {
                       await onRegenerateInsights();
                     }
                   }}
@@ -261,10 +275,10 @@ export default function ReportSheet2({
                   className="w-full bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2"
                 >
                   <Sparkles className="w-5 h-5" />
-                  {isGenerating ? 'Generando...' : 'Regenerar Insights (1 token)'}
+                  {isGenerating ? 'Generando...' : 'Regenerar Insights de Contenido (1 consulta)'}
                 </Button>
                 <p className="text-xs text-[#B6B6B6] text-center mt-2">
-                  Tokens restantes: {tokensRemaining}
+                  Consultas restantes: {tokensRemaining === Infinity ? 'Ilimitadas' : tokensRemaining}
                 </p>
               </div>
             )}
@@ -280,25 +294,12 @@ export default function ReportSheet2({
                   <p className="text-sm text-[#B6B6B6] whitespace-pre-line">{insight.content}</p>
                 </div>
               ))}
-
-              {/* Sugerencias de Preguntas */}
-              <div className="bg-[#019B77]/10 border border-[#019B77]/30 rounded-lg p-4 mt-4">
-                <h4 className="font-bold text-[#019B77] mb-2">
-                  💡 Preguntas sugeridas:
-                </h4>
-                <ul className="space-y-2 text-sm text-[#B6B6B6]">
-                  <li>• ¿Qué tipo de contenido genera más interacciones?</li>
-                  <li>• ¿Cuál es el mejor horario para publicar?</li>
-                  <li>• ¿Qué temas debo explorar más?</li>
-                </ul>
-              </div>
             </div>
           </div>
         ) : (
           <div className="text-center py-8">
             <p className="text-[#B6B6B6] mb-4">
-              Genera insights con IA para obtener análisis detallado de tu
-              contenido
+              Genera insights con IA para obtener analisis detallado de tu contenido
             </p>
             {onGenerateInsights && (
               <Button
@@ -307,9 +308,91 @@ export default function ReportSheet2({
                 className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] px-6 py-3 rounded-lg font-medium transition-all flex items-center justify-center gap-2 mx-auto"
               >
                 <Sparkles className="w-5 h-5" />
-                {isGenerating ? 'Generando...' : 'Generar Análisis de Contenido'}
+                {isGenerating ? 'Generando...' : 'Generar Analisis de Contenido (1 consulta)'}
               </Button>
             )}
+          </div>
+        )}
+      </div>
+
+      {/* Seccion de Preguntas a la IA */}
+      <div className="bg-[#1a1b16] border border-[rgba(251,254,242,0.1)] rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="p-2 bg-[#019B77]/20 rounded-lg border border-[#019B77]/30">
+            <MessageCircle className="w-5 h-5 text-[#019B77]" />
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-[#FBFEF2]">Preguntale a la IA</h3>
+            <p className="text-xs text-[#B6B6B6]">
+              Cada pregunta consume 1 consulta
+            </p>
+          </div>
+        </div>
+
+        {/* Preguntas sugeridas (clickeables) */}
+        <div className="space-y-2 mb-4">
+          {SUGGESTED_QUESTIONS.map((q) => (
+            <button
+              key={q}
+              onClick={() => setCustomQuestion(q)}
+              disabled={isAskingQuestion}
+              className="block w-full text-left text-sm text-[#B6B6B6] hover:text-[#FBFEF2] hover:bg-[#019B77]/20 rounded-lg px-4 py-2.5 transition-colors cursor-pointer border border-transparent hover:border-[#019B77]/30 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        {/* Input de pregunta custom */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customQuestion}
+            onChange={(e) => setCustomQuestion(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && customQuestion.trim()) {
+                handleSubmitQuestion();
+              }
+            }}
+            placeholder="Escribe tu pregunta sobre las metricas..."
+            disabled={isAskingQuestion}
+            className="flex-1 bg-[#2a2b25] border border-[rgba(251,254,242,0.2)] rounded-lg px-4 py-2.5 text-sm text-[#FBFEF2] placeholder:text-[#666] focus:outline-none focus:border-[#019B77] transition-colors disabled:opacity-50"
+          />
+          <Button
+            onClick={handleSubmitQuestion}
+            disabled={isAskingQuestion || !customQuestion.trim() || tokensRemaining <= 0}
+            className="bg-[#019B77] hover:bg-[#02c494] text-[#FBFEF2] px-4 py-2.5 rounded-lg text-sm font-medium transition-all flex items-center gap-2"
+          >
+            {isAskingQuestion ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Send className="w-4 h-4" />
+            )}
+            {isAskingQuestion ? 'Pensando...' : 'Preguntar'}
+          </Button>
+        </div>
+
+        {/* Info de consultas */}
+        <p className="text-xs text-[#666] mt-2">
+          Consultas restantes: {tokensRemaining === Infinity ? 'Ilimitadas' : tokensRemaining}
+        </p>
+
+        {/* Respuesta de la IA */}
+        {isAskingQuestion && !questionAnswer && (
+          <div className="mt-4 bg-[#2a2b25] rounded-lg p-4 border border-[rgba(251,254,242,0.1)] flex items-center gap-3">
+            <Loader2 className="w-5 h-5 text-[#019B77] animate-spin flex-shrink-0" />
+            <p className="text-sm text-[#B6B6B6]">Analizando tus datos para responder...</p>
+          </div>
+        )}
+
+        {questionAnswer && (
+          <div className="mt-4 bg-[#2a2b25] rounded-lg p-4 border border-[#019B77]/30">
+            <p className="text-xs text-[#019B77] font-semibold mb-2 uppercase tracking-wider">
+              Pregunta: {questionAnswer.question}
+            </p>
+            <p className="text-sm text-[#FBFEF2] whitespace-pre-line leading-relaxed">
+              {questionAnswer.answer}
+            </p>
           </div>
         )}
       </div>

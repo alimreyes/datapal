@@ -27,7 +27,11 @@ export default function ReportPage() {
   const { user, userData, canUseAI, aiUsageRemaining, refreshUserData } = useAuth();
 
   const [loading, setLoading] = useState(true);
-  const [isGeneratingInsights, setIsGeneratingInsights] = useState(false);
+  const [isGeneratingMetricsInsights, setIsGeneratingMetricsInsights] = useState(false);
+  const [isGeneratingContentInsights, setIsGeneratingContentInsights] = useState(false);
+  const [isAskingQuestion, setIsAskingQuestion] = useState(false);
+  const [questionAnswer, setQuestionAnswer] = useState<{ question: string; answer: string } | null>(null);
+  const [pendingInsightType, setPendingInsightType] = useState<'metrics' | 'content'>('metrics');
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showLimitReachedModal, setShowLimitReachedModal] = useState(false);
@@ -405,13 +409,25 @@ export default function ReportPage() {
     // Calcular rango de fechas
     const dateRange = calculateDateRange(report, combinedDailyData);
 
+    // Handle both old (string) and new (object) aiInsights format
+    const rawInsights = report.aiInsights;
+    let insights: any;
+    if (typeof rawInsights === 'string') {
+      // Legacy format: wrap in metrics key for backward compat
+      insights = { metrics: [{ id: '1', title: 'Analisis de IA', content: rawInsights, type: 'info' }], content: [] };
+    } else if (rawInsights && typeof rawInsights === 'object') {
+      insights = rawInsights;
+    } else {
+      insights = { metrics: [], content: [] };
+    }
+
     return {
       title: report.title || 'MI REPORTE',
       dateRange,
       platforms,
       metrics: combinedMetrics,
       chartData,
-      insights: report.aiInsights || [],
+      insights,
     };
   }
 
@@ -567,32 +583,23 @@ export default function ReportPage() {
     }
   };
 
-  // HANDLER: Mostrar modal de confirmación para generar insights
-  const handleGenerateInsights = () => {
-    // Verificar autenticación
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    // Verificar límite de uso
-    if (!canUseAI) {
-      setShowLimitReachedModal(true);
-      return;
-    }
-
-    // Mostrar modal de confirmación
+  // HANDLER: Mostrar modal de confirmación para generar insights (por tipo)
+  const handleGenerateInsights = (type: 'metrics' | 'content') => {
+    if (!user) { setShowLoginModal(true); return; }
+    if (!canUseAI) { setShowLimitReachedModal(true); return; }
+    setPendingInsightType(type);
     setShowAIConfirmModal(true);
   };
 
-  // HANDLER: Confirmar y ejecutar generación de insights
+  // HANDLER: Confirmar y ejecutar generación de insights (por tipo)
   const handleConfirmGenerateInsights = async () => {
     setShowAIConfirmModal(false);
+    const type = pendingInsightType;
+    const setGenerating = type === 'metrics' ? setIsGeneratingMetricsInsights : setIsGeneratingContentInsights;
 
     try {
-      setIsGeneratingInsights(true);
+      setGenerating(true);
 
-      // Llamar a la API de insights con el userId
       const response = await fetch('/api/insights', {
         method: 'POST',
         headers: {
@@ -601,82 +608,66 @@ export default function ReportPage() {
         },
         body: JSON.stringify({
           reportData: fullData,
+          insightType: type,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setShowLoginModal(true);
-          setIsGeneratingInsights(false);
-          return;
-        }
-        if (response.status === 429) {
-          setShowLimitReachedModal(true);
-          await refreshUserData();
-          setIsGeneratingInsights(false);
-          return;
-        }
+        if (response.status === 401) { setShowLoginModal(true); setGenerating(false); return; }
+        if (response.status === 429) { setShowLimitReachedModal(true); await refreshUserData(); setGenerating(false); return; }
         throw new Error(data.error || 'Error al generar insights');
       }
 
       // Parsear el insight recibido
-      const parsedInsights = parseInsightResponse(data.insight);
+      const parsedInsights = parseInsightResponse(data.insight, type);
 
-      setReportData({
-        ...reportData,
-        insights: parsedInsights,
-      });
+      // Merge con insights existentes
+      const currentInsights = reportData.insights || { metrics: [], content: [] };
+      const updatedInsights = {
+        ...currentInsights,
+        [type]: parsedInsights,
+      };
 
-      // Guardar insights en Firestore
+      setReportData({ ...reportData, insights: updatedInsights });
+
+      // Guardar en Firestore con formato estructurado
       await updateDocument('reports', reportId, {
-        aiInsights: parsedInsights,
+        aiInsights: updatedInsights,
         lastInsightGeneration: new Date(),
       });
 
-      // Refrescar datos del usuario para actualizar contador
       await refreshUserData();
-
-      setIsGeneratingInsights(false);
+      setGenerating(false);
     } catch (error) {
-      console.error('Error generating insights:', error);
+      console.error(`Error generating ${type} insights:`, error);
       alert('Error al generar insights. Por favor intenta nuevamente.');
-      setIsGeneratingInsights(false);
+      setGenerating(false);
     }
   };
 
   // Función para parsear la respuesta de la IA
-  const parseInsightResponse = (insight: string) => {
-    // Crear un insight basado en la respuesta
+  const parseInsightResponse = (insight: string, type: string) => {
+    const title = type === 'content' ? 'Analisis de Contenido' : 'Analisis de Metricas';
     return [
       {
         id: Date.now().toString(),
-        title: 'Análisis de IA',
+        title,
         content: insight,
         type: 'info' as const,
       },
     ];
   };
 
-  // HANDLER: Regenerar insights (consume 1 consulta)
-  const handleRegenerateInsights = async () => {
-    // Verificar autenticación
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    // Verificar límite de uso
-    if (!canUseAI) {
-      setShowLimitReachedModal(true);
-      return;
-    }
+  // HANDLER: Hacer una pregunta a la IA (Feature 3)
+  const handleAskQuestion = async (question: string) => {
+    if (!user) { setShowLoginModal(true); return; }
+    if (!canUseAI) { setShowLimitReachedModal(true); return; }
 
     try {
-      setIsGeneratingInsights(true);
+      setIsAskingQuestion(true);
 
-      // Llamar a la API de insights con el userId
       const response = await fetch('/api/insights', {
         method: 'POST',
         headers: {
@@ -685,48 +676,26 @@ export default function ReportPage() {
         },
         body: JSON.stringify({
           reportData: fullData,
+          insightType: 'question',
+          question,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        if (response.status === 401) {
-          setShowLoginModal(true);
-          setIsGeneratingInsights(false);
-          return;
-        }
-        if (response.status === 429) {
-          setShowLimitReachedModal(true);
-          await refreshUserData();
-          setIsGeneratingInsights(false);
-          return;
-        }
-        throw new Error(data.error || 'Error al regenerar insights');
+        if (response.status === 401) { setShowLoginModal(true); setIsAskingQuestion(false); return; }
+        if (response.status === 429) { setShowLimitReachedModal(true); await refreshUserData(); setIsAskingQuestion(false); return; }
+        throw new Error(data.error || 'Error al hacer la pregunta');
       }
 
-      // Parsear el insight recibido
-      const parsedInsights = parseInsightResponse(data.insight);
-
-      setReportData({
-        ...reportData,
-        insights: parsedInsights,
-      });
-
-      // Guardar insights en Firestore
-      await updateDocument('reports', reportId, {
-        aiInsights: parsedInsights,
-        lastInsightGeneration: new Date(),
-      });
-
-      // Refrescar datos del usuario para actualizar contador
+      setQuestionAnswer({ question, answer: data.insight });
       await refreshUserData();
-
-      setIsGeneratingInsights(false);
+      setIsAskingQuestion(false);
     } catch (error) {
-      console.error('Error regenerating insights:', error);
-      alert('Error al regenerar insights. Por favor intenta nuevamente.');
-      setIsGeneratingInsights(false);
+      console.error('Error asking question:', error);
+      alert('Error al procesar la pregunta. Por favor intenta nuevamente.');
+      setIsAskingQuestion(false);
     }
   };
 
@@ -902,10 +871,10 @@ export default function ReportPage() {
             <ReportSheetAnalysis
               metrics={reportData.metrics}
               chartData={reportData.chartData}
-              insights={reportData.insights}
-              onGenerateInsights={handleGenerateInsights}
-              onRegenerateInsights={handleRegenerateInsights}
-              isGenerating={isGeneratingInsights}
+              insights={reportData.insights?.metrics || []}
+              onGenerateInsights={() => handleGenerateInsights('metrics')}
+              onRegenerateInsights={() => handleGenerateInsights('metrics')}
+              isGenerating={isGeneratingMetricsInsights}
               tokensRemaining={aiUsageRemaining}
               currentSheet={currentPage}
               onPurchaseTokens={handlePurchaseTokens}
@@ -917,10 +886,10 @@ export default function ReportPage() {
             <ReportSheetImprovements
               metrics={reportData.metrics}
               chartData={reportData.chartData}
-              insights={reportData.insights}
-              onGenerateInsights={handleGenerateInsights}
-              onRegenerateInsights={handleRegenerateInsights}
-              isGenerating={isGeneratingInsights}
+              insights={reportData.insights?.metrics || []}
+              onGenerateInsights={() => handleGenerateInsights('metrics')}
+              onRegenerateInsights={() => handleGenerateInsights('metrics')}
+              isGenerating={isGeneratingMetricsInsights}
               tokensRemaining={aiUsageRemaining}
               currentSheet={currentPage}
               onPurchaseTokens={handlePurchaseTokens}
@@ -936,10 +905,10 @@ export default function ReportPage() {
                   metrics={reportData.metrics}
                   chartData={reportData.chartData}
                   selectedMetric={selectedMetric}
-                  insights={reportData.insights}
-                  onGenerateInsights={handleGenerateInsights}
-                  onRegenerateInsights={handleRegenerateInsights}
-                  isGenerating={isGeneratingInsights}
+                  insights={reportData.insights?.metrics || []}
+                  onGenerateInsights={() => handleGenerateInsights('metrics')}
+                  onRegenerateInsights={() => handleGenerateInsights('metrics')}
+                  isGenerating={isGeneratingMetricsInsights}
                   tokensRemaining={aiUsageRemaining}
                   onPurchaseTokens={handlePurchaseTokens}
                 />
@@ -952,12 +921,15 @@ export default function ReportPage() {
                   totalInteractions={sheet2Data.totalInteractions}
                   frequency={sheet2Data.frequency}
                   chartData={sheet2Data.chartData}
-                  contentInsights={reportData.insights}
-                  onGenerateInsights={handleGenerateInsights}
-                  onRegenerateInsights={handleRegenerateInsights}
-                  isGenerating={isGeneratingInsights}
+                  contentInsights={reportData.insights?.content || []}
+                  onGenerateInsights={() => handleGenerateInsights('content')}
+                  onRegenerateInsights={() => handleGenerateInsights('content')}
+                  isGenerating={isGeneratingContentInsights}
                   tokensRemaining={aiUsageRemaining}
                   onPurchaseTokens={handlePurchaseTokens}
+                  onAskQuestion={handleAskQuestion}
+                  isAskingQuestion={isAskingQuestion}
+                  questionAnswer={questionAnswer}
                 />
               )}
             </>
@@ -1002,6 +974,7 @@ export default function ReportPage() {
         onClose={() => setShowAIConfirmModal(false)}
         onConfirm={handleConfirmGenerateInsights}
         selectedPlatforms={selectedPlatforms}
+        insightType={pendingInsightType}
       />
 
       {/* Modal de Confirmación para Descartar */}

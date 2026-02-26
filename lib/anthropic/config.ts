@@ -19,3 +19,4 @@ export const SYSTEM_PROMPT = SYSTEM_PROMPTS.general;
 // Prompts específicos para tipos de análisis
 export const ENGAGEMENT_PROMPT = SYSTEM_PROMPTS.engagement;
 export const CONTENT_PROMPT = SYSTEM_PROMPTS.content;
+export const QUESTION_PROMPT = SYSTEM_PROMPTS.question;

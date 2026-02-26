@@ -9,6 +9,7 @@ interface AIConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void;
   selectedPlatforms: string[];
+  insightType?: 'metrics' | 'content';
 }
 
 export default function AIConfirmModal({
@@ -16,6 +17,7 @@ export default function AIConfirmModal({
   onClose,
   onConfirm,
   selectedPlatforms,
+  insightType = 'metrics',
 }: AIConfirmModalProps) {
   if (!isOpen) return null;
 
@@ -74,7 +76,9 @@ export default function AIConfirmModal({
         {/* Description */}
         <div className="text-center mb-6">
           <p className="text-[#B6B6B6] mb-4">
-            Actualmente tienes seleccionado:
+            {insightType === 'content'
+              ? 'Se generara un analisis enfocado en contenido para:'
+              : 'Se generara un analisis enfocado en metricas para:'}
           </p>
           {/* Plataformas destacadas */}
           <div className="flex flex-wrap justify-center gap-2 mb-4">
