@@ -15,6 +15,42 @@ export interface InsightGenerationResult {
 }
 
 /**
+ * PARCHE PREVENTIVO: Sanitizar respuesta de Claude para eliminar
+ * cualquier mencion accidental a la plataforma de reportes.
+ * Esto es un safety net por si el prompt no es suficiente.
+ */
+function sanitizeInsightResponse(text: string): string {
+  // Eliminar menciones a DataPal en cualquier variante
+  const patterns = [
+    /\bDataPal\b/gi,
+    /\bData Pal\b/gi,
+    /\bdatapal\.com\b/gi,
+    /\bla plataforma de reportes\b/gi,
+    /\bla herramienta de reportes\b/gi,
+    /\bnuestra plataforma\b/gi,
+  ];
+
+  let sanitized = text;
+  for (const pattern of patterns) {
+    sanitized = sanitized.replace(pattern, 'la cuenta');
+  }
+
+  return sanitized;
+}
+
+/**
+ * Extraer nombre del cliente del titulo del reporte.
+ * Si no hay titulo util, retorna null.
+ */
+function extractClientName(report: Report): string | null {
+  const title = report.title;
+  if (!title || title === 'MI REPORTE' || title === 'Nuevo Reporte' || title.trim() === '') {
+    return null;
+  }
+  return title;
+}
+
+/**
  * Generate AI insights for a report using Claude API with prompt caching
  */
 export async function generateInsights(
@@ -25,19 +61,22 @@ export async function generateInsights(
   try {
     // Validate API key
     if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY no está configurada');
+      throw new Error('ANTHROPIC_API_KEY no esta configurada');
     }
 
     // Extract key metrics from report
     const metrics = extractKeyMetrics(report);
+
+    // Extract client name from report title
+    const clientName = extractClientName(report);
 
     // Select system prompt based on insight type
     const systemPrompt = selectSystemPrompt(insightType);
 
     // Create user prompt based on type
     const userPrompt = insightType === 'question' && question
-      ? formatQuestionPrompt(metrics, report, question)
-      : formatReportData(metrics, report, insightType);
+      ? formatQuestionPrompt(metrics, report, question, clientName)
+      : formatReportData(metrics, report, insightType, clientName);
 
     // Call Claude API with prompt caching
     const message = await anthropic.messages.create({
@@ -60,9 +99,12 @@ export async function generateInsights(
     });
 
     // Extract text from response
-    const insight = message.content[0].type === 'text'
+    const rawInsight = message.content[0].type === 'text'
       ? message.content[0].text
       : '';
+
+    // PARCHE: Sanitizar respuesta para eliminar menciones a la plataforma
+    const insight = sanitizeInsightResponse(rawInsight.trim());
 
     // Extract usage information
     const usage = {
@@ -76,7 +118,7 @@ export async function generateInsights(
 
     return {
       success: true,
-      insight: insight.trim(),
+      insight,
       usage,
     };
   } catch (error: any) {
@@ -142,16 +184,23 @@ function extractKeyMetrics(report: Report) {
 }
 
 /**
- * Format report data for metrics-focused or content-focused insights
+ * Format report data for metrics-focused or content-focused insights.
+ * Includes client name context to prevent platform name leakage.
  */
-function formatReportData(metrics: any, report: Report, insightType: string): string {
+function formatReportData(metrics: any, report: Report, insightType: string, clientName: string | null): string {
   const platformNames = metrics.platforms
     ?.map((p: string) => p === 'instagram' ? 'Instagram' : p === 'facebook' ? 'Facebook' : p)
     .join(' + ') || 'redes sociales';
 
+  // Contexto del cliente - CRITICO para evitar confusion con la plataforma
+  const clientContext = clientName
+    ? `CLIENTE: "${clientName}". Todos tus insights deben referirse a esta marca/cuenta, NO a la plataforma de reportes.\n\n`
+    : `IMPORTANTE: Analiza los datos de la cuenta del cliente. NO menciones ninguna plataforma de reportes.\n\n`;
+
   if (insightType === 'content') {
     // Content-focused prompt
-    let prompt = `Analiza el contenido publicado en ${platformNames}.\n`;
+    let prompt = clientContext;
+    prompt += `Analiza el contenido publicado en ${platformNames}.\n`;
 
     const igContent = report.data?.instagram?.content;
     if (igContent && igContent.length > 0) {
@@ -171,12 +220,13 @@ function formatReportData(metrics: any, report: Report, insightType: string): st
 
     prompt += `\n\nTotal interacciones: ${metrics.instagram?.interactions || 0}${metrics.facebook ? ` + ${metrics.facebook.interactions}` : ''}`;
     prompt += `\nTotal publicaciones: ${metrics.instagram?.contentCount || 0}${metrics.facebook ? ` + ${metrics.facebook.contentCount}` : ''}`;
-    prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.';
+    prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown. Maximo 500 caracteres.';
     return prompt;
   }
 
   // Metrics-focused prompt (default)
-  let prompt = ANALYSIS_TEMPLATES.detailed(platformNames, {
+  let prompt = clientContext;
+  prompt += ANALYSIS_TEMPLATES.detailed(platformNames, {
     ...(metrics.instagram ? { instagram: metrics.instagram } : {}),
     ...(metrics.facebook ? { facebook: metrics.facebook } : {}),
   });
@@ -188,16 +238,22 @@ function formatReportData(metrics: any, report: Report, insightType: string): st
   };
 
   prompt += `\n\nObjetivo del reporte: ${objectiveLabels[report.objective] || report.objective}`;
-  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.';
+  prompt += '\n\nResponde en castellano. Usa el formato exacto del system prompt. Sin emojis. Sin markdown. Maximo 500 caracteres.';
 
   return prompt;
 }
 
 /**
- * Format a user question prompt with report context
+ * Format a user question prompt with report context.
+ * Includes client name to prevent platform name leakage.
  */
-function formatQuestionPrompt(metrics: any, report: Report, question: string): string {
-  let context = `Datos del reporte:\n${JSON.stringify(metrics, null, 2)}`;
+function formatQuestionPrompt(metrics: any, report: Report, question: string, clientName: string | null): string {
+  const clientContext = clientName
+    ? `CLIENTE: "${clientName}". Tu respuesta debe referirse a esta marca/cuenta.\n\n`
+    : `IMPORTANTE: Responde sobre la cuenta del cliente, NO menciones plataformas de reportes.\n\n`;
+
+  let context = clientContext;
+  context += `Datos del reporte:\n${JSON.stringify(metrics, null, 2)}`;
 
   const igContent = report.data?.instagram?.content;
   if (igContent && igContent.length > 0) {
@@ -207,5 +263,5 @@ function formatQuestionPrompt(metrics: any, report: Report, question: string): s
     context += `\n\nTop contenido:\n${topContent}`;
   }
 
-  return `${context}\n\nPregunta del usuario: ${question}\n\nResponde en castellano. Sin emojis. Sin markdown (ni **bold** ni ### titulos ni *italics*). Maximo 500 caracteres.`;
+  return `${context}\n\nPregunta del usuario: ${question}\n\nResponde en castellano. Sin emojis. Sin markdown. Maximo 500 caracteres.`;
 }
