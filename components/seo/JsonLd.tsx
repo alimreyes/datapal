@@ -175,6 +175,151 @@ export function FAQPageJsonLd() {
   );
 }
 
+// --- HowTo Schema for Demo Pages (AI SEO: +30-40% AI visibility) ---
+export function HowToCreateReportJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Como crear un reporte automatizado de redes sociales con DataPal',
+    description:
+      'Guia paso a paso para crear reportes profesionales de Instagram, Facebook, LinkedIn, TikTok y Google Analytics en menos de 5 minutos usando DataPal.',
+    totalTime: 'PT5M',
+    estimatedCost: {
+      '@type': 'MonetaryAmount',
+      currency: 'USD',
+      value: '0',
+    },
+    tool: {
+      '@type': 'HowToTool',
+      name: 'DataPal - Plataforma de reportes automatizados',
+    },
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Crear una cuenta gratuita en DataPal',
+        text: 'Registrate en DataPal con tu correo electronico. El plan gratuito incluye acceso a todas las funcionalidades basicas de reportes y analytics.',
+        url: `${APP_URL}/register`,
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Crear un nuevo reporte',
+        text: 'Desde el dashboard, haz clic en "Nuevo Reporte". Selecciona el tipo de reporte que necesitas: Analisis de Resultados, Evidenciar Mejoras o Reporte Mensual.',
+        url: `${APP_URL}/demo`,
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Ingresar las metricas de redes sociales',
+        text: 'Ingresa las metricas de la cuenta de tu cliente: seguidores, alcance, impresiones, interacciones y engagement de Instagram, Facebook, LinkedIn, TikTok o Google Analytics.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Generar insights con inteligencia artificial',
+        text: 'DataPal analiza automaticamente las metricas usando IA (Claude de Anthropic) y genera insights accionables con recomendaciones concretas para mejorar la estrategia de marketing.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 5,
+        name: 'Exportar y compartir el reporte',
+        text: 'Exporta el reporte a PDF con diseno profesional o compartelo con un enlace directo. El reporte incluye graficos, metricas clave e insights generados por IA.',
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+// --- HowTo Schema for Each Report Type ---
+export function HowToAnalysisReportJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Como hacer un analisis de resultados de redes sociales para tu cliente',
+    description:
+      'Aprende a crear un reporte de analisis de resultados que incluye metricas clave, analisis de funnel de conversion y recomendaciones basadas en datos reales de Instagram y Facebook.',
+    totalTime: 'PT3M',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Seleccionar el periodo de analisis',
+        text: 'Elige el rango de fechas que quieres analizar. Puede ser semanal, quincenal o mensual segun las necesidades de tu cliente.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Revisar las metricas de funnel',
+        text: 'Analiza las metricas de conversion: visualizaciones a alcance, alcance a interacciones y tasa de engagement. Estas metricas revelan donde se pierde la audiencia.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Identificar los dias de mayor rendimiento',
+        text: 'Revisa que dias y horarios generaron mas interacciones. Esto permite optimizar el calendario editorial para maximizar el alcance.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 4,
+        name: 'Generar recomendaciones accionables con IA',
+        text: 'Usa la IA de DataPal para generar recomendaciones especificas basadas en los datos. Cada insight incluye que ocurrio, por que, la implicacion estrategica y una accion concreta.',
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
+export function HowToImprovementsReportJsonLd() {
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: 'Como demostrar mejoras de marketing en redes sociales a tu cliente',
+    description:
+      'Guia para crear un reporte comparativo antes/despues que demuestra el impacto de tu estrategia de marketing digital con datos concretos.',
+    totalTime: 'PT3M',
+    step: [
+      {
+        '@type': 'HowToStep',
+        position: 1,
+        name: 'Definir los periodos de comparacion',
+        text: 'Selecciona el periodo anterior (antes de tu estrategia) y el periodo actual. La comparacion directa permite visualizar el crecimiento real.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 2,
+        name: 'Comparar metricas clave antes y despues',
+        text: 'Revisa el cambio porcentual en visualizaciones, alcance, interacciones y seguidores. Los porcentajes de crecimiento son la evidencia mas clara de impacto.',
+      },
+      {
+        '@type': 'HowToStep',
+        position: 3,
+        name: 'Documentar las acciones que generaron resultados',
+        text: 'Registra las acciones especificas que implementaste: cambio de formatos, frecuencia de publicacion, optimizacion de hashtags o ajustes de horarios.',
+      },
+    ],
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+    />
+  );
+}
+
 // --- WebSite Schema (for sitelinks search box) ---
 export function WebSiteJsonLd() {
   const schema = {

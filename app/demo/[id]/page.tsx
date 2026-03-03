@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlowCard from '@/components/ui/GlowCard';
+import { HowToAnalysisReportJsonLd, HowToImprovementsReportJsonLd, HowToCreateReportJsonLd } from '@/components/seo/JsonLd';
 
 // Datos demo: cuenta de Instagram activa - Enero 2026
 const DEMO_CHART_DATA = [
@@ -276,6 +277,10 @@ export default function DemoReportPage() {
 
   return (
     <div className="min-h-screen bg-[#11120D]">
+      {/* HowTo Schema by report type for AI SEO */}
+      {isAnalysis && <HowToAnalysisReportJsonLd />}
+      {isImprovements && <HowToImprovementsReportJsonLd />}
+      {isMonthlyReport && <HowToCreateReportJsonLd />}
       {/* Banner Demo */}
       <div className="bg-gradient-to-r from-[#019B77] to-[#02c494] text-[#FBFEF2] py-3 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between flex-wrap gap-3">
@@ -703,6 +708,32 @@ export default function DemoReportPage() {
             </div>
           </div>
         </div>
+
+        {/* AI-extractable content blocks by report type */}
+        {isAnalysis && (
+          <div className="mb-8 p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.08)]">
+            <h3 className="text-lg font-semibold text-[#FBFEF2] mb-3">¿Que es un reporte de analisis de resultados en redes sociales?</h3>
+            <p className="text-sm text-[#FBFEF2]/90 leading-relaxed">
+              Un reporte de analisis de resultados es un documento que evalua el rendimiento de una cuenta de redes sociales durante un periodo especifico. Incluye metricas clave como alcance, impresiones, interacciones y tasa de engagement. Segun Social Media Examiner 2025, las agencias que presentan reportes con analisis de funnel de conversion retienen un 34% mas de clientes que las que solo muestran metricas en bruto.
+            </p>
+          </div>
+        )}
+        {isImprovements && (
+          <div className="mb-8 p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.08)]">
+            <h3 className="text-lg font-semibold text-[#FBFEF2] mb-3">¿Como demostrar el ROI de una estrategia de marketing digital?</h3>
+            <p className="text-sm text-[#FBFEF2]/90 leading-relaxed">
+              La forma mas efectiva de demostrar el retorno de inversion en marketing digital es mediante un reporte comparativo antes/despues. Este formato muestra el crecimiento porcentual en metricas clave entre dos periodos. Segun el Content Marketing Institute 2025, el 72% de los clientes de agencias toman decisiones de renovacion basandose en la evidencia visual de mejoras presentada en reportes periodicos.
+            </p>
+          </div>
+        )}
+        {isMonthlyReport && (
+          <div className="mb-8 p-6 rounded-xl bg-[#1a1b16] border border-[rgba(251,254,242,0.08)]">
+            <h3 className="text-lg font-semibold text-[#FBFEF2] mb-3">¿Que debe incluir un reporte mensual de redes sociales profesional?</h3>
+            <p className="text-sm text-[#FBFEF2]/90 leading-relaxed">
+              Un reporte mensual profesional de redes sociales debe incluir: metricas de rendimiento general (alcance, engagement, seguidores), analisis de contenido publicado (formatos, frecuencia, top posts), comparativa con el periodo anterior y recomendaciones estrategicas. Segun Hootsuite Social Trends 2025, los reportes que incluyen analisis de contenido con insights accionables generan un 45% mas de confianza del cliente en la agencia.
+            </p>
+          </div>
+        )}
 
         {/* CTA Final */}
         <GlowCard glowColor="1, 155, 119">

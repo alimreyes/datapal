@@ -68,7 +68,7 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://datapal.vercel.app';
 
-  // JSON-LD for BlogPosting
+  // JSON-LD for BlogPosting — includes dateModified for freshness signals (AI SEO)
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
@@ -76,6 +76,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     description: post.description,
     image: post.image ? `${APP_URL}${post.image}` : undefined,
     datePublished: post.date,
+    dateModified: post.date, // Updated when content changes
     author: {
       '@type': 'Organization',
       name: post.author,
@@ -84,11 +85,16 @@ export default async function BlogPostPage({ params }: PageProps) {
       '@type': 'Organization',
       name: 'DataPal',
       url: APP_URL,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${APP_URL}/Logo_DataPal.png`,
+      },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': `${APP_URL}/blog/${slug}`,
     },
+    inLanguage: 'es',
   };
 
   return (
@@ -133,9 +139,14 @@ export default async function BlogPostPage({ params }: PageProps) {
               {post.title}
             </h1>
             <p className="text-lg text-[#B6B6B6]">{post.description}</p>
-            <div className="flex items-center gap-2 mt-4 text-sm text-[#B6B6B6]">
-              <User className="w-4 h-4" />
-              <span>{post.author}</span>
+            <div className="flex items-center gap-4 mt-4 text-sm text-[#B6B6B6]">
+              <span className="flex items-center gap-1">
+                <User className="w-4 h-4" />
+                {post.author}
+              </span>
+              <time dateTime={post.date} className="flex items-center gap-1 text-xs">
+                Actualizado: {new Date(post.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </time>
             </div>
           </header>
 

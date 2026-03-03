@@ -40,6 +40,21 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
       },
+      {
+        userAgent: 'ClaudeBot',
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
+      },
+      {
+        userAgent: 'anthropic-ai',
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
+      },
+      {
+        userAgent: 'Bingbot',
+        allow: '/',
+        disallow: ['/dashboard', '/dashboard/*', '/report/*', '/api/*'],
+      },
     ],
     sitemap: `${APP_URL}/sitemap.xml`,
   };
