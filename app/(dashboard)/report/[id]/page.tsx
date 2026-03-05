@@ -893,6 +893,9 @@ export default function ReportPage() {
               tokensRemaining={aiUsageRemaining}
               currentSheet={currentPage}
               onPurchaseTokens={handlePurchaseTokens}
+              onAskQuestion={handleAskQuestion}
+              isAskingQuestion={isAskingQuestion}
+              questionAnswer={questionAnswer}
             />
           )}
 
